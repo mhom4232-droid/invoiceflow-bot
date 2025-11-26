@@ -65,42 +65,6 @@ class AdvancedKeepAlive:
 keep_alive_system = AdvancedKeepAlive()
 keep_alive_system.start_keep_alive()
 
-# ================== نظام الترجمة المتطور ==================
-class AdvancedTranslationSystem:
-    """نظام ترجمة متطور متعدد اللغات"""
-    
-    def __init__(self):
-        self.translations = {
-            'ar': {
-                'welcome': "🌟 مرحباً بك في InvoiceFlow Pro!",
-                'create_invoice': "🧾 إنشاء فاتورة",
-                'stats': "📊 الإحصائيات", 
-                'help': "🆘 المساعدة",
-                'exit': "🚪 خروج",
-                'select_option': "اختر الخيار:",
-                'enter_client_name': "أدخل اسم العميل:",
-                'enter_services': "أدخل الخدمات (اسم الخدمة : السعر)",
-                'service_added': "تمت الإضافة: {} - ${}",
-                'invoice_summary': "ملخص الفاتورة",
-                'confirm_invoice': "✅ تأكيد إنشاء الفاتورة",
-                'edit_invoice': "✏️ تعديل البيانات", 
-                'cancel_invoice': "❌ إلغاء",
-                'invoice_created': "تم إنشاء الفاتورة بنجاح!",
-                'new_invoice': "🧾 إنشاء فاتورة جديدة",
-                'main_menu': "🏠 الرئيسية",
-                'thank_you': "شكراً لاستخدامك InvoiceFlow Pro",
-                'invalid_choice': "❌ خيار غير صحيح",
-                'no_services': "❌ لم تدخل أي خدمات",
-                'price_error': "❌ خطأ في السعر",
-                'format_error': "❌ تنسيق غير صحيح"
-            }
-        }
-    
-    def get_text(self, key, language='ar', **kwargs):
-        """الحصول على نص مترجم"""
-        text = self.translations.get(language, {}).get(key, key)
-        return text.format(**kwargs) if kwargs else text
-
 # ================== نظام قاعدة البيانات المتطور ==================
 class DatabaseManager:
     """مدير قاعدة بيانات متطور"""
@@ -302,36 +266,35 @@ class InvoiceGenerator:
             print(f"🔧 خطأ في إنشاء الملف: {e}")
             return None
 
-# ================== واجهات ويب ==================
-translation_system = AdvancedTranslationSystem()
+# ================== إعداد قاعدة البيانات ==================
 db_manager = DatabaseManager()
 invoice_generator = InvoiceGenerator()
 
-# قوالب HTML
+# ================== قوالب HTML محسنة ==================
 BASE_HTML = """
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>{{ title }}</title>
     <style>
-        * {{
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }}
-        body {{
+        }
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-        }}
-        .container {{
+        }
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-        }}
-        .header {{
+        }
+        .header {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             padding: 30px;
@@ -340,15 +303,15 @@ BASE_HTML = """
             text-align: center;
             color: white;
             border: 1px solid rgba(255,255,255,0.2);
-        }}
-        .nav {{
+        }
+        .nav {
             display: flex;
             gap: 15px;
             justify-content: center;
             flex-wrap: wrap;
             margin-bottom: 30px;
-        }}
-        .nav a {{
+        }
+        .nav a {
             background: rgba(255,255,255,0.2);
             color: white;
             padding: 15px 25px;
@@ -356,12 +319,12 @@ BASE_HTML = """
             border-radius: 10px;
             transition: all 0.3s;
             border: 1px solid rgba(255,255,255,0.3);
-        }}
-        .nav a:hover {{
+        }
+        .nav a:hover {
             background: rgba(255,255,255,0.3);
             transform: translateY(-2px);
-        }}
-        .card {{
+        }
+        .card {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             padding: 30px;
@@ -369,43 +332,43 @@ BASE_HTML = """
             margin-bottom: 20px;
             color: white;
             border: 1px solid rgba(255,255,255,0.2);
-        }}
-        .stats-grid {{
+        }
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin: 20px 0;
-        }}
-        .stat-card {{
+        }
+        .stat-card {
             background: rgba(255,255,255,0.15);
             padding: 25px;
             border-radius: 15px;
             text-align: center;
             border: 1px solid rgba(255,255,255,0.3);
-        }}
-        .stat-number {{
+        }
+        .stat-number {
             font-size: 2.5em;
             font-weight: bold;
             margin: 10px 0;
             color: #00ff88;
-        }}
-        .invoice-item {{
+        }
+        .invoice-item {
             background: rgba(255,255,255,0.1);
             padding: 20px;
             margin: 10px 0;
             border-radius: 10px;
             border-left: 4px solid #00ff88;
-        }}
-        .form-group {{
+        }
+        .form-group {
             margin-bottom: 20px;
-        }}
-        .form-group label {{
+        }
+        .form-group label {
             display: block;
             margin-bottom: 8px;
             color: white;
             font-weight: bold;
-        }}
-        .form-control {{
+        }
+        .form-control {
             width: 100%;
             padding: 12px;
             border: 1px solid rgba(255,255,255,0.3);
@@ -413,11 +376,11 @@ BASE_HTML = """
             background: rgba(255,255,255,0.1);
             color: white;
             font-size: 16px;
-        }}
-        .form-control::placeholder {{
+        }
+        .form-control::placeholder {
             color: rgba(255,255,255,0.7);
-        }}
-        .btn {{
+        }
+        .btn {
             background: linear-gradient(135deg, #00ff88, #00cc6a);
             color: white;
             padding: 15px 30px;
@@ -427,34 +390,34 @@ BASE_HTML = """
             font-size: 16px;
             font-weight: bold;
             transition: all 0.3s;
-        }}
-        .btn:hover {{
+        }
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0,255,136,0.4);
-        }}
-        .service-item {{
+        }
+        .service-item {
             background: rgba(255,255,255,0.1);
             padding: 15px;
             margin: 10px 0;
             border-radius: 8px;
             border-left: 3px solid #00ff88;
-        }}
-        .alert {{
+        }
+        .alert {
             padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
             text-align: center;
-        }}
-        .alert-success {{
+        }
+        .alert-success {
             background: rgba(0,255,136,0.2);
             border: 1px solid #00ff88;
             color: #00ff88;
-        }}
-        .alert-error {{
+        }
+        .alert-error {
             background: rgba(255,0,0,0.2);
             border: 1px solid #ff4444;
             color: #ff4444;
-        }}
+        }
     </style>
 </head>
 <body>
@@ -462,7 +425,7 @@ BASE_HTML = """
         <div class="header">
             <h1>🎯 InvoiceFlow Pro</h1>
             <p>🚀 النظام المجاني المستمر - Web Edition</p>
-            <p>⏰ مدة التشغيل: {uptime}</p>
+            <p>⏰ مدة التشغيل: {{ uptime }}</p>
         </div>
         
         <div class="nav">
@@ -473,12 +436,13 @@ BASE_HTML = """
             <a href="/health">❤️ حالة النظام</a>
         </div>
 
-        {content}
+        {{ content | safe }}
     </div>
 </body>
 </html>
 """
 
+# ================== Routes ==================
 @app.route('/')
 def home():
     """الصفحة الرئيسية"""
