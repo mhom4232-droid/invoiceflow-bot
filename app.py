@@ -1,8 +1,3 @@
-# ================== InvoiceFlow Pro - النظام الاحترافي ==================
-# 🎯 الإصدار PROFESSIONAL - Premium Web Edition
-# 👨💻 فريق البروفيسورات المتخصصين
-# 🎨 واجهة ويب احترافية مع نظام PDF متكامل
-
 import os
 import sqlite3
 import json
@@ -28,47 +23,53 @@ app = Flask(__name__)
 port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
-print("🎯 InvoiceFlow Pro - النظام الاحترافي")
-print("🚀 الإصدار PROFESSIONAL - Premium Web Edition")
-print("👨💻 فريق البروفيسورات المتخصصين")
-print("🎨 واجهة ويب احترافية مع نظام PDF متكامل")
+print("🎯 InvoiceFlow Pro - النظام الاحترافي - الإصدار المحسن")
+print("🚀 إصلاح مشكلة تحميل PDF - فريق البروفيسورات")
 print("=" * 80)
 
-# ================== نظام الإبقاء على التشغيل المتقدم ==================
-class AdvancedKeepAlive:
-    def __init__(self):
-        self.uptime_start = time.time()
-        self.ping_count = 0
-        
-    def start_keep_alive(self):
-        print("🔄 بدء أنظمة الاستمرارية المجانية...")
-        self.start_self_monitoring()
-        print("✅ جميع أنظمة الاستمرارية مفعلة!")
-    
-    def start_self_monitoring(self):
-        def monitor():
-            while True:
-                current_time = time.time()
-                uptime = current_time - self.uptime_start
-                
-                if int(current_time) % 600 == 0:
-                    hours = int(uptime // 3600)
-                    minutes = int((uptime % 3600) // 60)
-                    print(f"📊 تقرير النظام: {hours}س {minutes}د - {self.ping_count} زيارات")
-                
-                time.sleep(1)
-        
-        monitor_thread = Thread(target=monitor)
-        monitor_thread.daemon = True
-        monitor_thread.start()
+# ================== إصلاح مشكلة PDF ==================
 
-# بدء نظام الاستمرارية
-keep_alive_system = AdvancedKeepAlive()
-keep_alive_system.start_keep_alive()
+@app.route('/download/<filename>')
+def download_file(filename):
+    """تحميل ملفات PDF بشكل آمن"""
+    try:
+        # التأكد من أن الملف موجود في مجلد invoices
+        file_path = f"invoices/{filename}"
+        
+        print(f"🔍 محاولة تحميل الملف: {file_path}")
+        print(f"📁 هل الملف موجود؟: {os.path.exists(file_path)}")
+        
+        if os.path.exists(file_path):
+            print(f"✅ تم العثور على الملف، جاري التحميل...")
+            return send_file(
+                file_path, 
+                as_attachment=True,
+                download_name=filename,
+                mimetype='application/pdf'
+            )
+        else:
+            print(f"❌ الملف غير موجود: {file_path}")
+            return render_template_string("""
+            <div style="text-align: center; padding: 50px;">
+                <h1 style="color: #f44336;">❌ الملف غير موجود</h1>
+                <p>عذراً، لم يتم العثور على الملف المطلوب.</p>
+                <a href="/invoices" style="color: #4361ee;">العودة إلى الفواتير</a>
+            </div>
+            """), 404
+            
+    except Exception as e:
+        print(f"❌ خطأ في تحميل الملف: {e}")
+        return render_template_string("""
+        <div style="text-align: center; padding: 50px;">
+            <h1 style="color: #f44336;">❌ خطأ في تحميل الملف</h1>
+            <p>حدث خطأ أثناء محاولة تحميل الملف.</p>
+            <a href="/invoices" style="color: #4361ee;">العودة إلى الفواتير</a>
+        </div>
+        """), 500
 
-# ================== نظام PDF الاحترافي ==================
+# ================== نظام PDF المحسن ==================
 class ProfessionalPDFGenerator:
-    """نظام إنشاء فواتير PDF احترافية"""
+    """نظام إنشاء فواتير PDF احترافية - النسخة المحسنة"""
     
     def __init__(self):
         self.styles = getSampleStyleSheet()
@@ -76,29 +77,26 @@ class ProfessionalPDFGenerator:
     
     def setup_custom_styles(self):
         """إعداد الأنماط المخصصة للعربية"""
-        # نمط للعناوين العربية
         self.arabic_title_style = ParagraphStyle(
             'ArabicTitle',
             parent=self.styles['Heading1'],
             fontName='Helvetica-Bold',
             fontSize=16,
             textColor=colors.darkblue,
-            alignment=2,  # محاذاة لليمين
+            alignment=2,
             spaceAfter=12
         )
         
-        # نمط للنص العربي
         self.arabic_normal_style = ParagraphStyle(
             'ArabicNormal',
             parent=self.styles['Normal'],
             fontName='Helvetica',
             fontSize=10,
             textColor=colors.black,
-            alignment=2,  # محاذاة لليمين
+            alignment=2,
             spaceAfter=6
         )
         
-        # نمط للجدول
         self.arabic_table_style = ParagraphStyle(
             'ArabicTable',
             parent=self.styles['Normal'],
@@ -116,8 +114,15 @@ class ProfessionalPDFGenerator:
         return text
     
     def create_professional_invoice(self, invoice_data):
-        """إنشاء فاتورة PDF احترافية"""
+        """إنشاء فاتورة PDF احترافية - نسخة محسنة"""
         try:
+            # التأكد من وجود مجلد invoices
+            os.makedirs('invoices', exist_ok=True)
+            
+            # إنشاء اسم ملف آمن
+            safe_filename = f"{invoice_data['invoice_id']}_professional.pdf"
+            file_path = f"invoices/{safe_filename}"
+            
             # إنشاء buffer للPDF في الذاكرة
             buffer = io.BytesIO()
             
@@ -261,17 +266,18 @@ class ProfessionalPDFGenerator:
             buffer.close()
             
             # حفظ ملف PDF
-            filename = f"invoices/{invoice_data['invoice_id']}_professional.pdf"
-            os.makedirs('invoices', exist_ok=True)
-            
-            with open(filename, 'wb') as f:
+            with open(file_path, 'wb') as f:
                 f.write(pdf_data)
             
-            print(f"✅ تم إنشاء فاتورة PDF احترافية: {filename}")
-            return filename, pdf_data
+            print(f"✅ تم إنشاء فاتورة PDF بنجاح: {file_path}")
+            print(f"📊 حجم الملف: {len(pdf_data)} بايت")
+            
+            return file_path, pdf_data
             
         except Exception as e:
             print(f"❌ خطأ في إنشاء PDF: {e}")
+            import traceback
+            traceback.print_exc()
             return None, None
 
 # ================== نظام قاعدة البيانات ==================
@@ -397,7 +403,39 @@ class DatabaseManager:
 db_manager = DatabaseManager()
 pdf_generator = ProfessionalPDFGenerator()
 
-# ================== القوالب الجديدة ==================
+# ================== نظام الإبقاء على التشغيل ==================
+class AdvancedKeepAlive:
+    def __init__(self):
+        self.uptime_start = time.time()
+        self.ping_count = 0
+        
+    def start_keep_alive(self):
+        print("🔄 بدء أنظمة الاستمرارية المجانية...")
+        self.start_self_monitoring()
+        print("✅ جميع أنظمة الاستمرارية مفعلة!")
+    
+    def start_self_monitoring(self):
+        def monitor():
+            while True:
+                current_time = time.time()
+                uptime = current_time - self.uptime_start
+                
+                if int(current_time) % 600 == 0:
+                    hours = int(uptime // 3600)
+                    minutes = int((uptime % 3600) // 60)
+                    print(f"📊 تقرير النظام: {hours}س {minutes}د - {self.ping_count} زيارات")
+                
+                time.sleep(1)
+        
+        monitor_thread = Thread(target=monitor)
+        monitor_thread.daemon = True
+        monitor_thread.start()
+
+# بدء نظام الاستمرارية
+keep_alive_system = AdvancedKeepAlive()
+keep_alive_system.start_keep_alive()
+
+# ================== القوالب ==================
 MODERN_BASE_HTML = """
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -569,6 +607,10 @@ MODERN_BASE_HTML = """
             color: var(--primary);
         }
         
+        .download-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        
         .form-group {
             margin-bottom: 25px;
         }
@@ -630,10 +672,6 @@ MODERN_BASE_HTML = """
             color: #f44336;
         }
         
-        .download-btn {
-            background: linear-gradient(45deg, #28a745, #20c997);
-        }
-        
         .feature-list {
             list-style: none;
             margin: 20px 0;
@@ -690,7 +728,7 @@ MODERN_BASE_HTML = """
 </html>
 """
 
-# ================== Routes محسنة ==================
+# ================== Routes محسنة مع إصلاح PDF ==================
 @app.route('/')
 def home():
     """الصفحة الرئيسية المحسنة"""
@@ -762,7 +800,7 @@ def home():
 
 @app.route('/invoices')
 def invoices_page():
-    """صفحة الفواتير المحسنة"""
+    """صفحة الفواتير المحسنة مع إصلاح التحميل"""
     uptime = time.time() - keep_alive_system.uptime_start
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
@@ -774,6 +812,7 @@ def invoices_page():
     for invoice in invoices:
         services_count = len(invoice['services'])
         has_pdf = invoice.get('pdf_path') and os.path.exists(invoice['pdf_path'])
+        pdf_filename = os.path.basename(invoice['pdf_path']) if invoice.get('pdf_path') else ""
         
         invoices_html += f"""
         <div class="invoice-card">
@@ -798,7 +837,7 @@ def invoices_page():
             </div>
             
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                {'<a href="' + invoice['pdf_path'] + '" download class="btn download-btn" style="padding: 8px 15px;"><i class="fas fa-download"></i> تحميل PDF</a>' if has_pdf else '<span class="btn" style="background: #6c757d; padding: 8px 15px;"><i class="fas fa-file-pdf"></i> PDF غير متوفر</span>'}
+                {'<a href="/download/' + pdf_filename + '" class="btn download-btn" style="padding: 8px 15px;"><i class="fas fa-download"></i> تحميل PDF</a>' if has_pdf else '<span class="btn" style="background: #6c757d; padding: 8px 15px;"><i class="fas fa-file-pdf"></i> PDF غير متوفر</span>'}
                 <button class="btn btn-outline" style="padding: 8px 15px;" onclick="alert('رقم الفاتورة: {invoice['invoice_id']}')">
                     <i class="fas fa-copy"></i> نسخ الرقم
                 </button>
@@ -834,7 +873,7 @@ def invoices_page():
 
 @app.route('/create', methods=['GET', 'POST'])
 def create_invoice():
-    """إنشاء فاتورة جديدة مع PDF"""
+    """إنشاء فاتورة جديدة مع PDF - نسخة محسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
@@ -866,7 +905,7 @@ def create_invoice():
             
             total_amount = sum(s['price'] for s in services)
             
-            # حفظ الفاتورة
+            # إنشاء بيانات الفاتورة
             invoice_data = {
                 'invoice_id': f"INV-{int(time.time())}",
                 'user_id': 'web_user',
@@ -885,10 +924,15 @@ def create_invoice():
             
             if pdf_path:
                 invoice_data['pdf_path'] = pdf_path
+                print(f"✅ تم إنشاء PDF بنجاح: {pdf_path}")
+            else:
+                print("❌ فشل في إنشاء PDF")
             
+            # حفظ في قاعدة البيانات
             success = db_manager.save_invoice(invoice_data)
             
             if success and pdf_path:
+                pdf_filename = os.path.basename(pdf_path)
                 success_content = f"""
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i> تم إنشاء الفاتورة بنجاح!
@@ -914,7 +958,7 @@ def create_invoice():
                         <div>
                             <h4 style="color: var(--success); margin-bottom: 15px;">🚀 الإجراءات:</h4>
                             <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <a href="{pdf_path}" download class="btn download-btn" style="text-align: center;">
+                                <a href="/download/{pdf_filename}" class="btn download-btn" style="text-align: center;">
                                     <i class="fas fa-download"></i> تحميل فاتورة PDF
                                 </a>
                                 <a href="/invoices" class="btn" style="text-align: center;">
@@ -1012,7 +1056,7 @@ def create_invoice_form():
     </div>
     """
 
-# باقي الـ Routes (stats, health) تبقى كما هي مع التعديل على التصميم
+# باقي الـ Routes (stats, health) تبقى كما هي...
 
 @app.route('/stats')
 def stats_page():
@@ -1151,10 +1195,11 @@ def health_page():
 # ================== التشغيل الرئيسي ==================
 if __name__ == '__main__':
     try:
-        print("🌟 بدء تشغيل النظام الاحترافي...")
+        print("🌟 بدء تشغيل النظام الاحترافي المحسن...")
         print(f"🌐 الخادم يعمل على: http://0.0.0.0:{port}")
         print("✅ النظام جاهز لاستقبال الطلبات!")
-        print("📄 نظام PDF الاحترافي مفعل!")
+        print("📄 نظام PDF المحسن مفعل وجاهز!")
+        print("🔗 روابط التحميل المباشرة مفعلة!")
         
         # تشغيل خادم Flask
         app.run(host='0.0.0.0', port=port, debug=False)
