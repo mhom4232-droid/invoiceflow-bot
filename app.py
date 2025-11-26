@@ -5,6 +5,7 @@ import time
 import requests
 import hashlib
 import secrets
+import re
 from datetime import datetime, timedelta
 from threading import Thread, Lock
 from flask import Flask, render_template_string, request, jsonify, send_file, redirect, url_for, session, flash
@@ -36,6 +37,154 @@ print("🚀 واجهة سوداء غامضة + ذكاء اصطناعي + PDF ا�
 print("👨💻 فريق البروفيسورات المتكامل")
 print("=" * 80)
 
+# ================== نظام قاعدة البيانات ==================
+class DatabaseManager:
+    def __init__(self):
+        self.db_path = 'invoices_pro.db'
+        self.init_database()
+
+    def init_database(self):
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS invoices (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    invoice_id TEXT UNIQUE,
+                    user_id TEXT,
+                    user_name TEXT,
+                    company_name TEXT,
+                    client_name TEXT,
+                    client_email TEXT,
+                    client_phone TEXT,
+                    services_json TEXT,
+                    total_amount REAL,
+                    issue_date TEXT,
+                    due_date TEXT,
+                    pdf_path TEXT,
+                    status TEXT DEFAULT 'completed',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            conn.commit()
+            conn.close()
+            print("✅ قاعدة البيانات المتطورة جاهزة")
+        except Exception as e:
+            print(f"🔧 خطأ في قاعدة البيانات: {e}")
+
+    def save_invoice(self, invoice_data):
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                INSERT INTO invoices 
+                (invoice_id, user_id, user_name, company_name, client_name, 
+                 client_email, client_phone, services_json, total_amount, issue_date, due_date, pdf_path)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                invoice_data['invoice_id'],
+                invoice_data.get('user_id', 'web_user'),
+                invoice_data.get('user_name', 'مستخدم الويب'),
+                invoice_data.get('company_name', 'شركتك'),
+                invoice_data['client_name'],
+                invoice_data.get('client_email', ''),
+                invoice_data.get('client_phone', ''),
+                json.dumps(invoice_data['services'], ensure_ascii=False),
+                invoice_data['total_amount'],
+                invoice_data.get('issue_date', datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
+                invoice_data.get('due_date', (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')),
+                invoice_data.get('pdf_path', '')
+            ))
+
+            conn.commit()
+            conn.close()
+            print(f"✅ تم حفظ الفاتورة: {invoice_data['invoice_id']}")
+            return True
+        except Exception as e:
+            print(f"🔧 خطأ في حفظ الفاتورة: {e}")
+            return False
+
+    def get_all_invoices(self):
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT invoice_id, client_name, total_amount, issue_date, services_json, pdf_path
+                FROM invoices 
+                ORDER BY created_at DESC
+            ''')
+            invoices = cursor.fetchall()
+            conn.close()
+            
+            result = []
+            for invoice in invoices:
+                result.append({
+                    'invoice_id': invoice[0],
+                    'client_name': invoice[1],
+                    'total_amount': invoice[2],
+                    'issue_date': invoice[3],
+                    'services': json.loads(invoice[4]) if invoice[4] else [],
+                    'pdf_path': invoice[5]
+                })
+            return result
+        except Exception as e:
+            print(f"🔧 خطأ في جلب الفواتير: {e}")
+            return []
+
+    def get_user_invoices(self, username):
+        """جلب فواتير مستخدم محدد"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT invoice_id, client_name, total_amount, issue_date, services_json, pdf_path
+                FROM invoices 
+                WHERE user_id = ?
+                ORDER BY created_at DESC
+            ''', (username,))
+            invoices = cursor.fetchall()
+            conn.close()
+            
+            result = []
+            for invoice in invoices:
+                result.append({
+                    'invoice_id': invoice[0],
+                    'client_name': invoice[1],
+                    'total_amount': invoice[2],
+                    'issue_date': invoice[3],
+                    'services': json.loads(invoice[4]) if invoice[4] else [],
+                    'pdf_path': invoice[5]
+                })
+            return result
+        except Exception as e:
+            print(f"🔧 خطأ في جلب فواتير المستخدم: {e}")
+            return []
+
+    def get_stats(self):
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            cursor.execute('SELECT COUNT(*), COALESCE(SUM(total_amount), 0) FROM invoices')
+            total_invoices, total_revenue = cursor.fetchone()
+            
+            cursor.execute('SELECT COUNT(*) FROM invoices WHERE date(created_at) = date("now")')
+            today_invoices = cursor.fetchone()[0]
+            
+            conn.close()
+            
+            return {
+                'total_invoices': total_invoices,
+                'total_revenue': total_revenue,
+                'today_invoices': today_invoices
+            }
+        except Exception as e:
+            print(f"🔧 خطأ في جلب الإحصائيات: {e}")
+            return {'total_invoices': 0, 'total_revenue': 0, 'today_invoices': 0}
+
 # ================== نظام PDF المحترف ==================
 class ProfessionalPDFGenerator:
     def __init__(self):
@@ -44,13 +193,8 @@ class ProfessionalPDFGenerator:
     def setup_arabic_fonts(self):
         """إعداد الخطوط العربية - استخدام خطوط نظامية مدعومة"""
         try:
-            # محاولة استخدام خطوط عربية شائعة
-            arabic_fonts = [
-                'Arial', 'Times New Roman', 'DejaVu Sans', 
-                'Microsoft Sans Serif', 'Tahoma'
-            ]
-            self.arabic_font = 'Arial'  # الخط الافتراضي
-            print("✅ استخدام خطوط النظام العربية")
+            self.arabic_font = 'Helvetica'
+            print("✅ استخدام الخطوط الافتراضية المدعومة")
         except Exception as e:
             print(f"⚠️  استخدام الخطوط الافتراضية: {e}")
             self.arabic_font = 'Helvetica'
@@ -75,7 +219,7 @@ class ProfessionalPDFGenerator:
             elements = []
             styles = self.get_professional_styles()
             
-            # 🔥 رأس الفاتورة الاحترافية
+            # رأس الفاتورة الاحترافية
             header_data = [
                 ['INVOICEFLOW PRO', 'فاتورة احترافية'],
                 ['Professional Invoice System', invoice_data['invoice_id']],
@@ -182,16 +326,6 @@ class ProfessionalPDFGenerator:
     def get_professional_styles(self):
         """الحصول على الأنماط الاحترافية"""
         styles = getSampleStyleSheet()
-        
-        # إضافة أنماط عربية
-        styles.add(ParagraphStyle(
-            name='Arabic',
-            fontName='Helvetica',
-            fontSize=10,
-            textColor=colors.black,
-            alignment=2  # Right alignment
-        ))
-        
         return styles
 
 # ================== نظام إدارة المستخدمين المحسن ==================
@@ -320,6 +454,33 @@ class AdvancedUserManager:
             print(f"🔧 خطأ في جلب بيانات المستخدم: {e}")
             return None
 
+    def get_all_users(self):
+        """جلب جميع المستخدمين (للمدير فقط)"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT username, email, full_name, user_type, is_active, last_login
+                FROM users ORDER BY created_at DESC
+            ''')
+            users = cursor.fetchall()
+            conn.close()
+            
+            result = []
+            for user in users:
+                result.append({
+                    'username': user[0],
+                    'email': user[1],
+                    'full_name': user[2],
+                    'user_type': user[3],
+                    'is_active': user[4],
+                    'last_login': user[5]
+                })
+            return result
+        except Exception as e:
+            print(f"🔧 خطأ في جلب المستخدمين: {e}")
+            return []
+
 # ================== نظام الذكاء الاصطناعي المساعد ==================
 class AIAssistant:
     def __init__(self):
@@ -328,7 +489,12 @@ class AIAssistant:
     def analyze_invoice_patterns(self, user_invoices):
         """تحليل أنماط الفواتير للمستخدم"""
         if not user_invoices:
-            return "لا توجد بيانات كافية للتحليل"
+            return {
+                'total_invoices': 0,
+                'total_revenue': 0,
+                'average_invoice': 0,
+                'recommendation': "ابدأ بإنشاء فاتورتك الأولى!"
+            }
         
         total_invoices = len(user_invoices)
         total_revenue = sum(inv['total_amount'] for inv in user_invoices)
@@ -352,7 +518,7 @@ class AIAssistant:
         else:
             return "✨ ممتاز! أداؤك جيد، استمر في تقديم خدمات عالية الجودة"
     
-    def smart_service_suggestions(self, client_industry):
+    def smart_service_suggestions(self, client_industry='technology'):
         """اقتراح خدمات ذكية حسب مجال العميل"""
         suggestions = {
             'technology': ['تطوير مواقع ويب', 'تطبيقات جوال', 'استشارات تقنية'],
@@ -363,11 +529,60 @@ class AIAssistant:
         
         return suggestions.get(client_industry, suggestions['default'])
 
+# ================== نظام الإبقاء على التشغيل ==================
+class AdvancedKeepAlive:
+    def __init__(self):
+        self.uptime_start = time.time()
+        self.ping_count = 0
+        
+    def start_keep_alive(self):
+        print("🔄 بدء أنظمة الاستمرارية...")
+        self.start_self_monitoring()
+        print("✅ أنظمة الاستمرارية مفعلة!")
+    
+    def start_self_monitoring(self):
+        def monitor():
+            while True:
+                current_time = time.time()
+                uptime = current_time - self.uptime_start
+                
+                if int(current_time) % 600 == 0:
+                    hours = int(uptime // 3600)
+                    minutes = int((uptime % 3600) // 60)
+                    print(f"📊 تقرير النظام: {hours}س {minutes}د - {self.ping_count} زيارات")
+                
+                time.sleep(1)
+        
+        monitor_thread = Thread(target=monitor)
+        monitor_thread.daemon = True
+        monitor_thread.start()
+
 # ================== إعداد الأنظمة ==================
 db_manager = DatabaseManager()
-pdf_generator = ProfessionalPDFGenerator()  # استخدام PDF المحترف
+pdf_generator = ProfessionalPDFGenerator()
 user_manager = AdvancedUserManager()
 ai_assistant = AIAssistant()
+keep_alive_system = AdvancedKeepAlive()
+keep_alive_system.start_keep_alive()
+
+# ================== ديكورات المصادقة ==================
+def login_required(f):
+    """ديكور للتحقق من تسجيل الدخول"""
+    def decorated_function(*args, **kwargs):
+        if 'user_logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
+def admin_required(f):
+    """ديكور للتحقق من صلاحيات المدير"""
+    def decorated_function(*args, **kwargs):
+        if 'user_logged_in' not in session or session.get('user_type') != 'admin':
+            return redirect(url_for('home'))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
 
 # ================== التصميم الأسود الغامق المحترف ==================
 PROFESSIONAL_BLACK_HTML = """
@@ -653,29 +868,6 @@ PROFESSIONAL_BLACK_HTML = """
             margin: 20px 0;
             border: 1px solid var(--border);
         }
-        
-        .language-switcher {
-            position: absolute;
-            right: 30px;
-            top: 30px;
-        }
-        
-        .lang-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 8px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-left: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .lang-btn.active {
-            background: var(--accent-primary);
-            color: white;
-            border-color: var(--accent-primary);
-        }
     </style>
 </head>
 <body>
@@ -688,11 +880,6 @@ PROFESSIONAL_BLACK_HTML = """
             <i class="fas fa-user"></i> {{ session.username }}
             | <a href="{{ url_for('profile') }}" style="color: var(--accent-primary); margin: 0 15px;">الملف الشخصي</a>
             | <a href="{{ url_for('logout') }}" style="color: var(--accent-danger);">تسجيل خروج</a>
-        </div>
-        
-        <div class="language-switcher">
-            <button class="lang-btn active">العربية</button>
-            <button class="lang-btn">English</button>
         </div>
         {% endif %}
         
@@ -745,16 +932,6 @@ PROFESSIONAL_BLACK_HTML = """
     </div>
 
     <script>
-        // تبديل اللغة
-        document.querySelectorAll('.lang-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                // هنا سيتم إضافة وظيفة تغيير اللغة
-                alert('سيتم إضافة دعم اللغة الإنجليزية في التحديث القادم');
-            });
-        });
-        
         // تأثيرات تفاعلية
         document.addEventListener('DOMContentLoaded', function() {
             const cards = document.querySelectorAll('.nav-card, .stat-card');
@@ -772,10 +949,81 @@ PROFESSIONAL_BLACK_HTML = """
 </html>
 """
 
-# ================== Routes محسنة ==================
+# ================== Routes الأساسية ==================
+@app.route('/')
+@login_required
+def home():
+    """الصفحة الرئيسية"""
+    uptime = time.time() - keep_alive_system.uptime_start
+    hours = int(uptime // 3600)
+    minutes = int((uptime % 3600) // 60)
+    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    
+    # جلب الفواتير حسب نوع المستخدم
+    if session.get('user_type') == 'admin':
+        invoices = db_manager.get_all_invoices()
+    else:
+        invoices = db_manager.get_user_invoices(session.get('username', ''))
+    
+    user_invoices_count = len(invoices)
+    user_revenue = sum(inv['total_amount'] for inv in invoices)
+    
+    content = f"""
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-file-invoice"></i>
+            <div class="stat-number">{user_invoices_count}</div>
+            <p>فواتيرك</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-dollar-sign"></i>
+            <div class="stat-number">${user_revenue:,.0f}</div>
+            <p>إيراداتك</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-rocket"></i>
+            <div class="stat-number">{user_invoices_count}</div>
+            <p>نشاطك</p>
+        </div>
+    </div>
+    
+    <div class="profile-section">
+        <h2 style="margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-rocket"></i> مرحباً بك في InvoiceFlow Pro
+        </h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+            <div>
+                <h3 style="color: var(--accent-secondary); margin-bottom: 15px;">🚀 المميزات:</h3>
+                <ul style="list-style: none; margin: 20px 0;">
+                    <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">✅ فواتير PDF احترافية</li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">✅ واجهة سوداء عالمية</li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">✅ نظام أمان متقدم</li>
+                    <li style="padding: 10px 0; border-bottom: 1px solid var(--border);">✅ ذكاء اصطناعي متكامل</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 style="color: var(--accent-secondary); margin-bottom: 15px;">📊 إجراءات سريعة:</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="/create" class="btn" style="text-align: center;">
+                        <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+                    </a>
+                    <a href="/invoices" class="btn" style="background: transparent; border: 2px solid var(--accent-primary); color: var(--accent-primary); text-align: center;">
+                        <i class="fas fa-list"></i> عرض الفواتير
+                    </a>
+                    {'<a href="/admin" class="btn" style="background: var(--accent-secondary); text-align: center;"><i class="fas fa-crown"></i> لوحة التحكم</a>' if session.get('user_type') == 'admin' else ''}
+                </div>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(PROFESSIONAL_BLACK_HTML, title="InvoiceFlow Pro - النظام المتقدم", uptime=uptime_str, content=content)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    """صفحة تسجيل الدخول المحسنة"""
+    """صفحة تسجيل الدخول"""
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
@@ -789,7 +1037,6 @@ def login():
             session['email'] = email
             session['full_name'] = full_name
             session.permanent = True
-            
             return redirect(url_for('home'))
         else:
             content = """
@@ -811,7 +1058,7 @@ def login():
                         </button>
                     </form>
                     <div style="margin-top: 25px; text-align: center;">
-                        <a href="/register" class="btn btn-outline" style="width: 100%;">
+                        <a href="/register" class="btn" style="background: transparent; border: 2px solid var(--accent-primary); color: var(--accent-primary); width: 100%;">
                             <i class="fas fa-user-plus"></i> إنشاء حساب جديد
                         </a>
                     </div>
@@ -934,6 +1181,12 @@ def register():
     </div>
     """
     return render_template_string(PROFESSIONAL_BLACK_HTML, title="إنشاء حساب - InvoiceFlow Pro", uptime="", content=content)
+
+@app.route('/logout')
+def logout():
+    """تسجيل الخروج"""
+    session.clear()
+    return redirect(url_for('login'))
 
 @app.route('/profile')
 @login_required
@@ -1075,23 +1328,11 @@ def ai_insights():
                      for service in ai_assistant.smart_service_suggestions('technology')])}
         </div>
     </div>
-    
-    <div class="profile-section">
-        <h3 style="margin-bottom: 20px; color: var(--accent-primary);">
-            <i class="fas fa-trending-up"></i> توقعات المستقبل
-        </h3>
-        <p>بناءً على أدائك الحالي، يمكننا توقع:</p>
-        <ul style="margin: 15px 0; padding-right: 20px;">
-            <li>زيادة في الإيرادات بنسبة 15% الشهر القادم</li>
-            <li>فرصة لزيادة متوسط قيمة الفاتورة</li>
-            <li>إمكانية جذب 3 عملاء جدد</li>
-        </ul>
-    </div>
     """
     
     return render_template_string(PROFESSIONAL_BLACK_HTML, title="الذكاء الاصطناعي - InvoiceFlow Pro", uptime=uptime_str, content=content)
 
-# ... باقي الـ Routes سيتم تحديثها بنفس النمط
+# ... يمكن إضافة المزيد من الـ Routes هنا
 
 # ================== التشغيل الرئيسي ==================
 if __name__ == '__main__':
