@@ -1,4 +1,6 @@
-python-telegram-bot==20.7
+python-telegram-bot[job-queue]==21.0
+flask==2.3.3
 reportlab==4.0.4
 arabic-reshaper==3.0.0
 python-bidi==0.4.2
+requests==2.31.0
