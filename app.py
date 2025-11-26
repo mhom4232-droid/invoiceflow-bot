@@ -3,73 +3,128 @@ import sqlite3
 import json
 import time
 import requests
+import hashlib
+import secrets
 from datetime import datetime, timedelta
 from threading import Thread, Lock
-from flask import Flask, render_template_string, request, jsonify, send_file
+from flask import Flask, render_template_string, request, jsonify, send_file, redirect, url_for, session, flash
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import arabic_reshaper
 from bidi.algorithm import get_display
 import io
 
 # ================== تطبيق Flask ==================
 app = Flask(__name__)
+app.secret_key = 'invoiceflow_pro_secret_key_2024'  # مفتاح سري للجلسات
 
 # الحصول على البورت من البيئة
 port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
-print("🎯 InvoiceFlow Pro - النظام الاحترافي - الإصدار المحسن")
-print("🚀 إصلاح مشكلة تحميل PDF - فريق البروفيسورات")
+print("🎯 InvoiceFlow Pro - النظام الاحترافي المحسن")
+print("🚀 إصلاح الخطوط العربية + نظام تسجيل الدخول")
+print("👨💻 فريق البروفيسورات المتخصصين")
 print("=" * 80)
 
-# ================== إصلاح مشكلة PDF ==================
-
-@app.route('/download/<filename>')
-def download_file(filename):
-    """تحميل ملفات PDF بشكل آمن"""
+# ================== تسجيل الخطوط العربية ==================
+try:
+    # محاولة تسجيل خط يدعم العربية (سيعمل على معظم الأنظمة)
+    pdfmetrics.registerFont(TTFont('ArabicFont', 'arial.ttf'))
+    print("✅ تم تسجيل الخط العربي بنجاح")
+except:
     try:
-        # التأكد من أن الملف موجود في مجلد invoices
-        file_path = f"invoices/{filename}"
-        
-        print(f"🔍 محاولة تحميل الملف: {file_path}")
-        print(f"📁 هل الملف موجود؟: {os.path.exists(file_path)}")
-        
-        if os.path.exists(file_path):
-            print(f"✅ تم العثور على الملف، جاري التحميل...")
-            return send_file(
-                file_path, 
-                as_attachment=True,
-                download_name=filename,
-                mimetype='application/pdf'
-            )
-        else:
-            print(f"❌ الملف غير موجود: {file_path}")
-            return render_template_string("""
-            <div style="text-align: center; padding: 50px;">
-                <h1 style="color: #f44336;">❌ الملف غير موجود</h1>
-                <p>عذراً، لم يتم العثور على الملف المطلوب.</p>
-                <a href="/invoices" style="color: #4361ee;">العودة إلى الفواتير</a>
-            </div>
-            """), 404
-            
-    except Exception as e:
-        print(f"❌ خطأ في تحميل الملف: {e}")
-        return render_template_string("""
-        <div style="text-align: center; padding: 50px;">
-            <h1 style="color: #f44336;">❌ خطأ في تحميل الملف</h1>
-            <p>حدث خطأ أثناء محاولة تحميل الملف.</p>
-            <a href="/invoices" style="color: #4361ee;">العودة إلى الفواتير</a>
-        </div>
-        """), 500
+        # محاولة بديلة
+        pdfmetrics.registerFont(TTFont('ArabicFont', 'times.ttf'))
+        print("✅ تم تسجيل الخط العربي (بديل)")
+    except:
+        print("⚠️  استخدام الخط الافتراضي (قد تظهر مشاكل في العربية)")
 
-# ================== نظام PDF المحسن ==================
+# ================== نظام إدارة المستخدمين ==================
+class UserManager:
+    def __init__(self):
+        self.db_path = 'invoices_pro.db'
+        self.init_users_table()
+
+    def init_users_table(self):
+        """تهيئة جدول المستخدمين"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT UNIQUE,
+                    password_hash TEXT,
+                    email TEXT,
+                    full_name TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    is_active BOOLEAN DEFAULT 1
+                )
+            ''')
+
+            # إضافة مستخدم افتراضي إذا لم يكن موجود
+            default_password = self.hash_password("admin123")
+            cursor.execute('''
+                INSERT OR IGNORE INTO users (username, password_hash, email, full_name) 
+                VALUES (?, ?, ?, ?)
+            ''', ('admin', default_password, 'admin@invoiceflow.com', 'مدير النظام'))
+
+            conn.commit()
+            conn.close()
+            print("✅ نظام المستخدمين جاهز")
+        except Exception as e:
+            print(f"🔧 خطأ في نظام المستخدمين: {e}")
+
+    def hash_password(self, password):
+        """تشفير كلمة المرور"""
+        return hashlib.sha256(password.encode()).hexdigest()
+
+    def verify_user(self, username, password):
+        """التحقق من المستخدم"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            cursor.execute('SELECT password_hash FROM users WHERE username = ? AND is_active = 1', (username,))
+            result = cursor.fetchone()
+            conn.close()
+
+            if result and result[0] == self.hash_password(password):
+                return True
+            return False
+        except Exception as e:
+            print(f"🔧 خطأ في التحقق من المستخدم: {e}")
+            return False
+
+    def create_user(self, username, password, email, full_name):
+        """إنشاء مستخدم جديد"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            password_hash = self.hash_password(password)
+            
+            cursor.execute('''
+                INSERT INTO users (username, password_hash, email, full_name)
+                VALUES (?, ?, ?, ?)
+            ''', (username, password_hash, email, full_name))
+            
+            conn.commit()
+            conn.close()
+            return True
+        except Exception as e:
+            print(f"🔧 خطأ في إنشاء المستخدم: {e}")
+            return False
+
+# ================== نظام PDF مع الخطوط العربية ==================
 class ProfessionalPDFGenerator:
-    """نظام إنشاء فواتير PDF احترافية - النسخة المحسنة"""
+    """نظام إنشاء فواتير PDF احترافية - مع دعم الخطوط العربية"""
     
     def __init__(self):
         self.styles = getSampleStyleSheet()
@@ -77,40 +132,50 @@ class ProfessionalPDFGenerator:
     
     def setup_custom_styles(self):
         """إعداد الأنماط المخصصة للعربية"""
-        self.arabic_title_style = ParagraphStyle(
-            'ArabicTitle',
-            parent=self.styles['Heading1'],
-            fontName='Helvetica-Bold',
-            fontSize=16,
-            textColor=colors.darkblue,
-            alignment=2,
-            spaceAfter=12
-        )
-        
-        self.arabic_normal_style = ParagraphStyle(
-            'ArabicNormal',
-            parent=self.styles['Normal'],
-            fontName='Helvetica',
-            fontSize=10,
-            textColor=colors.black,
-            alignment=2,
-            spaceAfter=6
-        )
-        
-        self.arabic_table_style = ParagraphStyle(
-            'ArabicTable',
-            parent=self.styles['Normal'],
-            fontName='Helvetica',
-            fontSize=9,
-            textColor=colors.black,
-            alignment=2
-        )
+        try:
+            # استخدام الخط المسجل أو الخط الافتراضي
+            font_name = 'ArabicFont' if 'ArabicFont' in pdfmetrics.getRegisteredFontNames() else 'Helvetica'
+            
+            self.arabic_title_style = ParagraphStyle(
+                'ArabicTitle',
+                parent=self.styles['Heading1'],
+                fontName=font_name,
+                fontSize=16,
+                textColor=colors.darkblue,
+                alignment=2,  # محاذاة لليمين
+                spaceAfter=12
+            )
+            
+            self.arabic_normal_style = ParagraphStyle(
+                'ArabicNormal',
+                parent=self.styles['Normal'],
+                fontName=font_name,
+                fontSize=10,
+                textColor=colors.black,
+                alignment=2,  # محاذاة لليمين
+                spaceAfter=6
+            )
+            
+            self.arabic_table_style = ParagraphStyle(
+                'ArabicTable',
+                parent=self.styles['Normal'],
+                fontName=font_name,
+                fontSize=9,
+                textColor=colors.black,
+                alignment=2
+            )
+            print(f"✅ تم إعداد الأنماط باستخدام الخط: {font_name}")
+        except Exception as e:
+            print(f"⚠️  استخدام الأنماط الافتراضية: {e}")
     
     def reshape_arabic_text(self, text):
         """إعادة تشكيل النص العربي للعرض الصحيح"""
         if text:
-            reshaped_text = arabic_reshaper.reshape(text)
-            return get_display(reshaped_text)
+            try:
+                reshaped_text = arabic_reshaper.reshape(text)
+                return get_display(reshaped_text)
+            except:
+                return text
         return text
     
     def create_professional_invoice(self, invoice_data):
@@ -402,6 +467,7 @@ class DatabaseManager:
 # ================== إعداد الأنظمة ==================
 db_manager = DatabaseManager()
 pdf_generator = ProfessionalPDFGenerator()
+user_manager = UserManager()
 
 # ================== نظام الإبقاء على التشغيل ==================
 class AdvancedKeepAlive:
@@ -434,6 +500,16 @@ class AdvancedKeepAlive:
 # بدء نظام الاستمرارية
 keep_alive_system = AdvancedKeepAlive()
 keep_alive_system.start_keep_alive()
+
+# ================== ديكورات المصادقة ==================
+def login_required(f):
+    """ديكورator للتحقق من تسجيل الدخول"""
+    def decorated_function(*args, **kwargs):
+        if 'user_logged_in' not in session:
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
 
 # ================== القوالب ==================
 MODERN_BASE_HTML = """
@@ -507,6 +583,16 @@ MODERN_BASE_HTML = """
         .header p {
             font-size: 1.2em;
             opacity: 0.9;
+        }
+        
+        .user-info {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
         }
         
         .nav-grid {
@@ -607,6 +693,10 @@ MODERN_BASE_HTML = """
             color: var(--primary);
         }
         
+        .btn-danger {
+            background: linear-gradient(45deg, #dc3545, #c82333);
+        }
+        
         .download-btn {
             background: linear-gradient(45deg, #28a745, #20c997);
         }
@@ -689,16 +779,37 @@ MODERN_BASE_HTML = """
             font-weight: bold;
             margin-left: 10px;
         }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
     <div class="glass-container">
+        {% if session.user_logged_in %}
+        <div class="user-info">
+            <i class="fas fa-user"></i> {{ session.username }} 
+            | <a href="{{ url_for('logout') }}" style="color: white; margin-right: 15px;">تسجيل خروج</a>
+        </div>
+        {% endif %}
+        
         <div class="header">
             <h1><i class="fas fa-file-invoice-dollar"></i> InvoiceFlow Pro</h1>
             <p>🚀 النظام الاحترافي لإدارة الفواتير - مع تقارير PDF متقدمة</p>
             <p>⏰ مدة التشغيل: {{ uptime }}</p>
         </div>
         
+        {% if session.user_logged_in %}
         <div class="nav-grid">
             <a href="/" class="nav-card">
                 <i class="fas fa-home"></i>
@@ -721,6 +832,7 @@ MODERN_BASE_HTML = """
                 <h3>حالة النظام</h3>
             </a>
         </div>
+        {% endif %}
 
         {{ content | safe }}
     </div>
@@ -728,8 +840,81 @@ MODERN_BASE_HTML = """
 </html>
 """
 
-# ================== Routes محسنة مع إصلاح PDF ==================
+# ================== Routes نظام تسجيل الدخول ==================
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """صفحة تسجيل الدخول"""
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        if user_manager.verify_user(username, password):
+            session['user_logged_in'] = True
+            session['username'] = username
+            return redirect(url_for('home'))
+        else:
+            content = """
+            <div class="login-container">
+                <div class="login-card">
+                    <h2 style="color: white; margin-bottom: 30px;">تسجيل الدخول</h2>
+                    <div class="alert alert-error">
+                        ❌ اسم المستخدم أو كلمة المرور غير صحيحة
+                    </div>
+                    <form method="POST">
+                        <div class="form-group">
+                            <input type="text" name="username" class="form-control" placeholder="اسم المستخدم" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="password" class="form-control" placeholder="كلمة المرور" required>
+                        </div>
+                        <button type="submit" class="btn" style="width: 100%;">تسجيل الدخول</button>
+                    </form>
+                    <div style="margin-top: 20px; color: rgba(255,255,255,0.7);">
+                        <p>بيانات الدخول الافتراضية:</p>
+                        <p>اسم المستخدم: <strong>admin</strong></p>
+                        <p>كلمة المرور: <strong>admin123</strong></p>
+                    </div>
+                </div>
+            </div>
+            """
+            return render_template_string(MODERN_BASE_HTML, title="تسجيل الدخول - InvoiceFlow Pro", uptime="", content=content)
+    
+    # إذا كان المستخدم مسجل دخول بالفعل
+    if 'user_logged_in' in session:
+        return redirect(url_for('home'))
+    
+    content = """
+    <div class="login-container">
+        <div class="login-card">
+            <h2 style="color: white; margin-bottom: 30px;">تسجيل الدخول</h2>
+            <form method="POST">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-control" placeholder="اسم المستخدم" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="password" class="form-control" placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">تسجيل الدخول</button>
+            </form>
+            <div style="margin-top: 20px; color: rgba(255,255,255,0.7);">
+                <p>بيانات الدخول الافتراضية:</p>
+                <p>اسم المستخدم: <strong>admin</strong></p>
+                <p>كلمة المرور: <strong>admin123</strong></p>
+            </div>
+        </div>
+    </div>
+    """
+    return render_template_string(MODERN_BASE_HTML, title="تسجيل الدخول - InvoiceFlow Pro", uptime="", content=content)
+
+@app.route('/logout')
+def logout():
+    """تسجيل الخروج"""
+    session.clear()
+    return redirect(url_for('login'))
+
+# ================== Routes محمية بتسجيل الدخول ==================
 @app.route('/')
+@login_required
 def home():
     """الصفحة الرئيسية المحسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
@@ -773,6 +958,7 @@ def home():
                     <li>تقارير وإحصائيات متقدمة</li>
                     <li>حفظ تلقائي في السحابة</li>
                     <li>دعم كامل للغة العربية</li>
+                    <li>نظام أمان متكامل</li>
                 </ul>
             </div>
             
@@ -799,6 +985,7 @@ def home():
     return render_template_string(MODERN_BASE_HTML, title="InvoiceFlow Pro - النظام الاحترافي", uptime=uptime_str, content=content)
 
 @app.route('/invoices')
+@login_required
 def invoices_page():
     """صفحة الفواتير المحسنة مع إصلاح التحميل"""
     uptime = time.time() - keep_alive_system.uptime_start
@@ -872,6 +1059,7 @@ def invoices_page():
     return render_template_string(MODERN_BASE_HTML, title="إدارة الفواتير - InvoiceFlow Pro", uptime=uptime_str, content=content)
 
 @app.route('/create', methods=['GET', 'POST'])
+@login_required
 def create_invoice():
     """إنشاء فاتورة جديدة مع PDF - نسخة محسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
@@ -908,8 +1096,8 @@ def create_invoice():
             # إنشاء بيانات الفاتورة
             invoice_data = {
                 'invoice_id': f"INV-{int(time.time())}",
-                'user_id': 'web_user',
-                'user_name': 'مستخدم الويب',
+                'user_id': session.get('username', 'web_user'),
+                'user_name': session.get('username', 'مستخدم الويب'),
                 'client_name': client_name,
                 'client_email': client_email,
                 'client_phone': client_phone,
@@ -1056,9 +1244,49 @@ def create_invoice_form():
     </div>
     """
 
-# باقي الـ Routes (stats, health) تبقى كما هي...
+@app.route('/download/<filename>')
+@login_required
+def download_file(filename):
+    """تحميل ملفات PDF بشكل آمن"""
+    try:
+        # التأكد من أن الملف موجود في مجلد invoices
+        file_path = f"invoices/{filename}"
+        
+        print(f"🔍 محاولة تحميل الملف: {file_path}")
+        print(f"📁 هل الملف موجود؟: {os.path.exists(file_path)}")
+        
+        if os.path.exists(file_path):
+            print(f"✅ تم العثور على الملف، جاري التحميل...")
+            return send_file(
+                file_path, 
+                as_attachment=True,
+                download_name=filename,
+                mimetype='application/pdf'
+            )
+        else:
+            print(f"❌ الملف غير موجود: {file_path}")
+            return render_template_string("""
+            <div style="text-align: center; padding: 50px;">
+                <h1 style="color: #f44336;">❌ الملف غير موجود</h1>
+                <p>عذراً، لم يتم العثور على الملف المطلوب.</p>
+                <a href="/invoices" style="color: #4361ee;">العودة إلى الفواتير</a>
+            </div>
+            """), 404
+            
+    except Exception as e:
+        print(f"❌ خطأ في تحميل الملف: {e}")
+        return render_template_string("""
+        <div style="text-align: center; padding: 50px;">
+            <h1 style="color: #f44336;">❌ خطأ في تحميل الملف</h1>
+            <p>حدث خطأ أثناء محاولة تحميل الملف.</p>
+            <a href="/invoices" style="color: #4361ee;">العودة إلى الفواتير</a>
+        </div>
+        """), 500
+
+# باقي الـ Routes (stats, health) مع @login_required
 
 @app.route('/stats')
+@login_required
 def stats_page():
     """صفحة الإحصائيات المحسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
@@ -1122,6 +1350,7 @@ def stats_page():
     return render_template_string(MODERN_BASE_HTML, title="الإحصائيات - InvoiceFlow Pro", uptime=uptime_str, content=content)
 
 @app.route('/health')
+@login_required
 def health_page():
     """صفحة حالة النظام المحسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
@@ -1198,8 +1427,9 @@ if __name__ == '__main__':
         print("🌟 بدء تشغيل النظام الاحترافي المحسن...")
         print(f"🌐 الخادم يعمل على: http://0.0.0.0:{port}")
         print("✅ النظام جاهز لاستقبال الطلبات!")
-        print("📄 نظام PDF المحسن مفعل وجاهز!")
-        print("🔗 روابط التحميل المباشرة مفعلة!")
+        print("📄 نظام PDF مع الخطوط العربية مفعل!")
+        print("🔐 نظام تسجيل الدخول مفعل!")
+        print("👤 بيانات الدخول الافتراضية: admin / admin123")
         
         # تشغيل خادم Flask
         app.run(host='0.0.0.0', port=port, debug=False)
