@@ -1,7 +1,7 @@
-# ================== InvoiceFlow Pro - النظام المجاني المستمر ==================
-# 🎯 الإصدار ULTIMATE FREE - Web Edition
+# ================== InvoiceFlow Pro - النظام الاحترافي ==================
+# 🎯 الإصدار PROFESSIONAL - Premium Web Edition
 # 👨💻 فريق البروفيسورات المتخصصين
-# 🔧 نظام مجاني يعمل على السحابة والمواقع
+# 🎨 واجهة ويب احترافية مع نظام PDF متكامل
 
 import os
 import sqlite3
@@ -10,46 +10,47 @@ import time
 import requests
 from datetime import datetime, timedelta
 from threading import Thread, Lock
-from flask import Flask, render_template_string, request, jsonify, redirect, url_for
+from flask import Flask, render_template_string, request, jsonify, send_file
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import mm
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+import arabic_reshaper
+from bidi.algorithm import get_display
+import io
 
 # ================== تطبيق Flask ==================
 app = Flask(__name__)
 
-# الحصول على البورت من البيئة (مطلوب للسحابة)
+# الحصول على البورت من البيئة
 port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
-print("🎯 InvoiceFlow Pro - النظام المجاني المستمر")
-print("🚀 الإصدار ULTIMATE FREE - Web Edition")
+print("🎯 InvoiceFlow Pro - النظام الاحترافي")
+print("🚀 الإصدار PROFESSIONAL - Premium Web Edition")
 print("👨💻 فريق البروفيسورات المتخصصين")
-print("🔧 نظام مجاني يعمل 24/7 على السحابة")
+print("🎨 واجهة ويب احترافية مع نظام PDF متكامل")
 print("=" * 80)
 
 # ================== نظام الإبقاء على التشغيل المتقدم ==================
 class AdvancedKeepAlive:
-    """نظام متقدم للإبقاء على التشغيل مجاناً"""
-    
     def __init__(self):
         self.uptime_start = time.time()
         self.ping_count = 0
         
     def start_keep_alive(self):
-        """بدء جميع أنظمة الإبقاء على التشغيل"""
         print("🔄 بدء أنظمة الاستمرارية المجانية...")
-        
-        # نظام المراقبة الذاتية
         self.start_self_monitoring()
-        
         print("✅ جميع أنظمة الاستمرارية مفعلة!")
     
     def start_self_monitoring(self):
-        """بدء المراقبة الذاتية"""
         def monitor():
             while True:
                 current_time = time.time()
                 uptime = current_time - self.uptime_start
                 
-                # عرض تقرير كل 10 دقائق
                 if int(current_time) % 600 == 0:
                     hours = int(uptime // 3600)
                     minutes = int((uptime % 3600) // 60)
@@ -61,14 +62,220 @@ class AdvancedKeepAlive:
         monitor_thread.daemon = True
         monitor_thread.start()
 
-# بدء نظام الاستمرارية فوراً
+# بدء نظام الاستمرارية
 keep_alive_system = AdvancedKeepAlive()
 keep_alive_system.start_keep_alive()
 
-# ================== نظام قاعدة البيانات المتطور ==================
-class DatabaseManager:
-    """مدير قاعدة بيانات متطور"""
+# ================== نظام PDF الاحترافي ==================
+class ProfessionalPDFGenerator:
+    """نظام إنشاء فواتير PDF احترافية"""
+    
+    def __init__(self):
+        self.styles = getSampleStyleSheet()
+        self.setup_custom_styles()
+    
+    def setup_custom_styles(self):
+        """إعداد الأنماط المخصصة للعربية"""
+        # نمط للعناوين العربية
+        self.arabic_title_style = ParagraphStyle(
+            'ArabicTitle',
+            parent=self.styles['Heading1'],
+            fontName='Helvetica-Bold',
+            fontSize=16,
+            textColor=colors.darkblue,
+            alignment=2,  # محاذاة لليمين
+            spaceAfter=12
+        )
+        
+        # نمط للنص العربي
+        self.arabic_normal_style = ParagraphStyle(
+            'ArabicNormal',
+            parent=self.styles['Normal'],
+            fontName='Helvetica',
+            fontSize=10,
+            textColor=colors.black,
+            alignment=2,  # محاذاة لليمين
+            spaceAfter=6
+        )
+        
+        # نمط للجدول
+        self.arabic_table_style = ParagraphStyle(
+            'ArabicTable',
+            parent=self.styles['Normal'],
+            fontName='Helvetica',
+            fontSize=9,
+            textColor=colors.black,
+            alignment=2
+        )
+    
+    def reshape_arabic_text(self, text):
+        """إعادة تشكيل النص العربي للعرض الصحيح"""
+        if text:
+            reshaped_text = arabic_reshaper.reshape(text)
+            return get_display(reshaped_text)
+        return text
+    
+    def create_professional_invoice(self, invoice_data):
+        """إنشاء فاتورة PDF احترافية"""
+        try:
+            # إنشاء buffer للPDF في الذاكرة
+            buffer = io.BytesIO()
+            
+            # إنشاء مستند PDF
+            doc = SimpleDocTemplate(
+                buffer,
+                pagesize=A4,
+                rightMargin=20*mm,
+                leftMargin=20*mm,
+                topMargin=20*mm,
+                bottomMargin=20*mm
+            )
+            
+            # محتوى الفاتورة
+            story = []
+            
+            # رأس الفاتورة
+            header_data = [
+                [self.reshape_arabic_text("فاتورة احترافية"), "", self.reshape_arabic_text("InvoiceFlow Pro")],
+                [self.reshape_arabic_text("رقم الفاتورة: ") + invoice_data['invoice_id'], "", self.reshape_arabic_text("تاريخ الإصدار: ") + invoice_data['issue_date']],
+                [self.reshape_arabic_text("شركتك"), "", self.reshape_arabic_text("مقدم الخدمة")],
+            ]
+            
+            header_table = Table(header_data, colWidths=[60*mm, 30*mm, 60*mm])
+            header_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.lightblue),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 14),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 10),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]))
+            
+            story.append(header_table)
+            story.append(Spacer(1, 15))
+            
+            # معلومات العميل
+            client_info = [
+                [self.reshape_arabic_text("معلومات العميل"), "", self.reshape_arabic_text("معلومات الشركة")],
+                [
+                    self.reshape_arabic_text(f"الاسم: {invoice_data['client_name']}\nالهاتف: {invoice_data.get('client_phone', 'غير محدد')}\nالبريد: {invoice_data.get('client_email', 'غير محدد')}"),
+                    "",
+                    self.reshape_arabic_text(f"الشركة: شركتك\nالتسجيل: 123456\nالعنوان: مدينة الأعمال")
+                ]
+            ]
+            
+            client_table = Table(client_info, colWidths=[70*mm, 10*mm, 70*mm])
+            client_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -1), 9),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ]))
+            
+            story.append(client_table)
+            story.append(Spacer(1, 20))
+            
+            # جدول الخدمات
+            services_header = [
+                self.reshape_arabic_text("رقم"),
+                self.reshape_arabic_text("وصف الخدمة"),
+                self.reshape_arabic_text("الكمية"),
+                self.reshape_arabic_text("السعر"),
+                self.reshape_arabic_text("المجموع")
+            ]
+            
+            services_data = [services_header]
+            total_amount = 0
+            
+            for i, service in enumerate(invoice_data['services'], 1):
+                service_total = service['price'] * service.get('quantity', 1)
+                total_amount += service_total
+                
+                services_data.append([
+                    str(i),
+                    self.reshape_arabic_text(service['name']),
+                    str(service.get('quantity', 1)),
+                    f"${service['price']:.2f}",
+                    f"${service_total:.2f}"
+                ])
+            
+            # إضافة المجموع
+            services_data.append([
+                "", 
+                self.reshape_arabic_text("المجموع الإجمالي"), 
+                "", 
+                "", 
+                f"${total_amount:.2f}"
+            ])
+            
+            services_table = Table(services_data, colWidths=[15*mm, 70*mm, 20*mm, 25*mm, 30*mm])
+            services_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+                ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, 0), (-1, 0), 11),
+                ('BACKGROUND', (0, 1), (-1, -2), colors.whitesmoke),
+                ('FONTNAME', (0, 1), (-1, -2), 'Helvetica'),
+                ('FONTSIZE', (0, 1), (-1, -2), 9),
+                ('ALIGN', (2, 1), (-1, -1), 'RIGHT'),
+                ('BACKGROUND', (0, -1), (-1, -1), colors.lightgrey),
+                ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+                ('FONTSIZE', (0, -1), (-1, -1), 10),
+                ('LINEABOVE', (0, -1), (-1, -1), 1, colors.black),
+            ]))
+            
+            story.append(services_table)
+            story.append(Spacer(1, 25))
+            
+            # ملاحظات
+            notes = [
+                self.reshape_arabic_text("شروط الدفع:"),
+                self.reshape_arabic_text("• الدفع خلال 30 يوم من تاريخ الفاتورة"),
+                self.reshape_arabic_text("• تأخر الدفع قد يؤدي إلى تطبيق فوائد تأخير"),
+                self.reshape_arabic_text("• للاستفسارات، يرجى التواصل مع قسم المبيعات"),
+                "",
+                self.reshape_arabic_text("شكراً لتعاملكم معنا!")
+            ]
+            
+            for note in notes:
+                if note:
+                    story.append(Paragraph(self.reshape_arabic_text(note), self.arabic_normal_style))
+                else:
+                    story.append(Spacer(1, 6))
+            
+            # إنشاء PDF
+            doc.build(story)
+            
+            # الحصول على بيانات PDF
+            pdf_data = buffer.getvalue()
+            buffer.close()
+            
+            # حفظ ملف PDF
+            filename = f"invoices/{invoice_data['invoice_id']}_professional.pdf"
+            os.makedirs('invoices', exist_ok=True)
+            
+            with open(filename, 'wb') as f:
+                f.write(pdf_data)
+            
+            print(f"✅ تم إنشاء فاتورة PDF احترافية: {filename}")
+            return filename, pdf_data
+            
+        except Exception as e:
+            print(f"❌ خطأ في إنشاء PDF: {e}")
+            return None, None
 
+# ================== نظام قاعدة البيانات ==================
+class DatabaseManager:
     def __init__(self):
         self.db_path = 'invoices_pro.db'
         self.init_database()
@@ -92,18 +299,9 @@ class DatabaseManager:
                     total_amount REAL,
                     issue_date TEXT,
                     due_date TEXT,
+                    pdf_path TEXT,
                     status TEXT DEFAULT 'completed',
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS user_stats (
-                    user_id TEXT PRIMARY KEY,
-                    user_name TEXT,
-                    total_invoices INTEGER DEFAULT 0,
-                    total_revenue REAL DEFAULT 0,
-                    last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
 
@@ -121,23 +319,23 @@ class DatabaseManager:
             cursor.execute('''
                 INSERT INTO invoices 
                 (invoice_id, user_id, user_name, company_name, client_name, 
-                 client_email, client_phone, services_json, total_amount, issue_date, due_date)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 client_email, client_phone, services_json, total_amount, issue_date, due_date, pdf_path)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 invoice_data['invoice_id'],
                 invoice_data.get('user_id', 'web_user'),
                 invoice_data.get('user_name', 'مستخدم الويب'),
-                invoice_data.get('company_name', 'شركتي'),
+                invoice_data.get('company_name', 'شركتك'),
                 invoice_data['client_name'],
                 invoice_data.get('client_email', ''),
                 invoice_data.get('client_phone', ''),
                 json.dumps(invoice_data['services'], ensure_ascii=False),
                 invoice_data['total_amount'],
                 invoice_data.get('issue_date', datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
-                invoice_data.get('due_date', (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d'))
+                invoice_data.get('due_date', (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')),
+                invoice_data.get('pdf_path', '')
             ))
 
-            self._update_user_stats(invoice_data)
             conn.commit()
             conn.close()
             print(f"✅ تم حفظ الفاتورة: {invoice_data['invoice_id']}")
@@ -146,39 +344,12 @@ class DatabaseManager:
             print(f"🔧 خطأ في حفظ الفاتورة: {e}")
             return False
 
-    def _update_user_stats(self, invoice_data):
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            cursor.execute('''
-                INSERT OR REPLACE INTO user_stats 
-                (user_id, user_name, total_invoices, total_revenue, last_activity)
-                VALUES (?, ?, 
-                    COALESCE((SELECT total_invoices FROM user_stats WHERE user_id = ?), 0) + 1,
-                    COALESCE((SELECT total_revenue FROM user_stats WHERE user_id = ?), 0) + ?,
-                    CURRENT_TIMESTAMP
-                )
-            ''', (
-                invoice_data.get('user_id', 'web_user'),
-                invoice_data.get('user_name', 'مستخدم الويب'),
-                invoice_data.get('user_id', 'web_user'),
-                invoice_data.get('user_id', 'web_user'),
-                invoice_data['total_amount']
-            ))
-
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"🔧 خطأ في تحديث الإحصائيات: {e}")
-
     def get_all_invoices(self):
-        """الحصول على جميع الفواتير"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             cursor.execute('''
-                SELECT invoice_id, client_name, total_amount, issue_date, services_json 
+                SELECT invoice_id, client_name, total_amount, issue_date, services_json, pdf_path
                 FROM invoices 
                 ORDER BY created_at DESC
             ''')
@@ -192,7 +363,8 @@ class DatabaseManager:
                     'client_name': invoice[1],
                     'total_amount': invoice[2],
                     'issue_date': invoice[3],
-                    'services': json.loads(invoice[4]) if invoice[4] else []
+                    'services': json.loads(invoice[4]) if invoice[4] else [],
+                    'pdf_path': invoice[5]
                 })
             return result
         except Exception as e:
@@ -200,7 +372,6 @@ class DatabaseManager:
             return []
 
     def get_stats(self):
-        """الحصول على الإحصائيات"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
@@ -222,218 +393,295 @@ class DatabaseManager:
             print(f"🔧 خطأ في جلب الإحصائيات: {e}")
             return {'total_invoices': 0, 'total_revenue': 0, 'today_invoices': 0}
 
-# ================== نظام إنشاء الفواتير المتطور ==================
-class InvoiceGenerator:
-    """نظام إنشاء الفواتير المتطور"""
-    
-    def create_text_invoice(self, invoice_data, language='ar'):
-        try:
-            os.makedirs('invoices', exist_ok=True)
-            
-            filename = f"invoices/{invoice_data['invoice_id']}_{language}.txt"
-            
-            services_text = ""
-            for i, service in enumerate(invoice_data['services'], 1):
-                services_text += f"   {i}. {service['name']} - ${service['price']:.2f}\n"
-
-            content = f"""
-{'='*60}
-فاتورة احترافية - InvoiceFlow Pro
-{'='*60}
-
-الشركة: {invoice_data.get('company_name', 'شركتي')}
-العميل: {invoice_data['client_name']}
-رقم الفاتورة: {invoice_data['invoice_id']}
-التاريخ: {invoice_data['issue_date']}
-البريد الإلكتروني: {invoice_data.get('client_email', 'غير محدد')}
-الهاتف: {invoice_data.get('client_phone', 'غير محدد')}
-
-الخدمات:
-{services_text}
-المجموع: ${invoice_data['total_amount']:.2f}
-
-شكراً لتعاملكم مع InvoiceFlow Pro
-{'='*60}
-"""
-
-            with open(filename, 'w', encoding='utf-8') as f:
-                f.write(content)
-
-            print(f"✅ تم إنشاء ملف: {filename}")
-            return filename
-
-        except Exception as e:
-            print(f"🔧 خطأ في إنشاء الملف: {e}")
-            return None
-
-# ================== إعداد قاعدة البيانات ==================
+# ================== إعداد الأنظمة ==================
 db_manager = DatabaseManager()
-invoice_generator = InvoiceGenerator()
+pdf_generator = ProfessionalPDFGenerator()
 
-# ================== قوالب HTML محسنة ==================
-BASE_HTML = """
+# ================== القوالب الجديدة ==================
+MODERN_BASE_HTML = """
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --success: #4cc9f0;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --gradient: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            color: #333;
         }
-        .container {
-            max-width: 1200px;
+        
+        .glass-container {
+            max-width: 1400px;
             margin: 0 auto;
         }
-        .header {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 30px;
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border-radius: 20px;
-            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .header {
             text-align: center;
             color: white;
-            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 40px;
         }
-        .nav {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 30px;
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #fff, #e0e0e0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
         }
-        .nav a {
-            background: rgba(255,255,255,0.2);
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .nav-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
             color: white;
-            padding: 15px 25px;
             text-decoration: none;
-            border-radius: 10px;
-            transition: all 0.3s;
-            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .nav a:hover {
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-2px);
+        
+        .nav-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
         }
-        .card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
+        
+        .nav-card i {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            display: block;
         }
+        
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
         }
+        
         .stat-card {
-            background: rgba(255,255,255,0.15);
-            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
+            padding: 25px;
             text-align: center;
-            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        
         .stat-number {
-            font-size: 2.5em;
+            font-size: 2.8em;
             font-weight: bold;
             margin: 10px 0;
-            color: #00ff88;
+            background: linear-gradient(45deg, #4cc9f0, #4361ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        .invoice-item {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            margin: 10px 0;
+        
+        .invoice-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .invoice-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .invoice-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn {
+            background: var(--gradient);
+            color: white;
+            padding: 12px 30px;
+            border: none;
             border-radius: 10px;
-            border-left: 4px solid #00ff88;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin: 5px;
         }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
+        
         .form-group label {
             display: block;
             margin-bottom: 8px;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 1.1em;
         }
+        
         .form-control {
             width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 16px;
+            transition: all 0.3s ease;
         }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
         .form-control::placeholder {
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
         }
-        .btn {
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,255,136,0.4);
-        }
+        
         .service-item {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             padding: 15px;
             margin: 10px 0;
             border-radius: 8px;
-            border-left: 3px solid #00ff88;
+            border-left: 4px solid var(--success);
         }
+        
         .alert {
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 10px;
             margin: 20px 0;
             text-align: center;
+            font-weight: 600;
         }
+        
         .alert-success {
-            background: rgba(0,255,136,0.2);
-            border: 1px solid #00ff88;
-            color: #00ff88;
+            background: rgba(76, 201, 240, 0.2);
+            border: 2px solid var(--success);
+            color: var(--success);
         }
+        
         .alert-error {
-            background: rgba(255,0,0,0.2);
-            border: 1px solid #ff4444;
-            color: #ff4444;
+            background: rgba(244, 67, 54, 0.2);
+            border: 2px solid #f44336;
+            color: #f44336;
+        }
+        
+        .download-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin: 20px 0;
+        }
+        
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: var(--success);
+            font-weight: bold;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="glass-container">
         <div class="header">
-            <h1>🎯 InvoiceFlow Pro</h1>
-            <p>🚀 النظام المجاني المستمر - Web Edition</p>
+            <h1><i class="fas fa-file-invoice-dollar"></i> InvoiceFlow Pro</h1>
+            <p>🚀 النظام الاحترافي لإدارة الفواتير - مع تقارير PDF متقدمة</p>
             <p>⏰ مدة التشغيل: {{ uptime }}</p>
         </div>
         
-        <div class="nav">
-            <a href="/">🏠 الرئيسية</a>
-            <a href="/invoices">📋 الفواتير</a>
-            <a href="/create">🧾 إنشاء فاتورة</a>
-            <a href="/stats">📊 الإحصائيات</a>
-            <a href="/health">❤️ حالة النظام</a>
+        <div class="nav-grid">
+            <a href="/" class="nav-card">
+                <i class="fas fa-home"></i>
+                <h3>الرئيسية</h3>
+            </a>
+            <a href="/invoices" class="nav-card">
+                <i class="fas fa-file-invoice"></i>
+                <h3>الفواتير</h3>
+            </a>
+            <a href="/create" class="nav-card">
+                <i class="fas fa-plus-circle"></i>
+                <h3>إنشاء فاتورة</h3>
+            </a>
+            <a href="/stats" class="nav-card">
+                <i class="fas fa-chart-bar"></i>
+                <h3>الإحصائيات</h3>
+            </a>
+            <a href="/health" class="nav-card">
+                <i class="fas fa-heartbeat"></i>
+                <h3>حالة النظام</h3>
+            </a>
         </div>
 
         {{ content | safe }}
@@ -442,10 +690,10 @@ BASE_HTML = """
 </html>
 """
 
-# ================== Routes ==================
+# ================== Routes محسنة ==================
 @app.route('/')
 def home():
-    """الصفحة الرئيسية"""
+    """الصفحة الرئيسية المحسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
@@ -456,48 +704,65 @@ def home():
     content = f"""
     <div class="stats-grid">
         <div class="stat-card">
-            <h3>📊 إجمالي الفواتير</h3>
+            <i class="fas fa-file-invoice"></i>
             <div class="stat-number">{stats['total_invoices']}</div>
-            <p>فاتورة</p>
+            <p>إجمالي الفواتير</p>
         </div>
         <div class="stat-card">
-            <h3>💰 إجمالي الإيرادات</h3>
-            <div class="stat-number">${stats['total_revenue']:,.2f}</div>
-            <p>دولار</p>
+            <i class="fas fa-dollar-sign"></i>
+            <div class="stat-number">${stats['total_revenue']:,.0f}</div>
+            <p>إجمالي الإيرادات</p>
         </div>
         <div class="stat-card">
-            <h3>📅 فواتير اليوم</h3>
+            <i class="fas fa-calendar-day"></i>
             <div class="stat-number">{stats['today_invoices']}</div>
-            <p>فاتورة</p>
+            <p>فواتير اليوم</p>
         </div>
     </div>
     
-    <div class="card">
-        <h2>🎉 مرحباً بك في InvoiceFlow Pro!</h2>
-        <p>نظام إدارة الفواتير المتكامل الذي يعمل 24/7 على السحابة</p>
+    <div class="glass-card">
+        <h2 style="color: white; margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-rocket"></i> مرحباً بك في InvoiceFlow Pro الاحترافي
+        </h2>
         
-        <div style="margin-top: 20px;">
-            <h3>🚀 المميزات:</h3>
-            <ul style="list-style: none; margin: 15px 0;">
-                <li>✅ إنشاء فواتير احترافية</li>
-                <li>✅ حفظ تلقائي في قاعدة البيانات</li>
-                <li>✅ إحصائيات مفصلة</li>
-                <li>✅ واجهة ويب متكاملة</li>
-                <li>✅ يعمل على جميع الأجهزة</li>
-            </ul>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+            <div>
+                <h3 style="color: var(--success); margin-bottom: 15px;">🚀 المميزات الجديدة:</h3>
+                <ul class="feature-list">
+                    <li>فواتير PDF احترافية</li>
+                    <li>واجهة مستخدم حديثة</li>
+                    <li>تصميم متجاوب مع جميع الأجهزة</li>
+                    <li>تقارير وإحصائيات متقدمة</li>
+                    <li>حفظ تلقائي في السحابة</li>
+                    <li>دعم كامل للغة العربية</li>
+                </ul>
+            </div>
+            
+            <div>
+                <h3 style="color: var(--success); margin-bottom: 15px;">📊 الإجراءات السريعة:</h3>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="/create" class="btn" style="text-align: center;">
+                        <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+                    </a>
+                    <a href="/invoices" class="btn btn-outline" style="text-align: center;">
+                        <i class="fas fa-list"></i> عرض جميع الفواتير
+                    </a>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                    <h4 style="color: white; margin-bottom: 10px;">💡 نصيحة سريعة:</h4>
+                    <p style="color: rgba(255,255,255,0.8);">استخدم نموذج إنشاء الفاتورة لإنشاء فاتورة PDF احترافية يمكن تحميلها ومشاركتها مع العملاء</p>
+                </div>
+            </div>
         </div>
-        
-        <a href="/create" class="btn" style="display: inline-block; margin-top: 20px;">
-            🧾 بدء إنشاء فاتورة
-        </a>
     </div>
     """
     
-    return render_template_string(BASE_HTML, title="InvoiceFlow Pro - الرئيسية", uptime=uptime_str, content=content)
+    return render_template_string(MODERN_BASE_HTML, title="InvoiceFlow Pro - النظام الاحترافي", uptime=uptime_str, content=content)
 
 @app.route('/invoices')
 def invoices_page():
-    """صفحة عرض الفواتير"""
+    """صفحة الفواتير المحسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
@@ -507,37 +772,69 @@ def invoices_page():
     
     invoices_html = ""
     for invoice in invoices:
-        services_html = ""
-        for service in invoice['services']:
-            services_html += f"<div class='service-item'>{service['name']} - ${service['price']:.2f}</div>"
+        services_count = len(invoice['services'])
+        has_pdf = invoice.get('pdf_path') and os.path.exists(invoice['pdf_path'])
         
         invoices_html += f"""
-        <div class="invoice-item">
-            <h3>📄 فاتورة #{invoice['invoice_id']}</h3>
-            <p><strong>👤 العميل:</strong> {invoice['client_name']}</p>
-            <p><strong>💰 المبلغ:</strong> ${invoice['total_amount']:.2f}</p>
-            <p><strong>📅 التاريخ:</strong> {invoice['issue_date']}</p>
-            <div style="margin-top: 10px;">
-                <strong>الخدمات:</strong>
-                {services_html}
+        <div class="invoice-card">
+            <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 15px;">
+                <div>
+                    <h3 style="color: var(--primary); margin-bottom: 5px;">
+                        <i class="fas fa-file-invoice"></i> فاتورة #{invoice['invoice_id']}
+                    </h3>
+                    <p style="color: #666; margin-bottom: 10px;">
+                        <i class="fas fa-user"></i> {invoice['client_name']} 
+                        | <i class="fas fa-calendar"></i> {invoice['issue_date']}
+                    </p>
+                </div>
+                <div style="text-align: left;">
+                    <div style="font-size: 1.5em; font-weight: bold; color: var(--primary);">
+                        ${invoice['total_amount']:.2f}
+                    </div>
+                    <div style="color: #666; font-size: 0.9em;">
+                        {services_count} خدمة
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                {'<a href="' + invoice['pdf_path'] + '" download class="btn download-btn" style="padding: 8px 15px;"><i class="fas fa-download"></i> تحميل PDF</a>' if has_pdf else '<span class="btn" style="background: #6c757d; padding: 8px 15px;"><i class="fas fa-file-pdf"></i> PDF غير متوفر</span>'}
+                <button class="btn btn-outline" style="padding: 8px 15px;" onclick="alert('رقم الفاتورة: {invoice['invoice_id']}')">
+                    <i class="fas fa-copy"></i> نسخ الرقم
+                </button>
             </div>
         </div>
         """
     
     content = f"""
-    <div class="card">
-        <h2>📋 جميع الفواتير</h2>
-        <p>إجمالي الفواتير: {len(invoices)} فاتورة</p>
+    <div class="glass-card">
+        <h2 style="color: white; margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-file-invoice-dollar"></i> إدارة الفواتير
+        </h2>
+        <p style="color: rgba(255,255,255,0.8); text-align: center; margin-bottom: 30px;">
+            إجمالي الفواتير: {len(invoices)} فاتورة | إجمالي القيمة: ${sum(inv['total_amount'] for inv in invoices):,.2f}
+        </p>
     </div>
     
-    {invoices_html if invoices else '<div class="alert alert-error">لا توجد فواتير حالياً</div>'}
+    <div class="invoice-grid">
+        {invoices_html if invoices else '''
+        <div class="glass-card" style="text-align: center; padding: 50px;">
+            <i class="fas fa-file-invoice" style="font-size: 4em; color: rgba(255,255,255,0.5); margin-bottom: 20px;"></i>
+            <h3 style="color: white; margin-bottom: 15px;">لا توجد فواتير</h3>
+            <p style="color: rgba(255,255,255,0.7); margin-bottom: 25px;">ابدأ بإنشاء فاتورتك الأولى الآن</p>
+            <a href="/create" class="btn">
+                <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+            </a>
+        </div>
+        '''}
+    </div>
     """
     
-    return render_template_string(BASE_HTML, title="الفواتير - InvoiceFlow Pro", uptime=uptime_str, content=content)
+    return render_template_string(MODERN_BASE_HTML, title="إدارة الفواتير - InvoiceFlow Pro", uptime=uptime_str, content=content)
 
 @app.route('/create', methods=['GET', 'POST'])
 def create_invoice():
-    """إنشاء فاتورة جديدة"""
+    """إنشاء فاتورة جديدة مع PDF"""
     uptime = time.time() - keep_alive_system.uptime_start
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
@@ -565,7 +862,7 @@ def create_invoice():
             if not services:
                 content = '<div class="alert alert-error">❌ لم تدخل أي خدمات</div>'
                 content += create_invoice_form()
-                return render_template_string(BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
+                return render_template_string(MODERN_BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
             
             total_amount = sum(s['price'] for s in services)
             
@@ -583,95 +880,155 @@ def create_invoice():
                 'due_date': (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
             }
             
+            # إنشاء PDF احترافي
+            pdf_path, pdf_data = pdf_generator.create_professional_invoice(invoice_data)
+            
+            if pdf_path:
+                invoice_data['pdf_path'] = pdf_path
+            
             success = db_manager.save_invoice(invoice_data)
             
-            if success:
-                # إنشاء ملف الفاتورة
-                invoice_generator.create_text_invoice(invoice_data)
-                
+            if success and pdf_path:
                 success_content = f"""
                 <div class="alert alert-success">
-                    ✅ تم إنشاء الفاتورة بنجاح!
+                    <i class="fas fa-check-circle"></i> تم إنشاء الفاتورة بنجاح!
                 </div>
-                <div class="card">
-                    <h3>🧾 تفاصيل الفاتورة</h3>
-                    <p><strong>رقم الفاتورة:</strong> {invoice_data['invoice_id']}</p>
-                    <p><strong>العميل:</strong> {client_name}</p>
-                    <p><strong>المبلغ الإجمالي:</strong> ${total_amount:.2f}</p>
-                    <p><strong>التاريخ:</strong> {invoice_data['issue_date']}</p>
+                
+                <div class="glass-card">
+                    <h3 style="color: white; margin-bottom: 20px; text-align: center;">
+                        <i class="fas fa-file-pdf"></i> فاتورتك الجاهزة
+                    </h3>
                     
-                    <div style="margin-top: 20px;">
-                        <a href="/invoices" class="btn">📋 عرض جميع الفواتير</a>
-                        <a href="/create" class="btn" style="background: #667eea;">🧾 إنشاء فاتورة جديدة</a>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                        <div>
+                            <h4 style="color: var(--success); margin-bottom: 15px;">📋 تفاصيل الفاتورة:</h4>
+                            <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
+                                <p><strong>رقم الفاتورة:</strong> {invoice_data['invoice_id']}</p>
+                                <p><strong>العميل:</strong> {client_name}</p>
+                                <p><strong>المبلغ الإجمالي:</strong> ${total_amount:.2f}</p>
+                                <p><strong>التاريخ:</strong> {invoice_data['issue_date']}</p>
+                                <p><strong>عدد الخدمات:</strong> {len(services)}</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 style="color: var(--success); margin-bottom: 15px;">🚀 الإجراءات:</h4>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <a href="{pdf_path}" download class="btn download-btn" style="text-align: center;">
+                                    <i class="fas fa-download"></i> تحميل فاتورة PDF
+                                </a>
+                                <a href="/invoices" class="btn" style="text-align: center;">
+                                    <i class="fas fa-list"></i> عرض جميع الفواتير
+                                </a>
+                                <a href="/create" class="btn btn-outline" style="text-align: center;">
+                                    <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-top: 20px;">
+                        <h4 style="color: var(--success); margin-bottom: 10px;">💡 ملاحظة:</h4>
+                        <p style="color: rgba(255,255,255,0.8);">تم إنشاء فاتورة PDF احترافية يمكنك تحميلها ومشاركتها مع عميلك. الفاتورة تحتوي على جميع التفاصيل بشكل منظم واحترافي.</p>
                     </div>
                 </div>
                 """
-                return render_template_string(BASE_HTML, title="تم إنشاء الفاتورة - InvoiceFlow Pro", uptime=uptime_str, content=success_content)
+                return render_template_string(MODERN_BASE_HTML, title="تم إنشاء الفاتورة - InvoiceFlow Pro", uptime=uptime_str, content=success_content)
             else:
-                content = '<div class="alert alert-error">❌ فشل في حفظ الفاتورة</div>'
+                content = '<div class="alert alert-error">❌ فشل في حفظ الفاتورة أو إنشاء PDF</div>'
                 content += create_invoice_form()
-                return render_template_string(BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
+                return render_template_string(MODERN_BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
                 
         except Exception as e:
             content = f'<div class="alert alert-error">❌ حدث خطأ: {str(e)}</div>'
             content += create_invoice_form()
-            return render_template_string(BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
+            return render_template_string(MODERN_BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
     
     content = create_invoice_form()
-    return render_template_string(BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
+    return render_template_string(MODERN_BASE_HTML, title="إنشاء فاتورة - InvoiceFlow Pro", uptime=uptime_str, content=content)
 
 def create_invoice_form():
-    """نموذج إنشاء الفاتورة"""
+    """نموذج إنشاء الفاتورة المحسن"""
     return """
-    <div class="card">
-        <h2>🧾 إنشاء فاتورة جديدة</h2>
+    <div class="glass-card">
+        <h2 style="color: white; margin-bottom: 25px; text-align: center;">
+            <i class="fas fa-plus-circle"></i> إنشاء فاتورة جديدة
+        </h2>
         
         <form method="POST">
-            <div class="form-group">
-                <label for="client_name">👤 اسم العميل *</label>
-                <input type="text" id="client_name" name="client_name" class="form-control" placeholder="أدخل اسم العميل" required>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="form-group">
+                    <label for="client_name"><i class="fas fa-user"></i> اسم العميل *</label>
+                    <input type="text" id="client_name" name="client_name" class="form-control" 
+                           placeholder="أدخل اسم العميل الكامل" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="client_email"><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                    <input type="email" id="client_email" name="client_email" class="form-control" 
+                           placeholder="example@company.com">
+                </div>
             </div>
             
             <div class="form-group">
-                <label for="client_email">📧 البريد الإلكتروني (اختياري)</label>
-                <input type="email" id="client_email" name="client_email" class="form-control" placeholder="example@email.com">
+                <label for="client_phone"><i class="fas fa-phone"></i> رقم الهاتف</label>
+                <input type="text" id="client_phone" name="client_phone" class="form-control" 
+                       placeholder="+966 5X XXX XXXX">
             </div>
             
             <div class="form-group">
-                <label for="client_phone">📞 رقم الهاتف (اختياري)</label>
-                <input type="text" id="client_phone" name="client_phone" class="form-control" placeholder="+1234567890">
-            </div>
-            
-            <div class="form-group">
-                <label for="services">💰 الخدمات *</label>
-                <textarea id="services" name="services" class="form-control" rows="6" placeholder="أدخل الخدمات بالتنسيق:
-تصميم موقع : 1500
-استضافة ويب : 500
-صيانة : 300
+                <label for="services"><i class="fas fa-list-alt"></i> الخدمات *</label>
+                <textarea id="services" name="services" class="form-control" rows="8" 
+                          placeholder="أدخل الخدمات بالتنسيق التالي (خدمة واحدة في كل سطر):
+
+تصميم موقع إلكتروني : 1500
+استضافة ويب سنوية : 500
+صيانة دورية : 300
+تصميم شعار : 200
 ... إلخ" required></textarea>
-                <small style="color: rgba(255,255,255,0.7);">💡 استخدم النقطتين (:) لفصل اسم الخدمة عن السعر</small>
+                <div style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                    <small style="color: rgba(255,255,255,0.8);">
+                        <i class="fas fa-info-circle"></i> استخدم النقطتين (:) لفصل اسم الخدمة عن السعر. سعر الخدمة يجب أن يكون رقماً.
+                    </small>
+                </div>
             </div>
             
-            <button type="submit" class="btn">✅ إنشاء الفاتورة</button>
+            <div style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="btn" style="padding: 15px 40px; font-size: 1.1em;">
+                    <i class="fas fa-file-pdf"></i> إنشاء فاتورة PDF احترافية
+                </button>
+            </div>
         </form>
+    </div>
+    
+    <div class="glass-card">
+        <h3 style="color: white; margin-bottom: 15px;"><i class="fas fa-lightbulb"></i> نصائح سريعة</h3>
+        <div style="color: rgba(255,255,255,0.8); line-height: 1.6;">
+            <p>• سيتم إنشاء فاتورة PDF احترافية تحتوي على جميع التفاصيل بشكل منظم</p>
+            <p>• يمكنك تحميل الفاتورة ومشاركتها مع العملاء</p>
+            <p>• جميع الفواتير تحفظ تلقائياً في النظام</p>
+            <p>• يمكنك العودة لاحقاً لتحميل أي فاتورة سابقة</p>
+        </div>
     </div>
     """
 
+# باقي الـ Routes (stats, health) تبقى كما هي مع التعديل على التصميم
+
 @app.route('/stats')
 def stats_page():
-    """صفحة الإحصائيات"""
+    """صفحة الإحصائيات المحسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
     uptime_str = f"{hours} ساعة {minutes} دقيقة"
     
     stats = db_manager.get_stats()
-    invoices = db_manager.get_all_invoices()[:5]  # آخر 5 فواتير
+    invoices = db_manager.get_all_invoices()[:5]
     
     recent_invoices_html = ""
     for invoice in invoices:
         recent_invoices_html += f"""
-        <div class="invoice-item">
+        <div style="padding: 15px; background: rgba(255,255,255,0.1); margin: 8px 0; border-radius: 8px; border-left: 3px solid var(--success);">
             <strong>{invoice['invoice_id']}</strong> - {invoice['client_name']} - ${invoice['total_amount']:.2f}
         </div>
         """
@@ -679,33 +1036,50 @@ def stats_page():
     content = f"""
     <div class="stats-grid">
         <div class="stat-card">
-            <h3>📊 إجمالي الفواتير</h3>
+            <i class="fas fa-file-invoice"></i>
             <div class="stat-number">{stats['total_invoices']}</div>
-            <p>فاتورة</p>
+            <p>إجمالي الفواتير</p>
         </div>
         <div class="stat-card">
-            <h3>💰 إجمالي الإيرادات</h3>
-            <div class="stat-number">${stats['total_revenue']:,.2f}</div>
-            <p>دولار</p>
+            <i class="fas fa-dollar-sign"></i>
+            <div class="stat-number">${stats['total_revenue']:,.0f}</div>
+            <p>إجمالي الإيرادات</p>
         </div>
         <div class="stat-card">
-            <h3>📅 فواتير اليوم</h3>
+            <i class="fas fa-calendar-day"></i>
             <div class="stat-number">{stats['today_invoices']}</div>
-            <p>فاتورة</p>
+            <p>فواتير اليوم</p>
         </div>
     </div>
     
-    <div class="card">
-        <h2>📋 آخر الفواتير</h2>
-        {recent_invoices_html if recent_invoices_html else '<p>لا توجد فواتير حديثة</p>'}
+    <div class="glass-card">
+        <h2 style="color: white; margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-chart-line"></i> الإحصائيات والتقارير
+        </h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <h3 style="color: var(--success); margin-bottom: 15px;">📈 نظرة عامة</h3>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
+                    <p style="margin: 10px 0;"><strong>متوسط قيمة الفاتورة:</strong> ${stats['total_revenue']/max(stats['total_invoices'], 1):.2f}</p>
+                    <p style="margin: 10px 0;"><strong>إجمالي الفواتير النشطة:</strong> {stats['total_invoices']}</p>
+                    <p style="margin: 10px 0;"><strong>فواتير هذا الشهر:</strong> {stats['today_invoices']}</p>
+                </div>
+            </div>
+            
+            <div>
+                <h3 style="color: var(--success); margin-bottom: 15px;">📋 آخر الفواتير</h3>
+                {recent_invoices_html if recent_invoices_html else '<p style="color: rgba(255,255,255,0.7); text-align: center;">لا توجد فواتير حديثة</p>'}
+            </div>
+        </div>
     </div>
     """
     
-    return render_template_string(BASE_HTML, title="الإحصائيات - InvoiceFlow Pro", uptime=uptime_str, content=content)
+    return render_template_string(MODERN_BASE_HTML, title="الإحصائيات - InvoiceFlow Pro", uptime=uptime_str, content=content)
 
 @app.route('/health')
 def health_page():
-    """صفحة حالة النظام"""
+    """صفحة حالة النظام المحسنة"""
     uptime = time.time() - keep_alive_system.uptime_start
     hours = int(uptime // 3600)
     minutes = int((uptime % 3600) // 60)
@@ -714,60 +1088,73 @@ def health_page():
     stats = db_manager.get_stats()
     
     content = f"""
-    <div class="card">
-        <h2>❤️ حالة النظام</h2>
+    <div class="stats-grid">
+        <div class="stat-card" style="background: rgba(76, 201, 240, 0.2);">
+            <i class="fas fa-heartbeat"></i>
+            <div class="stat-number">نشط</div>
+            <p>حالة الخدمة</p>
+        </div>
         
-        <div class="stats-grid">
-            <div class="stat-card" style="background: rgba(0,255,136,0.2);">
-                <h3>🟢 حالة الخدمة</h3>
-                <div class="stat-number">نشط</div>
-                <p>يعمل بشكل طبيعي</p>
+        <div class="stat-card">
+            <i class="fas fa-clock"></i>
+            <div class="stat-number">{uptime_str.split(' ')[0]}</div>
+            <p>مدة التشغيل</p>
+        </div>
+        
+        <div class="stat-card">
+            <i class="fas fa-database"></i>
+            <div class="stat-number">{stats['total_invoices']}</div>
+            <p>الفواتير المخزنة</p>
+        </div>
+    </div>
+    
+    <div class="glass-card">
+        <h2 style="color: white; margin-bottom: 25px; text-align: center;">
+            <i class="fas fa-server"></i> حالة النظام والخدمات
+        </h2>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            <div style="text-align: center; padding: 20px; background: rgba(76, 201, 240, 0.1); border-radius: 10px;">
+                <i class="fas fa-check-circle" style="color: var(--success); font-size: 2em;"></i>
+                <h4 style="color: white; margin: 10px 0;">خادم الويب</h4>
+                <p style="color: rgba(255,255,255,0.8);">يعمل بشكل طبيعي</p>
             </div>
             
-            <div class="stat-card">
-                <h3>⏰ مدة التشغيل</h3>
-                <div class="stat-number">{uptime_str}</div>
-                <p>منذ آخر تشغيل</p>
+            <div style="text-align: center; padding: 20px; background: rgba(76, 201, 240, 0.1); border-radius: 10px;">
+                <i class="fas fa-check-circle" style="color: var(--success); font-size: 2em;"></i>
+                <h4 style="color: white; margin: 10px 0;">قاعدة البيانات</h4>
+                <p style="color: rgba(255,255,255,0.8);">متصل ومستقر</p>
             </div>
             
-            <div class="stat-card">
-                <h3>📊 الفواتير</h3>
-                <div class="stat-number">{stats['total_invoices']}</div>
-                <p>فاتورة مخزنة</p>
+            <div style="text-align: center; padding: 20px; background: rgba(76, 201, 240, 0.1); border-radius: 10px;">
+                <i class="fas fa-check-circle" style="color: var(--success); font-size: 2em;"></i>
+                <h4 style="color: white; margin: 10px 0;">نظام PDF</h4>
+                <p style="color: rgba(255,255,255,0.8);">جاهز للعمل</p>
             </div>
         </div>
         
-        <div style="margin-top: 20px;">
-            <h3>✅ جميع الأنظمة تعمل بشكل طبيعي</h3>
-            <ul style="list-style: none; margin: 15px 0;">
-                <li>✅ خادم الويب نشط</li>
-                <li>✅ قاعدة البيانات متصلة</li>
-                <li>✅ نظام الفواتير يعمل</li>
-                <li>✅ الذاكرة مستقرة</li>
-            </ul>
+        <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+            <h3 style="color: var(--success); margin-bottom: 15px;">✅ جميع الأنظمة تعمل بشكل طبيعي</h3>
+            <div style="color: rgba(255,255,255,0.8); line-height: 1.6;">
+                <p>• خادم الويب يستجيب للطلبات</p>
+                <p>• قاعدة البيانات متصلة وتعمل</p>
+                <p>• نظام إنشاء PDF جاهز</p>
+                <p>• الذاكرة مستقرة</p>
+                <p>• النظام يعمل 24/7 على السحابة</p>
+            </div>
         </div>
     </div>
     """
     
-    return render_template_string(BASE_HTML, title="حالة النظام - InvoiceFlow Pro", uptime=uptime_str, content=content)
-
-@app.route('/api/health')
-def api_health():
-    """API لفحص صحة النظام"""
-    return jsonify({
-        "status": "healthy",
-        "service": "InvoiceFlow Pro",
-        "version": "ULTIMATE FREE - Web Edition",
-        "uptime": time.time() - keep_alive_system.uptime_start,
-        "timestamp": datetime.now().isoformat()
-    })
+    return render_template_string(MODERN_BASE_HTML, title="حالة النظام - InvoiceFlow Pro", uptime=uptime_str, content=content)
 
 # ================== التشغيل الرئيسي ==================
 if __name__ == '__main__':
     try:
-        print("🌟 بدء تشغيل النظام على السحابة...")
+        print("🌟 بدء تشغيل النظام الاحترافي...")
         print(f"🌐 الخادم يعمل على: http://0.0.0.0:{port}")
         print("✅ النظام جاهز لاستقبال الطلبات!")
+        print("📄 نظام PDF الاحترافي مفعل!")
         
         # تشغيل خادم Flask
         app.run(host='0.0.0.0', port=port, debug=False)
