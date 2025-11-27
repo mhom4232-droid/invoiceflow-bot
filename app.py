@@ -24,16 +24,12 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'invoiceflow_pro_enterprise_2024_v3')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
-# الحصول على البورت من بيئة Render أو استخدام 10000 محلياً
+# الحصول على البورت من بيئة Render
 port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
 print("🎯 InvoiceFlow Pro - نظام إدارة الفواتير الاحترافي")
-print("🚀 الإصدار النهائي المتكامل - فريق العمل بالكامل")
-print("👨💻 فريق الهندسة: أحمد، فاطمة، محمد، سارة، ريم، باسم")
-print("🎨 فريق التصميم: سلمى، ليلى، خالد، ياسمين")
-print("🤖 فريق الذكاء الاصطناعي: نادية، عمر، هبة")
-print("💼 فريق الأعمال: هدى، وليد، ياسر")
+print("🚀 الإصدار النهائي المتكامل - تم إصلاح الأخطاء")
 print("=" * 80)
 
 # ================== نظام إدارة قاعدة البيانات المحسن ==================
@@ -44,20 +40,13 @@ class DatabaseManager:
     def ensure_database_path(self):
         """تأكيد وجود مسار قاعدة البيانات"""
         try:
-            if 'RENDER' in os.environ:
-                db_dir = os.path.join(os.getcwd(), 'database')
-                Path(db_dir).mkdir(parents=True, exist_ok=True)
-                db_path = os.path.join(db_dir, 'invoiceflow_pro.db')
-                print(f"📁 مسار قاعدة البيانات على Render: {db_path}")
-                return db_path
-            else:
-                db_dir = 'database'
-                Path(db_dir).mkdir(parents=True, exist_ok=True)
-                db_path = os.path.join(db_dir, 'invoiceflow_pro.db')
-                print(f"📁 مسار قاعدة البيانات محلياً: {db_path}")
-                return db_path
+            db_dir = os.path.join(os.getcwd(), 'database')
+            Path(db_dir).mkdir(parents=True, exist_ok=True)
+            db_path = os.path.join(db_dir, 'invoiceflow_pro.db')
+            print(f"📁 مسار قاعدة البيانات: {db_path}")
+            return db_path
         except Exception as e:
-            print(f"⚠️  خطأ في إنشاء المسار، استخدام المسار الافتراضي: {e}")
+            print(f"⚠️  خطأ في إنشاء المسار: {e}")
             return 'invoiceflow_pro.db'
     
     def get_connection(self):
@@ -258,20 +247,6 @@ class InvoiceManager:
                     is_active BOOLEAN DEFAULT 1,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS services (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT NOT NULL,
-                    name TEXT NOT NULL,
-                    description TEXT,
-                    price DECIMAL(15,2) NOT NULL,
-                    unit TEXT DEFAULT 'ساعة',
-                    category TEXT DEFAULT 'عام',
-                    is_active BOOLEAN DEFAULT 1,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
 
@@ -477,14 +452,14 @@ class ProfessionalPDFGenerator:
             fontName='Helvetica-Bold'
         )
         
-        title = Paragraph(arabic_text("فاتورة رسمية"), title_style)
+        title = Paragraph(self.arabic_text("فاتورة رسمية"), title_style)
         elements.append(title)
         
         header_data = [
-            [arabic_text('رقم الفاتورة'), arabic_text(invoice_data['invoice_number'])],
-            [arabic_text('تاريخ الإصدار'), arabic_text(invoice_data['issue_date'])],
-            [arabic_text('تاريخ الاستحقاق'), arabic_text(invoice_data['due_date'])],
-            [arabic_text('الحالة'), arabic_text(invoice_data.get('status', 'مسودة'))]
+            [self.arabic_text('رقم الفاتورة'), self.arabic_text(invoice_data['invoice_number'])],
+            [self.arabic_text('تاريخ الإصدار'), self.arabic_text(invoice_data['issue_date'])],
+            [self.arabic_text('تاريخ الاستحقاق'), self.arabic_text(invoice_data['due_date'])],
+            [self.arabic_text('الحالة'), self.arabic_text(invoice_data.get('status', 'مسودة'))]
         ]
         
         header_table = Table(header_data, colWidths=[200, 200])
@@ -509,14 +484,14 @@ class ProfessionalPDFGenerator:
         elements = []
         
         company_name = invoice_data.get('company_name', 'InvoiceFlow Pro')
-        company_info = arabic_text(f"""
+        company_info = self.arabic_text(f"""
         {company_name}
         نظام إدارة الفواتير الاحترافي
         البريد الإلكتروني: info@invoiceflow.com
         الهاتف: +966500000000
         """)
         
-        client_info = arabic_text(f"""
+        client_info = self.arabic_text(f"""
         {invoice_data['client_name']}
         {invoice_data.get('client_email', '')}
         {invoice_data.get('client_phone', '')}
@@ -524,7 +499,7 @@ class ProfessionalPDFGenerator:
         """)
         
         info_data = [
-            [arabic_text('معلومات البائع'), arabic_text('معلومات العميل')],
+            [self.arabic_text('معلومات البائع'), self.arabic_text('معلومات العميل')],
             [Paragraph(company_info.replace('\n', '<br/>'), self.styles['Normal']), 
              Paragraph(client_info.replace('\n', '<br/>'), self.styles['Normal'])]
         ]
@@ -551,18 +526,18 @@ class ProfessionalPDFGenerator:
         """جدول الخدمات بتصميم متطور"""
         elements = []
         
-        section_title = Paragraph(arabic_text("الخدمات والمنتجات"), self.styles['Heading2'])
+        section_title = Paragraph(self.arabic_text("الخدمات والمنتجات"), self.styles['Heading2'])
         elements.append(section_title)
         elements.append(Spacer(1, 10))
         
-        header = [arabic_text('الخدمة'), arabic_text('الوصف'), arabic_text('الكمية'), arabic_text('سعر الوحدة'), arabic_text('المجموع')]
+        header = [self.arabic_text('الخدمة'), self.arabic_text('الوصف'), self.arabic_text('الكمية'), self.arabic_text('سعر الوحدة'), self.arabic_text('المجموع')]
         data = [header]
         
         for service in invoice_data['services']:
             total = service['quantity'] * service['price']
             data.append([
-                arabic_text(service['name']),
-                arabic_text(service.get('description', '')),
+                self.arabic_text(service['name']),
+                self.arabic_text(service.get('description', '')),
                 str(service['quantity']),
                 f"{service['price']:,.2f}",
                 f"{total:,.2f}"
@@ -594,9 +569,9 @@ class ProfessionalPDFGenerator:
         elements = []
         
         totals_data = [
-            [arabic_text('المجموع الفرعي:'), f"{invoice_data['subtotal']:,.2f}"],
-            [arabic_text(f'الضريبة ({invoice_data["tax_rate"]}%):'), f"{invoice_data['tax_amount']:,.2f}"],
-            [arabic_text('الإجمالي النهائي:'), f"{invoice_data['total_amount']:,.2f}"]
+            [self.arabic_text('المجموع الفرعي:'), f"{invoice_data['subtotal']:,.2f}"],
+            [self.arabic_text(f'الضريبة ({invoice_data["tax_rate"]}%):'), f"{invoice_data['tax_amount']:,.2f}"],
+            [self.arabic_text('الإجمالي النهائي:'), f"{invoice_data['total_amount']:,.2f}"]
         ]
         
         totals_table = Table(totals_data, colWidths=[300, 100])
@@ -616,9 +591,9 @@ class ProfessionalPDFGenerator:
         if invoice_data.get('notes') or invoice_data.get('payment_terms'):
             notes_text = ""
             if invoice_data.get('payment_terms'):
-                notes_text += f"{arabic_text('شروط الدفع:')} {arabic_text(invoice_data['payment_terms'])}<br/>"
+                notes_text += f"{self.arabic_text('شروط الدفع:')} {self.arabic_text(invoice_data['payment_terms'])}<br/>"
             if invoice_data.get('notes'):
-                notes_text += f"{arabic_text('ملاحظات:')} {arabic_text(invoice_data['notes'])}"
+                notes_text += f"{self.arabic_text('ملاحظات:')} {self.arabic_text(invoice_data['notes'])}"
             
             notes_paragraph = Paragraph(notes_text, self.styles['Normal'])
             elements.append(notes_paragraph)
@@ -630,7 +605,7 @@ class ProfessionalPDFGenerator:
         """تذييل الفاتورة الاحترافي"""
         elements = []
         
-        footer_text = arabic_text("""
+        footer_text = self.arabic_text("""
         InvoiceFlow Pro - نظام إدارة الفواتير الاحترافي
         هاتف: +966500000000 | البريد الإلكتروني: info@invoiceflow.com
         شكراً لتعاملكم معنا
@@ -650,6 +625,14 @@ class ProfessionalPDFGenerator:
         
         return elements
 
+    def arabic_text(self, text):
+        """معالجة النص العربي للعرض في PDF"""
+        try:
+            reshaped_text = arabic_reshaper.reshape(text)
+            return get_display(reshaped_text)
+        except:
+            return text
+
 # ================== نظام الذكاء الاصطناعي ==================
 class InvoiceAI:
     def __init__(self):
@@ -659,19 +642,19 @@ class InvoiceAI:
         """ترحيب ذكي مخصص لكل مستخدم"""
         user_stats = invoice_manager.get_user_stats(username)
         return f"""
-        <div class="content-section" style="background: linear-gradient(135deg, var(--primary-dark), #1a237e); color: white;">
+        <div class="content-section" style="background: linear-gradient(135deg, #0F172A, #1a237e); color: white;">
             <h3 style="margin-bottom: 15px; color: white;">
                 <i class="fas fa-brain"></i> المساعد الذكي - InvoiceAI
             </h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <h4 style="color: var(--accent-teal); margin-bottom: 10px;">🧠 ترحيب ذكي</h4>
+                    <h4 style="color: #0D9488; margin-bottom: 10px;">🧠 ترحيب ذكي</h4>
                     <p>مرحباً <b>{username}</b>! 👋</p>
                     <p>• الإيرادات المتوقعة: <b>${user_stats['total_revenue'] * 1.15:,.0f}</b></p>
                     <p>• فواتير تحت المتابعة: <b>{user_stats['pending_invoices']}</b></p>
                 </div>
                 <div>
-                    <h4 style="color: var(--accent-teal); margin-bottom: 10px;">💡 توصيات ذكية</h4>
+                    <h4 style="color: #0D9488; margin-bottom: 10px;">💡 توصيات ذكية</h4>
                     {self.generate_smart_recommendations(username)}
                 </div>
             </div>
@@ -696,14 +679,6 @@ class InvoiceAI:
         return "".join(f'<p>• {rec}</p>' for rec in recommendations)
 
 # ================== الدوال المساعدة ==================
-def arabic_text(text):
-    """معالجة النص العربي للعرض في PDF"""
-    try:
-        reshaped_text = arabic_reshaper.reshape(text)
-        return get_display(reshaped_text)
-    except:
-        return text
-
 def validate_invoice_data(data):
     """التحقق من صحة بيانات الفاتورة"""
     required_fields = ['client_name', 'services']
@@ -1537,7 +1512,7 @@ PROFESSIONAL_DESIGN = """
 </html>
 """
 
-# ================== Routes الاحترافية ==================
+# ================== Routes الأساسية ==================
 @app.route('/')
 def dashboard():
     """لوحة التحكم الرئيسية"""
@@ -1561,8 +1536,7 @@ def dashboard():
         </a>
         '''
     
-    content = f"""
-    {ai_welcome}
+    content = ai_welcome + f"""
     
     <div class="stats-grid">
         <div class="stat-card">
@@ -2047,6 +2021,46 @@ def invoices_list():
     
     user_invoices = invoice_manager.get_user_invoices(session['username'])
     
+    invoices_html = ""
+    if user_invoices:
+        for inv in user_invoices:
+            invoices_html += f"""
+            <div class="invoice-item" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border-light);">
+                <div style="display: flex; justify-content: between; align-items: center;">
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 5px 0; color: var(--primary-dark);">{inv['number']}</h4>
+                        <p style="margin: 0; color: var(--light-slate);">العميل: {inv['client']}</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.2em; font-weight: bold; color: var(--accent-blue);">${inv['amount']:,.2f}</div>
+                        <span class="status-badge {inv['status']}">{inv['status']}</span>
+                    </div>
+                    <div style="text-align: left;">
+                        <small style="color: var(--light-slate);">{inv['issue_date']}</small>
+                        <div style="margin-top: 10px;">
+                            <a href="/invoices/{inv['number']}/pdf" class="btn-action" style="background: var(--accent-blue); color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; margin-right: 5px;">
+                                <i class="fas fa-download"></i> PDF
+                            </a>
+                            <button class="btn-action" style="background: var(--accent-teal); color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """
+    else:
+        invoices_html = '''
+        <div style="text-align: center; padding: 40px; color: var(--light-slate);">
+            <i class="fas fa-receipt" style="font-size: 3em; margin-bottom: 20px; opacity: 0.5;"></i>
+            <h3>لا توجد فواتير</h3>
+            <p>ابدأ بإنشاء فاتورتك الأولى</p>
+            <a href="/invoices/create" class="btn" style="margin-top: 20px;">
+                <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
+            </a>
+        </div>
+        '''
+    
     content = f"""
     <div class="dashboard-header">
         <h1><i class="fas fa-receipt"></i> إدارة الفواتير</h1>
@@ -2061,40 +2075,7 @@ def invoices_list():
             </a>
         </div>
         
-        {"".join([f"""
-        <div class="invoice-item" style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border: 1px solid var(--border-light);">
-            <div style="display: flex; justify-content: between; align-items: center;">
-                <div style="flex: 1;">
-                    <h4 style="margin: 0 0 5px 0; color: var(--primary-dark);">{inv['number']}</h4>
-                    <p style="margin: 0; color: var(--light-slate);">العميل: {inv['client']}</p>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 1.2em; font-weight: bold; color: var(--accent-blue);">${inv['amount']:,.2f}</div>
-                    <span class="status-badge {inv['status']}">{inv['status']}</span>
-                </div>
-                <div style="text-align: left;">
-                    <small style="color: var(--light-slate);">{inv['issue_date']}</small>
-                    <div style="margin-top: 10px;">
-                        <a href="/invoices/{inv['number']}/pdf" class="btn-action" style="background: var(--accent-blue); color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none; margin-right: 5px;">
-                            <i class="fas fa-download"></i> PDF
-                        </a>
-                        <button class="btn-action" style="background: var(--accent-teal); color: white; padding: 5px 10px; border-radius: 5px; text-decoration: none;">
-                            <i class="fas fa-eye"></i> عرض
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        """ for inv in user_invoices]) if user_invoices else '''
-        <div style="text-align: center; padding: 40px; color: var(--light-slate);">
-            <i class="fas fa-receipt" style="font-size: 3em; margin-bottom: 20px; opacity: 0.5;"></i>
-            <h3>لا توجد فواتير</h3>
-            <p>ابدأ بإنشاء فاتورتك الأولى</p>
-            <a href="/invoices/create" class="btn" style="margin-top: 20px;">
-                <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
-            </a>
-        </div>
-        '''}
+        {invoices_html}
     </div>
 
     <style>
@@ -2485,22 +2466,10 @@ def clients_management():
     
     user_clients = invoice_manager.get_user_clients(session['username'])
     
-    content = f"""
-    <div class="dashboard-header">
-        <h1><i class="fas fa-users"></i> إدارة العملاء</h1>
-        <p>إدارة قاعدة بيانات عملائك بسهولة واحترافية</p>
-    </div>
-
-    <div class="content-section">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3><i class="fas fa-address-book"></i> قائمة العملاء</h3>
-            <button class="btn" onclick="openAddClientModal()">
-                <i class="fas fa-plus"></i> إضافة عميل جديد
-            </button>
-        </div>
-        
-        <div class="clients-grid">
-            {"".join([f"""
+    clients_html = ""
+    if user_clients:
+        for client in user_clients:
+            clients_html += f"""
             <div class="client-card">
                 <div class="client-header">
                     <h3>{client['name']}</h3>
@@ -2524,16 +2493,35 @@ def clients_management():
                     </button>
                 </div>
             </div>
-            """ for client in user_clients]) if user_clients else '''
-            <div class="empty-state">
-                <i class="fas fa-users" style="font-size: 4em;"></i>
-                <h3>لا يوجد عملاء</h3>
-                <p>ابدأ بإضافة عميلك الأول</p>
-                <button class="btn" onclick="openAddClientModal()" style="margin-top: 20px;">
-                    <i class="fas fa-plus"></i> إضافة عميل جديد
-                </button>
-            </div>
-            '''}
+            """
+    else:
+        clients_html = '''
+        <div class="empty-state">
+            <i class="fas fa-users" style="font-size: 4em;"></i>
+            <h3>لا يوجد عملاء</h3>
+            <p>ابدأ بإضافة عميلك الأول</p>
+            <button class="btn" onclick="openAddClientModal()" style="margin-top: 20px;">
+                <i class="fas fa-plus"></i> إضافة عميل جديد
+            </button>
+        </div>
+        '''
+    
+    content = f"""
+    <div class="dashboard-header">
+        <h1><i class="fas fa-users"></i> إدارة العملاء</h1>
+        <p>إدارة قاعدة بيانات عملائك بسهولة واحترافية</p>
+    </div>
+
+    <div class="content-section">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3><i class="fas fa-address-book"></i> قائمة العملاء</h3>
+            <button class="btn" onclick="openAddClientModal()">
+                <i class="fas fa-plus"></i> إضافة عميل جديد
+            </button>
+        </div>
+        
+        <div class="clients-grid">
+            {clients_html}
         </div>
     </div>
 
@@ -2595,55 +2583,55 @@ def clients_management():
     </div>
 
     <script>
-        function openAddClientModal() {
+        function openAddClientModal() {{
             document.getElementById('addClientModal').style.display = 'block';
-        }
+        }}
 
-        function closeAddClientModal() {
+        function closeAddClientModal() {{
             document.getElementById('addClientModal').style.display = 'none';
-        }
+        }}
 
-        function saveClient() {
+        function saveClient() {{
             const form = document.getElementById('addClientForm');
             const formData = new FormData(form);
             
-            fetch('/api/clients', {
+            fetch('/api/clients', {{
                 method: 'POST',
                 body: formData
-            })
+            }})
             .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(data => {{
+                if (data.success) {{
                     location.reload();
-                } else {
+                }} else {{
                     alert('خطأ: ' + data.message);
-                }
-            })
-            .catch(error => {
+                }}
+            }})
+            .catch(error => {{
                 alert('خطأ في الإضافة: ' + error);
-            });
-        }
+            }});
+        }}
 
-        function createInvoiceForClient(clientId) {
+        function createInvoiceForClient(clientId) {{
             window.location.href = '/invoices/create?client_id=' + clientId;
-        }
+        }}
 
-        function editClient(clientId) {
+        function editClient(clientId) {{
             alert('ميزة التعديل قريباً في الإصدار القادم');
-        }
+        }}
 
-        function deleteClient(clientId) {
-            if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+        function deleteClient(clientId) {{
+            if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {{
                 alert('ميزة الحذف قريباً في الإصدار القادم');
-            }
-        }
+            }}
+        }}
 
-        window.onclick = function(event) {
+        window.onclick = function(event) {{
             const modal = document.getElementById('addClientModal');
-            if (event.target == modal) {
+            if (event.target == modal) {{
                 modal.style.display = 'none';
-            }
-        }
+            }}
+        }}
     </script>
     """
     
@@ -2686,6 +2674,27 @@ def reports():
     
     stats = invoice_manager.get_user_stats(session['username'])
     invoices = invoice_manager.get_user_invoices(session['username'])
+    
+    invoices_html = ""
+    if invoices:
+        for inv in invoices[:10]:
+            payment_class = 'مدفوع' if inv['payment_status'] == 'مدفوع' else 'غير_مدفوع'
+            invoices_html += f"""
+            <tr>
+                <td>{inv['number']}</td>
+                <td>{inv['client']}</td>
+                <td>{inv['issue_date']}</td>
+                <td>${inv['amount']:,.2f}</td>
+                <td><span class="status-badge {inv['status']}">{inv['status']}</span></td>
+                <td><span class="payment-badge {payment_class}">{inv['payment_status']}</span></td>
+            </tr>
+            """
+    else:
+        invoices_html = '''
+        <tr>
+            <td colspan="6" style="text-align: center; padding: 20px;">لا توجد فواتير لعرضها</td>
+        </tr>
+        '''
     
     content = f"""
     <div class="dashboard-header">
@@ -2737,20 +2746,7 @@ def reports():
                     </tr>
                 </thead>
                 <tbody>
-                    {"".join([f"""
-                    <tr>
-                        <td>{inv['number']}</td>
-                        <td>{inv['client']}</td>
-                        <td>{inv['issue_date']}</td>
-                        <td>${inv['amount']:,.2f}</td>
-                        <td><span class="status-badge {inv['status']}">{inv['status']}</span></td>
-                        <td><span class="payment-badge {'مدفوع' if inv['payment_status'] == 'مدفوع' else 'غير مدفوع'}">{inv['payment_status']}</span></td>
-                    </tr>
-                    """ for inv in invoices[:10]]) if invoices else '''
-                    <tr>
-                        <td colspan="6" style="text-align: center; padding: 20px;">لا توجد فواتير لعرضها</td>
-                    </tr>
-                    '''}
+                    {invoices_html}
                 </tbody>
             </table>
         </div>
@@ -2875,7 +2871,7 @@ create_tables()
 if __name__ == '__main__':
     try:
         print("🌟 بدء تشغيل InvoiceFlow Pro النهائي...")
-        print("🔧 تم تدقيق الكود وإصلاح جميع الأخطاء")
+        print("🔧 تم إصلاح جميع الأخطاء وجاهز لـ Render")
         print("📱 تصميم متجاوب يعمل على جميع الأجهزة")
         print("💾 قاعدة بيانات منظمة ومحسنة")
         print("🎯 النظام متكامل وجاهز للإنتاج")
@@ -2889,10 +2885,7 @@ if __name__ == '__main__':
         
         create_tables()
         
-        if 'RENDER' in os.environ:
-            app.run(host='0.0.0.0', port=port, debug=False)
-        else:
-            app.run(host='0.0.0.0', port=port, debug=True)
+        app.run(host='0.0.0.0', port=port, debug=False)
             
     except Exception as e:
         print(f"❌ خطأ في التشغيل: {e}")
