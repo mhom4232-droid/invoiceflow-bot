@@ -1161,7 +1161,7 @@ ELITE_DESIGN_HTML = """
 </html>
 """
 
-# ================== Routes النخبوية ==================
+# ================== Routes النخبوية المصححة ==================
 @app.route('/')
 def elite_home():
     """الصفحة الرئيسية النخبوية"""
@@ -1177,6 +1177,11 @@ def elite_home():
     stats = elite_db.get_elite_stats(session['username'])
     user_invoices = elite_db.get_user_elite_invoices(session['username'])
     ai_analysis = elite_ai.comprehensive_analysis(user_invoices, stats)
+    
+    # إصلاح الخطأ: استخدام علامات اقتباس مختلفة
+    admin_button = ''
+    if session.get('user_type') == 'admin':
+        admin_button = '<a href="/elite/admin" class="elite-btn" style="background: linear-gradient(135deg, var(--accent-gold), var(--primary-brown));"><i class="fas fa-crown"></i> لوحة التحكم</a>'
     
     content = f"""
     <div class="elite-stats-grid">
@@ -1239,13 +1244,13 @@ def elite_home():
                 <i class="fas fa-bolt"></i> إجراءات سريعة
             </h3>
             <div style="display: flex; flex-direction: column; gap: 15px;">
-                <a href="{{ url_for('elite_create_invoice') }}" class="elite-btn">
+                <a href="/elite/create" class="elite-btn">
                     <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
                 </a>
-                <a href="{{ url_for('elite_invoices') }}" class="elite-btn elite-btn-secondary">
+                <a href="/elite/invoices" class="elite-btn elite-btn-secondary">
                     <i class="fas fa-list"></i> عرض جميع الفواتير
                 </a>
-                {'<a href="{{ url_for('elite_admin') }}" class="elite-btn" style="background: linear-gradient(135deg, var(--accent-gold), var(--primary-brown));"><i class="fas fa-crown"></i> لوحة التحكم</a>' if session.get('user_type') == 'admin' else ''}
+                {admin_button}
             </div>
         </div>
         
@@ -1450,7 +1455,72 @@ def elite_logout():
     session.clear()
     return redirect(url_for('elite_login'))
 
-# ... سيتم إضافة المزيد من الـ Routes النخبوية
+@app.route('/elite/profile')
+def elite_profile():
+    """الصفحة الشخصية النخبوية"""
+    if 'user_logged_in' not in session:
+        return redirect(url_for('elite_login'))
+    
+    uptime = time.time() - keep_alive_system.uptime_start
+    hours = int(uptime // 3600)
+    minutes = int((uptime % 3600) // 60)
+    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    
+    user_profile = elite_users.get_elite_profile(session['username'])
+    stats = elite_db.get_elite_stats(session['username'])
+    
+    content = f"""
+    <div class="elite-header">
+        <h2 style="margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-user-tie"></i> الملف الشخصي النخبوي
+        </h2>
+    </div>
+    
+    <div class="elite-stats-grid">
+        <div class="elite-stat-card">
+            <i class="fas fa-file-invoice" style="color: var(--primary-brown);"></i>
+            <div class="elite-stat-number">{stats['total_invoices']}</div>
+            <p>فواتيرك</p>
+        </div>
+        <div class="elite-stat-card">
+            <i class="fas fa-dollar-sign" style="color: var(--primary-brown);"></i>
+            <div class="elite-stat-number">${stats['total_revenue']:,.0f}</div>
+            <p>إيراداتك</p>
+        </div>
+        <div class="elite-stat-card">
+            <i class="fas fa-clock" style="color: var(--primary-brown);"></i>
+            <div class="elite-stat-number">{stats['pending_invoices']}</div>
+            <p>معلقة</p>
+        </div>
+        <div class="elite-stat-card">
+            <i class="fas fa-crown" style="color: var(--primary-brown);"></i>
+            <div class="elite-stat-number">{user_profile.get('subscription_tier', 'basic').title()}</div>
+            <p>مستواك</p>
+        </div>
+    </div>
+    
+    <div class="elite-profile-section">
+        <h3 style="margin-bottom: 25px; color: var(--dark-brown);">
+            <i class="fas fa-id-card"></i> المعلومات الشخصية
+        </h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <p><strong>اسم المستخدم:</strong> {user_profile['username']}</p>
+                <p><strong>البريد الإلكتروني:</strong> {user_profile['email']}</p>
+                <p><strong>الاسم الكامل:</strong> {user_profile['full_name']}</p>
+                <p><strong>الشركة:</strong> {user_profile.get('company_name', 'غير محدد')}</p>
+            </div>
+            <div>
+                <p><strong>نوع الحساب:</strong> {user_profile['user_type']}</p>
+                <p><strong>مستوى الاشتراك:</strong> {user_profile.get('subscription_tier', 'basic').title()}</p>
+                <p><strong>آخر دخول:</strong> {user_profile['last_login'] or 'لم يسجل'}</p>
+                <p><strong>تاريخ الانضمام:</strong> {user_profile['created_at'][:10] if user_profile['created_at'] else 'غير محدد'}</p>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(ELITE_DESIGN_HTML, title="الملف الشخصي - InvoiceFlow Elite", uptime=uptime_str, content=content)
 
 # ================== نظام الإبقاء على التشغيل ==================
 class EliteKeepAlive:
