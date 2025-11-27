@@ -1343,6 +1343,60 @@ PROFESSIONAL_DESIGN = """
             margin-bottom: 20px;
             color: var(--border-light);
         }
+        
+        /* أنماط المودال */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--pure-white);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .close {
+            color: var(--light-slate);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
@@ -2457,103 +2511,48 @@ def clients_management():
         </div>
     </div>
 
-    <style>
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-        }
-        
-        .modal-content {
-            background-color: var(--pure-white);
-            margin: 5% auto;
-            padding: 0;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 700px;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .modal-header {
-            padding: 20px 25px;
-            border-bottom: 1px solid var(--border-light);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .modal-body {
-            padding: 25px;
-        }
-        
-        .modal-footer {
-            padding: 20px 25px;
-            border-top: 1px solid var(--border-light);
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-        
-        .close {
-            color: var(--light-slate);
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .close:hover {
-            color: var(--primary-dark);
-        }
-    </style>
-
     <script>
-        function showAddClientModal() {
+        function showAddClientModal() {{
             document.getElementById('addClientModal').style.display = 'block';
-        }
+        }}
         
-        function closeAddClientModal() {
+        function closeAddClientModal() {{
             document.getElementById('addClientModal').style.display = 'none';
-        }
+        }}
         
-        async function addClient(event) {
+        async function addClient(event) {{
             event.preventDefault();
             const formData = new FormData(event.target);
             
-            try {
-                const response = await fetch('/clients', {
+            try {{
+                const response = await fetch('/clients', {{
                     method: 'POST',
                     body: formData
-                });
+                }});
                 
                 const result = await response.json();
                 
-                if (result.success) {
+                if (result.success) {{
                     closeAddClientModal();
                     alert(result.message);
                     setTimeout(() => location.reload(), 1000);
-                } else {
+                }} else {{
                     alert(result.message);
-                }
-            } catch (error) {
+                }}
+            }} catch (error) {{
                 alert('خطأ في الإتصال');
-            }
-        }
+            }}
+        }}
         
         // البحث والتصفية
         document.getElementById('searchClients').addEventListener('input', filterClients);
         document.getElementById('filterCategory').addEventListener('change', filterClients);
         
-        function filterClients() {
+        function filterClients() {{
             const searchTerm = document.getElementById('searchClients').value.toLowerCase();
             const categoryFilter = document.getElementById('filterCategory').value;
             
-            document.querySelectorAll('.client-card').forEach(card => {
+            document.querySelectorAll('.client-card').forEach(card => {{
                 const name = card.querySelector('h3').textContent.toLowerCase();
                 const category = card.getAttribute('data-category');
                 
@@ -2561,22 +2560,22 @@ def clients_management():
                 const matchesCategory = !categoryFilter || category === categoryFilter;
                 
                 card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
-            });
-        }
+            }});
+        }}
         
-        function editClient(clientId) {
+        function editClient(clientId) {{
             alert('سيتم تنفيذ تعديل العميل في الإصدار القادم - العميل: ' + clientId);
-        }
+        }}
         
-        function createInvoiceForClient(clientId) {
+        function createInvoiceForClient(clientId) {{
             alert('سيتم إنشاء فاتورة للعميل في الإصدار القادم - العميل: ' + clientId);
-        }
+        }}
         
-        function deleteClient(clientId) {
-            if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+        function deleteClient(clientId) {{
+            if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {{
                 alert('سيتم حذف العميل في الإصدار القادم - العميل: ' + clientId);
-            }
-        }
+            }}
+        }}
     </script>
     """
     
@@ -2759,32 +2758,32 @@ def reports():
     </div>
 
     <style>
-        .status-badge {
+        .status-badge {{
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.8em;
             font-weight: 600;
-        }
+        }}
         
-        .status-badge.مسددة { background: var(--success); color: white; }
-        .status-badge.معلقة { background: var(--warning); color: white; }
-        .status-badge.مسودة { background: var(--light-slate); color: white; }
+        .status-badge.مسددة {{ background: var(--success); color: white; }}
+        .status-badge.معلقة {{ background: var(--warning); color: white; }}
+        .status-badge.مسودة {{ background: var(--light-slate); color: white; }}
         
-        .payment-badge {
+        .payment-badge {{
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 0.8em;
             font-weight: 600;
-        }
+        }}
         
-        .payment-badge.مدفوع { background: var(--success); color: white; }
-        .payment-badge.غير_مدفوع { background: var(--error); color: white; }
+        .payment-badge.مدفوع {{ background: var(--success); color: white; }}
+        .payment-badge.غير_مدفوع {{ background: var(--error); color: white; }}
     </style>
 
     <script>
-        function exportToExcel() {
+        function exportToExcel() {{
             alert('سيتم تنفيذ تصدير Excel في الإصدار القادم');
-        }
+        }}
     </script>
     """
     
