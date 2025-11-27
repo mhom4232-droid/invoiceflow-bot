@@ -13,14 +13,17 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import io
+import arabic_reshaper
+from bidi.algorithm import get_display
 
 # ================== تطبيق Flask الاحترافي ==================
 app = Flask(__name__)
-app.secret_key = 'invoiceflow_pro_enterprise_2024_v2'
+app.secret_key = os.environ.get('SECRET_KEY', 'invoiceflow_pro_enterprise_2024_v2')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
+# الحصول على البورت من بيئة Render أو استخدام 10000 محلياً
 port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
@@ -28,6 +31,14 @@ print("🎯 InvoiceFlow Pro - نظام إدارة الفواتير الاحتر�
 print("🚀 تصميم شركات عالمي - أمان متقدم - واجهات احترافية")
 print("💼 فريق التطوير المتخصص - الإصدار Enterprise")
 print("=" * 80)
+
+# ================== دالة لمعالجة النصوص العربية ==================
+def arabic_text(text):
+    """معالجة النصوص العربية للعرض الصحيح في PDF"""
+    if text:
+        reshaped_text = arabic_reshaper.reshape(text)
+        return get_display(reshaped_text)
+    return text
 
 # ================== نظام الألوان الاحترافي ==================
 PROFESSIONAL_DESIGN = """
@@ -391,6 +402,12 @@ PROFESSIONAL_DESIGN = """
             color: var(--error);
         }
         
+        .alert-info {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
         .content-section {
             background: var(--pure-white);
             border: 1px solid var(--border-light);
@@ -497,6 +514,10 @@ PROFESSIONAL_DESIGN = """
             .invoice-form {
                 padding: 25px;
             }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -587,43 +608,6 @@ PROFESSIONAL_DESIGN = """
                 });
             });
         });
-        
-        // إدارة الخدمات في الفواتير
-        function addService() {
-            const servicesTable = document.querySelector('.services-table tbody');
-            const newRow = document.createElement('tr');
-            newRow.className = 'service-row';
-            newRow.innerHTML = `
-                <td><input type="text" class="form-control" name="service_name" placeholder="اسم الخدمة" required></td>
-                <td><textarea class="form-control" name="service_desc" placeholder="وصف الخدمة" rows="2"></textarea></td>
-                <td><input type="number" class="form-control" name="service_qty" value="1" min="1" required></td>
-                <td><input type="number" class="form-control" name="service_price" placeholder="0.00" step="0.01" required></td>
-                <td><button type="button" class="btn" onclick="removeService(this)" style="background: var(--error); padding: 8px 12px;"><i class="fas fa-trash"></i></button></td>
-            `;
-            servicesTable.appendChild(newRow);
-        }
-        
-        function removeService(button) {
-            button.closest('tr').remove();
-        }
-        
-        // حساب الإجمالي التلقائي
-        function calculateTotal() {
-            let subtotal = 0;
-            document.querySelectorAll('.service-row').forEach(row => {
-                const qty = parseFloat(row.querySelector('[name="service_qty"]').value) || 0;
-                const price = parseFloat(row.querySelector('[name="service_price"]').value) || 0;
-                subtotal += qty * price;
-            });
-            
-            const taxRate = parseFloat(document.querySelector('[name="tax_rate"]').value) || 0;
-            const taxAmount = subtotal * (taxRate / 100);
-            const total = subtotal + taxAmount;
-            
-            document.querySelector('#subtotal').textContent = subtotal.toFixed(2);
-            document.querySelector('#tax_amount').textContent = taxAmount.toFixed(2);
-            document.querySelector('#total_amount').textContent = total.toFixed(2);
-        }
     </script>
 </body>
 </html>
@@ -632,8 +616,17 @@ PROFESSIONAL_DESIGN = """
 # ================== نظام إدارة المستخدمين المتقدم ==================
 class UserManager:
     def __init__(self):
-        self.db_path = 'invoiceflow_pro.db'
+        self.db_path = self.get_database_path()
         self.init_user_system()
+
+    def get_database_path(self):
+        """الحصول على مسار قاعدة البيانات"""
+        if 'RENDER' in os.environ:
+            # في Render، استخدم المسار المطلق
+            return '/var/lib/render/invoiceflow_pro.db'
+        else:
+            # محلياً، استخدم المسار الحالي
+            return 'invoiceflow_pro.db'
 
     def init_user_system(self):
         """تهيئة نظام المستخدمين المتقدم"""
@@ -751,10 +744,7 @@ class UserManager:
             conn.commit()
             conn.close()
             
-            # في بيئة إنتاج، سيتم إرسال رسالة تحقق هنا
-            print(f"📧 رسالة تحقق سترسل إلى: {email}")
-            
-            return True, "تم إنشاء الحساب بنجاح. يرجى التحقق من بريدك الإلكتروني."
+            return True, "تم إنشاء الحساب بنجاح. يمكنك تسجيل الدخول الآن."
         except Exception as e:
             print(f"🔧 خطأ في التسجيل: {e}")
             return False, f"خطأ في إنشاء الحساب: {str(e)}"
@@ -762,7 +752,7 @@ class UserManager:
 # ================== نظام إدارة الفواتير ==================
 class InvoiceManager:
     def __init__(self):
-        self.db_path = 'invoiceflow_pro.db'
+        self.db_path = UserManager().get_database_path()  # استخدام نفس مسار قاعدة البيانات
         self.init_invoice_system()
 
     def init_invoice_system(self):
@@ -912,96 +902,303 @@ class InvoiceManager:
             print(f"🔧 خطأ في جلب الإحصائيات: {e}")
             return {'total_invoices': 0, 'total_revenue': 0, 'paid_amount': 0, 'pending_invoices': 0}
 
-# ================== نظام إنشاء PDF ==================
-class PDFGenerator:
-    def create_invoice_pdf(self, invoice_data):
-        """إنشاء فاتورة PDF احترافية"""
+# ================== نظام PDF الاحترافي العالمي ==================
+class ProfessionalPDFGenerator:
+    def __init__(self):
+        self.styles = getSampleStyleSheet()
+        self.primary_color = colors.HexColor('#2563EB')
+        self.secondary_color = colors.HexColor('#1E293B')
+        self.accent_color = colors.HexColor('#0D9488')
+    
+    def create_professional_invoice(self, invoice_data):
+        """إنشاء فاتورة PDF احترافية بتصميم عالمي"""
         try:
             buffer = io.BytesIO()
-            doc = SimpleDocTemplate(buffer, pagesize=A4, 
-                                  rightMargin=30, leftMargin=30, 
-                                  topMargin=50, bottomMargin=50)
             
-            elements = []
-            styles = getSampleStyleSheet()
-            
-            # عنوان الفاتورة
-            title_style = ParagraphStyle(
-                'CustomTitle',
-                parent=styles['Heading1'],
-                fontSize=18,
-                textColor=colors.HexColor('#2563EB'),
-                alignment=1,
-                spaceAfter=30
+            # إنشاء مستند بتصميم احترافي
+            doc = SimpleDocTemplate(
+                buffer, 
+                pagesize=A4,
+                rightMargin=30, 
+                leftMargin=30, 
+                topMargin=40, 
+                bottomMargin=40
             )
             
-            title = Paragraph(f"فاتورة رقم: {invoice_data['invoice_number']}", title_style)
-            elements.append(title)
+            elements = []
             
-            # معلومات الفاتورة
-            info_data = [
-                ['معلومات البائع', 'معلومات العميل'],
-                [f"الشركة: {invoice_data.get('company_name', 'InvoiceFlow Pro')}", f"الاسم: {invoice_data['client_name']}"],
-                [f"التاريخ: {invoice_data['issue_date']}", f"البريد: {invoice_data.get('client_email', '')}"],
-                [f"تاريخ الاستحقاق: {invoice_data['due_date']}", f"الهاتف: {invoice_data.get('client_phone', '')}"]
-            ]
+            # 1. 🎨 رأس الفاتورة الاحترافي
+            elements.extend(self.create_professional_header(invoice_data))
             
-            info_table = Table(info_data, colWidths=[250, 250])
-            info_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#2563EB')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0,0), (-1,0), 12),
-                ('BOTTOMPADDING', (0,0), (-1,0), 12),
-                ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#F8FAFC')),
-                ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#E2E8F0'))
-            ]))
-            elements.append(info_table)
-            elements.append(Spacer(1, 20))
+            # 2. 👥 معلومات البائع والعميل
+            elements.extend(self.create_company_client_info(invoice_data))
             
-            # جدول الخدمات
-            service_data = [['الخدمة', 'الوصف', 'الكمية', 'السعر', 'المجموع']]
-            for service in invoice_data['services']:
-                total = service['quantity'] * service['price']
-                service_data.append([
-                    service['name'],
-                    service.get('description', ''),
-                    str(service['quantity']),
-                    f"{service['price']:.2f}",
-                    f"{total:.2f}"
-                ])
+            # 3. 📊 جدول الخدمات المتطور
+            elements.extend(self.create_services_table(invoice_data))
             
-            # الإجماليات
-            service_data.append(['', '', '', 'المجموع الفرعي:', f"{invoice_data['subtotal']:.2f}"])
-            service_data.append(['', '', '', f'الضريبة ({invoice_data["tax_rate"]}%):', f"{invoice_data['tax_amount']:.2f}"])
-            service_data.append(['', '', '', 'الإجمالي النهائي:', f"{invoice_data['total_amount']:.2f}"])
+            # 4. 💰 قسم الإجماليات والملاحظات
+            elements.extend(self.create_totals_section(invoice_data))
             
-            service_table = Table(service_data, colWidths=[120, 150, 60, 80, 80])
-            service_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#1E293B')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0,0), (-1,0), 10),
-                ('BACKGROUND', (0,1), (-1,-4), colors.white),
-                ('BACKGROUND', (0,-3), (-1,-1), colors.HexColor('#F1F5F9')),
-                ('FONTNAME', (0,-3), (-1,-1), 'Helvetica-Bold'),
-                ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#E2E8F0'))
-            ]))
-            elements.append(service_table)
+            # 5. 🏆 تذييل الفاتورة الاحترافي
+            elements.extend(self.create_professional_footer())
             
+            # بناء المستند
             doc.build(elements)
             buffer.seek(0)
             return buffer
+            
         except Exception as e:
             print(f"❌ خطأ في إنشاء PDF: {e}")
             return None
+    
+    def create_professional_header(self, invoice_data):
+        """رأس الفاتورة الاحترافي"""
+        elements = []
+        
+        # العنوان الرئيسي
+        title_style = ParagraphStyle(
+            'InvoiceTitle',
+            parent=self.styles['Heading1'],
+            fontSize=24,
+            textColor=self.primary_color,
+            alignment=1,  # محاذاة وسط
+            spaceAfter=30,
+            fontName='Helvetica-Bold'
+        )
+        
+        title = Paragraph(arabic_text("فاتورة رسمية"), title_style)
+        elements.append(title)
+        
+        # معلومات الفاتورة
+        header_data = [
+            [arabic_text('رقم الفاتورة'), arabic_text(invoice_data['invoice_number'])],
+            [arabic_text('تاريخ الإصدار'), arabic_text(invoice_data['issue_date'])],
+            [arabic_text('تاريخ الاستحقاق'), arabic_text(invoice_data['due_date'])],
+            [arabic_text('الحالة'), arabic_text(invoice_data.get('status', 'مسودة'))]
+        ]
+        
+        header_table = Table(header_data, colWidths=[200, 200])
+        header_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, -1), colors.HexColor('#F8FAFC')),
+            ('TEXTCOLOR', (0, 0), (-1, -1), self.secondary_color),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+            ('TOPPADDING', (0, 0), (-1, -1), 12),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#E2E8F0'))
+        ]))
+        
+        elements.append(header_table)
+        elements.append(Spacer(1, 20))
+        
+        return elements
+    
+    def create_company_client_info(self, invoice_data):
+        """معلومات الشركة والعميل بتصميم احترافي"""
+        elements = []
+        
+        company_name = invoice_data.get('company_name', 'InvoiceFlow Pro')
+        company_info = arabic_text(f"""
+        {company_name}
+        نظام إدارة الفواتير الاحترافي
+        البريد الإلكتروني: info@invoiceflow.com
+        الهاتف: +966500000000
+        """)
+        
+        client_info = arabic_text(f"""
+        {invoice_data['client_name']}
+        {invoice_data.get('client_email', '')}
+        {invoice_data.get('client_phone', '')}
+        {invoice_data.get('client_address', '')}
+        """)
+        
+        info_data = [
+            [arabic_text('معلومات البائع'), arabic_text('معلومات العميل')],
+            [Paragraph(company_info.replace('\n', '<br/>'), self.styles['Normal']), 
+             Paragraph(client_info.replace('\n', '<br/>'), self.styles['Normal'])]
+        ]
+        
+        info_table = Table(info_data, colWidths=[250, 250])
+        info_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), self.primary_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 14),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 15),
+            ('BACKGROUND', (0, 1), (-1, 1), colors.HexColor('#F1F5F9')),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#E2E8F0'))
+        ]))
+        
+        elements.append(info_table)
+        elements.append(Spacer(1, 25))
+        
+        return elements
+    
+    def create_services_table(self, invoice_data):
+        """جدول الخدمات بتصميم متطور"""
+        elements = []
+        
+        # عنوان الجدول
+        section_title = Paragraph(arabic_text("الخدمات والمنتجات"), self.styles['Heading2'])
+        elements.append(section_title)
+        elements.append(Spacer(1, 10))
+        
+        # رأس الجدول
+        header = [arabic_text('الخدمة'), arabic_text('الوصف'), arabic_text('الكمية'), arabic_text('سعر الوحدة'), arabic_text('المجموع')]
+        data = [header]
+        
+        # بيانات الخدمات
+        for service in invoice_data['services']:
+            total = service['quantity'] * service['price']
+            data.append([
+                arabic_text(service['name']),
+                arabic_text(service.get('description', '')),
+                str(service['quantity']),
+                f"{service['price']:,.2f}",
+                f"{total:,.2f}"
+            ])
+        
+        # إنشاء الجدول
+        services_table = Table(data, colWidths=[120, 150, 60, 80, 80])
+        services_table.setStyle(TableStyle([
+            # رأس الجدول
+            ('BACKGROUND', (0, 0), (-1, 0), self.secondary_color),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            
+            # بيانات الجدول
+            ('BACKGROUND', (0, 1), (-1, -1), colors.white),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+            ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 1), (-1, -1), 10),
+            ('GRID', (0, 0), (-1, -1), 1, colors.HexColor('#E2E8F0')),
+        ]))
+        
+        elements.append(services_table)
+        elements.append(Spacer(1, 20))
+        
+        return elements
+    
+    def create_totals_section(self, invoice_data):
+        """قسم الإجماليات والملاحظات"""
+        elements = []
+        
+        # بيانات الإجماليات
+        totals_data = [
+            [arabic_text('المجموع الفرعي:'), f"{invoice_data['subtotal']:,.2f}"],
+            [arabic_text(f'الضريبة ({invoice_data["tax_rate"]}%):'), f"{invoice_data['tax_amount']:,.2f}"],
+            [arabic_text('الإجمالي النهائي:'), f"{invoice_data['total_amount']:,.2f}"]
+        ]
+        
+        totals_table = Table(totals_data, colWidths=[300, 100])
+        totals_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
+            ('FONTSIZE', (0, 0), (-1, -1), 12),
+            ('FONTNAME', (0, -1), (-1, -1), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, -1), (-1, -1), 14),
+            ('TEXTCOLOR', (0, -1), (-1, -1), self.primary_color),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        elements.append(totals_table)
+        elements.append(Spacer(1, 20))
+        
+        # الملاحظات وشروط الدفع
+        if invoice_data.get('notes') or invoice_data.get('payment_terms'):
+            notes_text = ""
+            if invoice_data.get('payment_terms'):
+                notes_text += f"{arabic_text('شروط الدفع:')} {arabic_text(invoice_data['payment_terms'])}<br/>"
+            if invoice_data.get('notes'):
+                notes_text += f"{arabic_text('ملاحظات:')} {arabic_text(invoice_data['notes'])}"
+            
+            notes_paragraph = Paragraph(notes_text, self.styles['Normal'])
+            elements.append(notes_paragraph)
+            elements.append(Spacer(1, 15))
+        
+        return elements
+    
+    def create_professional_footer(self):
+        """تذييل الفاتورة الاحترافي"""
+        elements = []
+        
+        footer_text = arabic_text("""
+        InvoiceFlow Pro - نظام إدارة الفواتير الاحترافي
+        هاتف: +966500000000 | البريد الإلكتروني: info@invoiceflow.com
+        شكراً لتعاملكم معنا
+        """)
+        
+        footer_style = ParagraphStyle(
+            'FooterStyle',
+            parent=self.styles['Normal'],
+            fontSize=9,
+            textColor=colors.HexColor('#475569'),
+            alignment=1,  # محاذاة وسط
+            spaceBefore=20
+        )
+        
+        footer = Paragraph(footer_text.replace('\n', '<br/>'), footer_style)
+        elements.append(footer)
+        
+        return elements
+
+# ================== نظام الذكاء الاصطناعي ==================
+class InvoiceAI:
+    def __init__(self):
+        self.user_profiles = {}
+        
+    def smart_welcome(self, username):
+        """ترحيب ذكي مخصص لكل مستخدم"""
+        user_stats = invoice_manager.get_user_stats(username)
+        return f"""
+        <div class="content-section" style="background: linear-gradient(135deg, var(--primary-dark), #1a237e); color: white;">
+            <h3 style="margin-bottom: 15px; color: white;">
+                <i class="fas fa-brain"></i> المساعد الذكي - InvoiceAI
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <h4 style="color: var(--accent-teal); margin-bottom: 10px;">🧠 ترحيب ذكي</h4>
+                    <p>مرحباً <b>{username}</b>! 👋</p>
+                    <p>• الإيرادات المتوقعة: <b>${user_stats['total_revenue'] * 1.15:,.0f}</b></p>
+                    <p>• فواتير تحت المتابعة: <b>{user_stats['pending_invoices']}</b></p>
+                </div>
+                <div>
+                    <h4 style="color: var(--accent-teal); margin-bottom: 10px;">💡 توصيات ذكية</h4>
+                    {self.generate_smart_recommendations(username)}
+                </div>
+            </div>
+        </div>
+        """
+    
+    def generate_smart_recommendations(self, username):
+        """توصيات ذكية مخصصة"""
+        invoices = invoice_manager.get_user_invoices(username)
+        recommendations = []
+        
+        if len(invoices) > 5:
+            recommendations.append("🎯 لديك قاعدة عملاء جيدة، نوصي بعرض باقة خدمات متكاملة")
+        
+        pending_count = sum(1 for inv in invoices if inv['status'] == 'معلقة')
+        if pending_count > 2:
+            recommendations.append("⏰ لديك فواتير معلقة، نوصي بمتابعة فورية مع العملاء")
+            
+        if not recommendations:
+            recommendations.append("✨ أداؤك ممتاز! استمر في هذا النجاح")
+            
+        return "".join(f'<p>• {rec}</p>' for rec in recommendations)
 
 # ================== إعداد الأنظمة ==================
 user_manager = UserManager()
 invoice_manager = InvoiceManager()
-pdf_generator = PDFGenerator()
+pdf_generator = ProfessionalPDFGenerator()
+invoice_ai = InvoiceAI()
 
 class SystemMonitor:
     def __init__(self):
@@ -1037,6 +1234,9 @@ def dashboard():
     
     stats = invoice_manager.get_user_stats(session['username'])
     
+    # الذكاء الاصطناعي - الترحيب الذكي
+    ai_welcome = invoice_ai.smart_welcome(session['username'])
+    
     # ✅ الإصلاح: فصل المنطق الشرطي عن f-string
     admin_button = ''
     if session.get('user_type') == 'admin':
@@ -1047,6 +1247,8 @@ def dashboard():
         '''
     
     content = f"""
+    {ai_welcome}
+    
     <div class="stats-grid">
         <div class="stat-card">
             <i class="fas fa-receipt" style="color: var(--accent-blue);"></i>
@@ -1451,7 +1653,7 @@ def register():
 
 @app.route('/invoices/create', methods=['GET', 'POST'])
 def create_invoice():
-    """إنشاء فاتورة جديدة"""
+    """إنشاء فاتورة جديدة مع التصميم المحسن"""
     if 'user_logged_in' not in session:
         return redirect(url_for('login'))
     
@@ -1463,7 +1665,7 @@ def create_invoice():
         client_address = request.form.get('client_address', '')
         issue_date = request.form.get('issue_date', datetime.now().strftime('%Y-%m-%d'))
         due_date = request.form.get('due_date', (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d'))
-        tax_rate = float(request.form.get('tax_rate', 0))
+        tax_rate = float(request.form.get('tax_rate', 15))
         payment_terms = request.form.get('payment_terms', '30 يوم')
         notes = request.form.get('notes', '')
         
@@ -1509,29 +1711,39 @@ def create_invoice():
             'total_amount': total_amount,
             'payment_terms': payment_terms,
             'notes': notes,
-            'status': 'مسودة'
+            'status': 'مسودة',
+            'company_name': session.get('company_name', 'شركتك')
         }
         
         success, invoice_number, message = invoice_manager.create_invoice(invoice_data)
         
         if success:
-            # إنشاء PDF
+            # 🎨 إنشاء PDF احترافي
             invoice_data['invoice_number'] = invoice_number
-            invoice_data['company_name'] = session.get('company_name', 'InvoiceFlow Pro')
-            pdf_buffer = pdf_generator.create_invoice_pdf(invoice_data)
+            pdf_buffer = pdf_generator.create_professional_invoice(invoice_data)
             
             if pdf_buffer:
-                return send_file(pdf_buffer, as_attachment=True, 
-                               download_name=f'invoice_{invoice_number}.pdf',
-                               mimetype='application/pdf')
+                return send_file(
+                    pdf_buffer, 
+                    as_attachment=True, 
+                    download_name=f'Invoice_{invoice_number}.pdf',
+                    mimetype='application/pdf'
+                )
             else:
+                # عرض رسالة نجاح إذا لم يتم إنشاء PDF
                 content = f"""
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i> {message}
                 </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-file-pdf"></i> تم إنشاء الفاتورة بنجاح! رقم الفاتورة: {invoice_number}
+                </div>
                 <div style="text-align: center; margin-top: 20px;">
-                    <a href="/invoices" class="btn">عرض الفواتير</a>
+                    <a href="/invoices" class="btn">عرض جميع الفواتير</a>
                     <a href="/invoices/create" class="btn btn-secondary">فاتورة جديدة</a>
+                    <a href="/invoices/download/{invoice_number}" class="btn" style="background: var(--accent-teal);">
+                        <i class="fas fa-download"></i> تحميل PDF
+                    </a>
                 </div>
                 """
         else:
@@ -1540,14 +1752,24 @@ def create_invoice():
                 <i class="fas fa-exclamation-circle"></i> {message}
             </div>
             """
+            
+        uptime = time.time() - monitor.uptime_start
+        hours = int(uptime // 3600)
+        minutes = int((uptime % 3600) // 60)
+        uptime_str = f"{hours} ساعة {minutes} دقيقة"
+        
+        return render_template_string(PROFESSIONAL_DESIGN, title="إنشاء فاتورة - InvoiceFlow Pro", 
+                                    uptime=uptime_str, content=content, is_auth_page=False)
+    
     else:
+        # عرض نموذج إنشاء الفاتورة
         content = """
         <div class="invoice-form">
             <h2 style="margin-bottom: 30px; color: var(--primary-dark);">
                 <i class="fas fa-plus-circle"></i> إنشاء فاتورة جديدة
             </h2>
             
-            <form method="POST" onsubmit="calculateTotal()">
+            <form method="POST" id="invoiceForm">
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-user"></i> معلومات العميل
@@ -1587,7 +1809,7 @@ def create_invoice():
                         </div>
                         <div class="form-group">
                             <label class="form-label">نسبة الضريبة (%)</label>
-                            <input type="number" name="tax_rate" class="form-control" value="15" step="0.1" min="0" max="100">
+                            <input type="number" name="tax_rate" class="form-control" value="15" step="0.1" min="0" max="100" onchange="calculateTotal()">
                         </div>
                     </div>
                 </div>
@@ -1595,41 +1817,49 @@ def create_invoice():
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-list"></i> الخدمات والمنتجات
+                        <button type="button" class="btn" onclick="addService()" style="padding: 8px 16px; font-size: 0.9em;">
+                            <i class="fas fa-plus"></i> إضافة خدمة
+                        </button>
                     </div>
-                    <table class="services-table">
-                        <thead>
-                            <tr>
-                                <th>الخدمة</th>
-                                <th>الوصف</th>
-                                <th>الكمية</th>
-                                <th>السعر</th>
-                                <th>إجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="service-row">
-                                <td><input type="text" class="form-control" name="service_name" placeholder="اسم الخدمة" required onchange="calculateTotal()"></td>
-                                <td><textarea class="form-control" name="service_desc" placeholder="وصف الخدمة" rows="2"></textarea></td>
-                                <td><input type="number" class="form-control" name="service_qty" value="1" min="1" required onchange="calculateTotal()"></td>
-                                <td><input type="number" class="form-control" name="service_price" placeholder="0.00" step="0.01" required onchange="calculateTotal()"></td>
-                                <td><button type="button" class="btn" onclick="addService()" style="padding: 8px 12px;"><i class="fas fa-plus"></i></button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="services-table">
+                            <thead>
+                                <tr>
+                                    <th>الخدمة</th>
+                                    <th>الوصف</th>
+                                    <th>الكمية</th>
+                                    <th>السعر</th>
+                                    <th>المجموع</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="servicesBody">
+                                <tr class="service-row">
+                                    <td><input type="text" class="form-control" name="service_name" placeholder="اسم الخدمة" required onchange="calculateTotal()"></td>
+                                    <td><textarea class="form-control" name="service_desc" placeholder="وصف الخدمة" rows="2"></textarea></td>
+                                    <td><input type="number" class="form-control" name="service_qty" value="1" min="1" required onchange="calculateTotal()"></td>
+                                    <td><input type="number" class="form-control" name="service_price" placeholder="0.00" step="0.01" required onchange="calculateTotal()"></td>
+                                    <td><span class="service-total">0.00</span></td>
+                                    <td><button type="button" class="btn" onclick="removeService(this)" style="background: var(--error); padding: 8px 12px;"><i class="fas fa-trash"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 <div class="form-section">
                     <div class="section-title">
                         <i class="fas fa-calculator"></i> الإجماليات
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 400px; margin: 0 auto;">
-                        <div style="text-align: left;">المجموع الفرعي:</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 400px; margin: 0 auto; background: var(--light-gray); padding: 20px; border-radius: 10px;">
+                        <div style="text-align: left; font-weight: 500;">المجموع الفرعي:</div>
                         <div style="text-align: right; font-weight: 600;" id="subtotal">0.00</div>
                         
-                        <div style="text-align: left;">الضريبة:</div>
+                        <div style="text-align: left; font-weight: 500;">الضريبة:</div>
                         <div style="text-align: right; font-weight: 600;" id="tax_amount">0.00</div>
                         
-                        <div style="text-align: left; font-size: 1.1em;">الإجمالي النهائي:</div>
+                        <div style="text-align: left; font-size: 1.1em; font-weight: 600;">الإجمالي النهائي:</div>
                         <div style="text-align: right; font-size: 1.1em; font-weight: 700; color: var(--accent-blue);" id="total_amount">0.00</div>
                     </div>
                 </div>
@@ -1653,15 +1883,21 @@ def create_invoice():
                         <i class="fas fa-save"></i> حفظ وإنشاء الفاتورة
                     </button>
                     <button type="button" class="btn btn-secondary" onclick="addService()">
-                        <i class="fas fa-plus"></i> إضافة خدمة
+                        <i class="fas fa-plus"></i> إضافة خدمة أخرى
+                    </button>
+                    <button type="reset" class="btn" style="background: var(--light-slate);">
+                        <i class="fas fa-redo"></i> إعادة تعيين
                     </button>
                 </div>
             </form>
         </div>
         
         <script>
+            let serviceCounter = 1;
+            
             function addService() {
-                const tbody = document.querySelector('.services-table tbody');
+                serviceCounter++;
+                const tbody = document.getElementById('servicesBody');
                 const newRow = document.createElement('tr');
                 newRow.className = 'service-row';
                 newRow.innerHTML = `
@@ -1669,17 +1905,35 @@ def create_invoice():
                     <td><textarea class="form-control" name="service_desc" placeholder="وصف الخدمة" rows="2"></textarea></td>
                     <td><input type="number" class="form-control" name="service_qty" value="1" min="1" onchange="calculateTotal()"></td>
                     <td><input type="number" class="form-control" name="service_price" placeholder="0.00" step="0.01" onchange="calculateTotal()"></td>
-                    <td><button type="button" class="btn" onclick="this.closest('tr').remove(); calculateTotal();" style="background: var(--error); padding: 8px 12px;"><i class="fas fa-trash"></i></button></td>
+                    <td><span class="service-total">0.00</span></td>
+                    <td><button type="button" class="btn" onclick="removeService(this)" style="background: var(--error); padding: 8px 12px;"><i class="fas fa-trash"></i></button></td>
                 `;
                 tbody.appendChild(newRow);
             }
             
+            function removeService(button) {
+                if (document.querySelectorAll('.service-row').length > 1) {
+                    button.closest('tr').remove();
+                    calculateTotal();
+                } else {
+                    alert('يجب أن تحتوي الفاتورة على خدمة واحدة على الأقل');
+                }
+            }
+            
             function calculateTotal() {
                 let subtotal = 0;
-                document.querySelectorAll('.service-row').forEach(row => {
-                    const qty = parseFloat(row.querySelector('[name="service_qty"]').value) || 0;
-                    const price = parseFloat(row.querySelector('[name="service_price"]').value) || 0;
-                    subtotal += qty * price;
+                
+                document.querySelectorAll('.service-row').forEach((row, index) => {
+                    const qtyInput = row.querySelector('[name="service_qty"]');
+                    const priceInput = row.querySelector('[name="service_price"]');
+                    const totalSpan = row.querySelector('.service-total');
+                    
+                    const qty = parseFloat(qtyInput.value) || 0;
+                    const price = parseFloat(priceInput.value) || 0;
+                    const total = qty * price;
+                    
+                    totalSpan.textContent = total.toFixed(2);
+                    subtotal += total;
                 });
                 
                 const taxRate = parseFloat(document.querySelector('[name="tax_rate"]').value) || 0;
@@ -1692,7 +1946,14 @@ def create_invoice():
             }
             
             // حساب أولي عند التحميل
-            document.addEventListener('DOMContentLoaded', calculateTotal);
+            document.addEventListener('DOMContentLoaded', function() {
+                calculateTotal();
+                
+                // تحديث الحساب عند أي تغيير
+                document.querySelectorAll('input, textarea').forEach(element => {
+                    element.addEventListener('input', calculateTotal);
+                });
+            });
         </script>
         """.replace("{{ today }}", datetime.now().strftime('%Y-%m-%d')).replace("{{ due_date }}", (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d'))
     
@@ -1717,7 +1978,7 @@ def list_invoices():
         status_color = 'var(--success)' if invoice['status'] == 'مسددة' else 'var(--warning)' if invoice['status'] == 'معلقة' else 'var(--light-slate)'
         invoices_html += f"""
         <div class="content-section" style="margin-bottom: 15px;">
-            <div style="display: flex; justify-content: between; align-items: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
                     <h4 style="margin-bottom: 5px;">فاتورة {invoice['number']}</h4>
                     <p style="color: var(--light-slate); margin: 0;">العميل: {invoice['client']}</p>
@@ -1727,6 +1988,11 @@ def list_invoices():
                     <div style="color: {status_color}; font-size: 0.9em;">{invoice['status']}</div>
                     <div style="color: var(--light-slate); font-size: 0.8em;">{invoice['issue_date']}</div>
                 </div>
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 10px;">
+                <a href="/invoices/download/{invoice['number']}" class="btn" style="padding: 8px 12px; font-size: 0.8em;">
+                    <i class="fas fa-download"></i> تحميل PDF
+                </a>
             </div>
         </div>
         """
@@ -1738,7 +2004,7 @@ def list_invoices():
         </h2>
     </div>
     
-    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 25px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
         <h3 style="color: var(--primary-dark);">الفواتير ({len(invoices)})</h3>
         <a href="/invoices/create" class="btn">
             <i class="fas fa-plus"></i> فاتورة جديدة
@@ -1755,6 +2021,59 @@ def list_invoices():
     
     return render_template_string(PROFESSIONAL_DESIGN, title="الفواتير - InvoiceFlow Pro", 
                                 uptime=uptime_str, content=content, is_auth_page=False)
+
+@app.route('/invoices/download/<invoice_number>')
+def download_invoice(invoice_number):
+    """تحميل فاتورة PDF"""
+    if 'user_logged_in' not in session:
+        return redirect(url_for('login'))
+    
+    try:
+        conn = sqlite3.connect(user_manager.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT * FROM invoices WHERE invoice_number = ? AND user_id = ?
+        ''', (invoice_number, session['username']))
+        
+        result = cursor.fetchone()
+        if result:
+            # إعادة إنشاء بيانات الفاتورة
+            invoice_data = {
+                'invoice_number': result[1],
+                'client_name': result[3],
+                'client_email': result[4],
+                'client_phone': result[5],
+                'client_address': result[6],
+                'issue_date': result[7],
+                'due_date': result[8],
+                'services': json.loads(result[9]),
+                'subtotal': result[10],
+                'tax_rate': result[11],
+                'tax_amount': result[12],
+                'total_amount': result[13],
+                'payment_terms': result[14],
+                'notes': result[15],
+                'status': result[16],
+                'company_name': session.get('company_name', 'InvoiceFlow Pro')
+            }
+            
+            pdf_buffer = pdf_generator.create_professional_invoice(invoice_data)
+            
+            if pdf_buffer:
+                return send_file(
+                    pdf_buffer,
+                    as_attachment=True,
+                    download_name=f'Invoice_{invoice_number}.pdf',
+                    mimetype='application/pdf'
+                )
+        
+        conn.close()
+        return "الفاتورة غير موجودة", 404
+        
+    except Exception as e:
+        print(f"❌ خطأ في تحميل الفاتورة: {e}")
+        return "خطأ في تحميل الفاتورة", 500
 
 # إضافة الروابط الأساسية المتبقية
 @app.route('/logout')
@@ -1895,15 +2214,37 @@ def reports():
     return render_template_string(PROFESSIONAL_DESIGN, title="التقارير - InvoiceFlow Pro", 
                                 uptime=uptime_str, content=content, is_auth_page=False)
 
+# ================== إعدادات التشغيل لـ Render ==================
+def create_tables():
+    """إنشاء الجداول عند التشغيل الأول"""
+    try:
+        user_manager.init_user_system()
+        invoice_manager.init_invoice_system()
+        print("✅ تم إنشاء الجداول بنجاح")
+    except Exception as e:
+        print(f"✅ الجداول موجودة مسبقاً: {e}")
+
+# استدعاء إنشاء الجداول عند التشغيل
+create_tables()
+
 # ================== التشغيل الرئيسي ==================
 if __name__ == '__main__':
     try:
         print("🌟 بدء تشغيل InvoiceFlow Pro...")
         print(f"🌐 الخادم يعمل على: http://0.0.0.0:{port}")
+        print("🔐 بيانات الدخول الافتراضية:")
+        print("   👤 المستخدم: admin أو admin@invoiceflow.com")
+        print("   🔑 كلمة المرور: Admin123!@#")
         print("✅ النظام جاهز لاستقبال الطلبات!")
         print("🎯 تصميم احترافي - أمان متقدم - واجهات عالمية")
         
-        app.run(host='0.0.0.0', port=port, debug=False)
+        # استخدام gunicorn في الإنتاج، أو Flask للتطوير
+        if 'RENDER' in os.environ:
+            # في Render، استخدم gunicorn
+            app.run(host='0.0.0.0', port=port, debug=False)
+        else:
+            # محلياً، استخدم Flask مع debug
+            app.run(host='0.0.0.0', port=port, debug=True)
         
     except Exception as e:
         print(f"❌ خطأ في التشغيل: {e}")
