@@ -2,499 +2,721 @@ import os
 import sqlite3
 import json
 import time
-import requests
 import hashlib
-import secrets
-import re
 from datetime import datetime, timedelta
-from threading import Thread, Lock
-from flask import Flask, render_template_string, request, jsonify, send_file, redirect, url_for, session, flash
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4, letter
-from reportlab.lib.units import mm, inch
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image
-from reportlab.lib import colors
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-import arabic_reshaper
-from bidi.algorithm import get_display
-import io
-import base64
+from threading import Thread
+from flask import Flask, render_template_string, request, jsonify, redirect, url_for, session
 from email_validator import validate_email, EmailNotValidError
 
 # ================== تطبيق Flask المتقدم ==================
 app = Flask(__name__)
-app.secret_key = 'invoiceflow_elite_professional_2024_v3'
+app.secret_key = 'invoiceflow_black_elite_2024_v1'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
-# الحصول على البورت من البيئة
 port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
-print("🎯 InvoiceFlow Elite - الإصدار النخبوي المتميز")
-print("🚀 تصميم بيج/بني فاخر + واجهات قوية + ذكاء اصطناعي متقدم")
-print("👑 فريق النخبة البروفيسوري المتكامل")
+print("🎯 InvoiceFlow Elite - الإصدار الأسود الفاخر")
+print("🚀 تصميم أسود مميز + ذهبي أنيق + حدّة تقنية")
+print("👑 فريق النخبة البروفيسوري - المرحلة الأولى")
 print("=" * 80)
 
-# ================== نظام قاعدة البيانات المحسن ==================
-class EliteDatabaseManager:
-    def __init__(self):
-        self.db_path = 'invoices_elite.db'
-        self.init_elite_database()
-
-    def init_elite_database(self):
-        """تهيئة قاعدة البيانات النخبوية"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            # جدول الفواتير المحسن
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS elite_invoices (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    invoice_id TEXT UNIQUE,
-                    user_id TEXT,
-                    user_name TEXT,
-                    company_name TEXT,
-                    client_name TEXT,
-                    client_email TEXT,
-                    client_phone TEXT,
-                    client_address TEXT,
-                    services_json TEXT,
-                    subtotal REAL,
-                    tax_rate REAL DEFAULT 0.0,
-                    tax_amount REAL DEFAULT 0.0,
-                    total_amount REAL,
-                    issue_date TEXT,
-                    due_date TEXT,
-                    payment_terms TEXT DEFAULT '30 يوم',
-                    notes TEXT,
-                    pdf_path TEXT,
-                    status TEXT DEFAULT 'معلقة',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-
-            # جدول العملاء
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS clients (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT,
-                    client_name TEXT,
-                    client_email TEXT,
-                    client_phone TEXT,
-                    client_address TEXT,
-                    company_name TEXT,
-                    tax_number TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-
-            # جدول الخدمات
-            cursor.execute('''
-                CREATE TABLE IF NOT EXISTS services (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT,
-                    service_name TEXT,
-                    service_description TEXT,
-                    service_price REAL,
-                    category TEXT,
-                    is_active BOOLEAN DEFAULT 1,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-
-            conn.commit()
-            conn.close()
-            print("✅ قاعدة البيانات النخبوية جاهزة")
-        except Exception as e:
-            print(f"🔧 خطأ في قاعدة البيانات: {e}")
-
-    def save_elite_invoice(self, invoice_data):
-        """حفظ فاتورة نخبوية مع بيانات إضافية"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-
-            cursor.execute('''
-                INSERT INTO elite_invoices 
-                (invoice_id, user_id, user_name, company_name, client_name, 
-                 client_email, client_phone, client_address, services_json, 
-                 subtotal, tax_rate, tax_amount, total_amount, issue_date, 
-                 due_date, payment_terms, notes, pdf_path, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (
-                invoice_data['invoice_id'],
-                invoice_data.get('user_id', 'web_user'),
-                invoice_data.get('user_name', 'مستخدم النخبة'),
-                invoice_data.get('company_name', 'شركة النخبة'),
-                invoice_data['client_name'],
-                invoice_data.get('client_email', ''),
-                invoice_data.get('client_phone', ''),
-                invoice_data.get('client_address', ''),
-                json.dumps(invoice_data['services'], ensure_ascii=False),
-                invoice_data.get('subtotal', 0),
-                invoice_data.get('tax_rate', 0),
-                invoice_data.get('tax_amount', 0),
-                invoice_data['total_amount'],
-                invoice_data.get('issue_date', datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
-                invoice_data.get('due_date', (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')),
-                invoice_data.get('payment_terms', '30 يوم'),
-                invoice_data.get('notes', ''),
-                invoice_data.get('pdf_path', ''),
-                invoice_data.get('status', 'معلقة')
-            ))
-
-            conn.commit()
-            conn.close()
-            print(f"✅ تم حفظ الفاتورة النخبوية: {invoice_data['invoice_id']}")
-            return True
-        except Exception as e:
-            print(f"🔧 خطأ في حفظ الفاتورة: {e}")
-            return False
-
-    def get_user_elite_invoices(self, username):
-        """جلب فواتير مستخدم نخبوية"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
-            cursor.execute('''
-                SELECT invoice_id, client_name, total_amount, issue_date, due_date, 
-                       status, services_json, pdf_path
-                FROM elite_invoices 
-                WHERE user_id = ?
-                ORDER BY created_at DESC
-            ''', (username,))
-            invoices = cursor.fetchall()
-            conn.close()
+# ================== نظام الألوان الأسود الفاخر ==================
+BLACK_ELITE_DESIGN = """
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* نظام الألوان الأسود الفاخر */
+            --primary-black: #0A0A0A;
+            --dark-black: #000000;
+            --light-black: #1A1A1A;
+            --charcoal: #2D2D2D;
+            --elite-gold: #D4AF37;
+            --light-gold: #F4D03F;
+            --pure-white: #FFFFFF;
+            --smoke-white: #F5F5F5;
+            --accent-red: #E74C3C;
+            --accent-green: #27AE60;
+            --accent-blue: #3498DB;
             
-            result = []
-            for invoice in invoices:
-                result.append({
-                    'invoice_id': invoice[0],
-                    'client_name': invoice[1],
-                    'total_amount': invoice[2],
-                    'issue_date': invoice[3],
-                    'due_date': invoice[4],
-                    'status': invoice[5],
-                    'services': json.loads(invoice[6]) if invoice[6] else [],
-                    'pdf_path': invoice[7]
-                })
-            return result
-        except Exception as e:
-            print(f"🔧 خطأ في جلب الفواتير: {e}")
-            return []
-
-    def get_elite_stats(self, username):
-        """إحصائيات نخبوية للمستخدم"""
-        try:
-            conn = sqlite3.connect(self.db_path)
-            cursor = conn.cursor()
+            /* تأثيرات التدرج */
+            --gold-gradient: linear-gradient(135deg, var(--elite-gold), var(--light-gold));
+            --black-gradient: linear-gradient(135deg, var(--primary-black), var(--dark-black));
+            --card-gradient: linear-gradient(145deg, #1A1A1A, #0F0F0F);
             
-            # إجمالي الفواتير
-            cursor.execute('SELECT COUNT(*), COALESCE(SUM(total_amount), 0) FROM elite_invoices WHERE user_id = ?', (username,))
-            total_invoices, total_revenue = cursor.fetchone()
-            
-            # الفواتير المعلقة
-            cursor.execute('SELECT COUNT(*) FROM elite_invoices WHERE user_id = ? AND status = "معلقة"', (username,))
-            pending_invoices = cursor.fetchone()[0]
-            
-            # فواتير اليوم
-            cursor.execute('SELECT COUNT(*) FROM elite_invoices WHERE user_id = ? AND date(created_at) = date("now")', (username,))
-            today_invoices = cursor.fetchone()[0]
-            
-            conn.close()
-            
-            return {
-                'total_invoices': total_invoices or 0,
-                'total_revenue': total_revenue or 0,
-                'pending_invoices': pending_invoices or 0,
-                'today_invoices': today_invoices or 0
+            /* الظلال */
+            --shadow-elite: 0 20px 40px rgba(0, 0, 0, 0.5);
+            --shadow-gold: 0 0 30px rgba(212, 175, 55, 0.3);
+            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--black-gradient);
+            color: var(--pure-white);
+            min-height: 100vh;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+        
+        .elite-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        /* ================== شاشة تسجيل الدخول الفاخرة ================== */
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--black-gradient);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+            animation: backgroundShift 10s ease-in-out infinite;
+        }
+        
+        @keyframes backgroundShift {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+        
+        .login-card {
+            background: var(--card-gradient);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 24px;
+            padding: 60px 50px;
+            width: 100%;
+            max-width: 480px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-elite), var(--shadow-gold);
+            animation: cardEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes cardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
             }
-        except Exception as e:
-            print(f"🔧 خطأ في جلب الإحصائيات: {e}")
-            return {'total_invoices': 0, 'total_revenue': 0, 'pending_invoices': 0, 'today_invoices': 0}
-
-# ================== نظام PDF النخبوي ==================
-class ElitePDFGenerator:
-    def __init__(self):
-        self.setup_elite_fonts()
-    
-    def setup_elite_fonts(self):
-        """إعداد خطوط النخبة"""
-        try:
-            self.primary_font = 'Helvetica'
-            self.bold_font = 'Helvetica-Bold'
-            print("✅ خطوط النخبة جاهزة")
-        except Exception as e:
-            print(f"⚠️  استخدام الخطوط الافتراضية: {e}")
-
-    def create_elite_invoice(self, invoice_data):
-        """إنشاء فاتورة نخبوية فاخرة"""
-        try:
-            os.makedirs('elite_invoices', exist_ok=True)
-            safe_filename = f"{invoice_data['invoice_id']}_elite.pdf"
-            file_path = f"elite_invoices/{safe_filename}"
-            
-            # إنشاء PDF نخبوي
-            doc = SimpleDocTemplate(
-                file_path,
-                pagesize=A4,
-                rightMargin=30,
-                leftMargin=30,
-                topMargin=50,
-                bottomMargin=50
-            )
-            
-            elements = []
-            styles = self.get_elite_styles()
-            
-            # الهيدر الفاخر
-            header_data = [
-                ['INVOICEFLOW ELITE', 'فاتورة رسمية'],
-                ['نظام الفواتير النخبوي', f"رقم: {invoice_data['invoice_id']}"],
-                ['', f"التاريخ: {invoice_data['issue_date']}"]
-            ]
-            
-            header_table = Table(header_data, colWidths=[3*inch, 3*inch])
-            header_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#8B7355')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), self.bold_font),
-                ('FONTSIZE', (0,0), (-1,0), 16),
-                ('BOTTOMPADDING', (0,0), (-1,0), 15),
-                ('BACKGROUND', (0,1), (-1,1), colors.HexColor('#F5F5DC')),
-                ('TEXTCOLOR', (0,1), (-1,1), colors.HexColor('#8B7355')),
-                ('FONTNAME', (0,1), (-1,1), self.primary_font),
-                ('FONTSIZE', (0,1), (-1,1), 10),
-            ]))
-            elements.append(header_table)
-            elements.append(Spacer(1, 25))
-            
-            # معلومات الشركة والعميل
-            company_info = [
-                ['معلومات الشركة', 'معلومات العميل'],
-                [invoice_data.get('company_name', 'شركة النخبة'), invoice_data['client_name']],
-                ['السجل التجاري: 1234567890', invoice_data.get('client_email', '')],
-                ['الهاتف: +966500000000', invoice_data.get('client_phone', '')],
-                ['البريد: info@elite.com', invoice_data.get('client_address', '')]
-            ]
-            
-            company_table = Table(company_info, colWidths=[3*inch, 3*inch])
-            company_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#D2B48C')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), self.bold_font),
-                ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#8B7355')),
-                ('FONTSIZE', (0,0), (-1,-1), 10),
-            ]))
-            elements.append(company_table)
-            elements.append(Spacer(1, 20))
-            
-            # جدول الخدمات النخبوي
-            service_data = [['الخدمة', 'الوصف', 'الكمية', 'السعر', 'المجموع']]
-            subtotal = 0
-            
-            for service in invoice_data['services']:
-                quantity = service.get('quantity', 1)
-                price = service['price']
-                total = quantity * price
-                subtotal += total
-                
-                service_data.append([
-                    service['name'],
-                    service.get('description', ''),
-                    str(quantity),
-                    f"${price:.2f}",
-                    f"${total:.2f}"
-                ])
-            
-            # الحسابات النهائية
-            tax_rate = invoice_data.get('tax_rate', 0)
-            tax_amount = subtotal * (tax_rate / 100)
-            total_amount = subtotal + tax_amount
-            
-            service_data.append(['', '', '', 'المجموع الفرعي:', f"${subtotal:.2f}"])
-            service_data.append(['', '', '', f'الضريبة ({tax_rate}%):', f"${tax_amount:.2f}"])
-            service_data.append(['', '', '', 'الإجمالي النهائي:', f"${total_amount:.2f}"])
-            
-            service_table = Table(service_data, colWidths=[1.5*inch, 2*inch, 0.7*inch, 0.9*inch, 1*inch])
-            service_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#8B7355')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), self.bold_font),
-                ('FONTSIZE', (0,0), (-1,0), 11),
-                ('BACKGROUND', (0,1), (-1,-4), colors.HexColor('#FAF0E6')),
-                ('BACKGROUND', (0,-3), (-1,-1), colors.HexColor('#F5F5DC')),
-                ('FONTNAME', (0,-3), (-1,-1), self.bold_font),
-                ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#D2B48C')),
-            ]))
-            elements.append(service_table)
-            elements.append(Spacer(1, 25))
-            
-            # التذييل النخبوي
-            footer_data = [
-                ['شروط الدفع', 'ملاحظات إضافية'],
-                [invoice_data.get('payment_terms', '30 يوم'), invoice_data.get('notes', 'شكراً لتعاملكم معنا')],
-                ['خصم 5% للدفع خلال 15 يوم', 'للاستفسارات: support@elite.com'],
-                ['', f"تاريخ الاستحقاق: {invoice_data.get('due_date', '')}"]
-            ]
-            
-            footer_table = Table(footer_data, colWidths=[3*inch, 3*inch])
-            footer_table.setStyle(TableStyle([
-                ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#D2B48C')),
-                ('TEXTCOLOR', (0,0), (-1,0), colors.white),
-                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-                ('FONTNAME', (0,0), (-1,0), self.bold_font),
-                ('GRID', (0,0), (-1,-1), 1, colors.HexColor('#8B7355')),
-                ('FONTSIZE', (0,0), (-1,-1), 9),
-            ]))
-            elements.append(footer_table)
-            
-            # بناء PDF
-            doc.build(elements)
-            print(f"✅ تم إنشاء فاتورة نخبوية: {file_path}")
-            return file_path, None
-            
-        except Exception as e:
-            print(f"❌ خطأ في إنشاء PDF نخبوي: {e}")
-            return None, str(e)
-
-    def get_elite_styles(self):
-        """الحصول على أنماط النخبة"""
-        styles = getSampleStyleSheet()
-        return styles
-
-# ================== نظام الذكاء الاصطناعي النخبوي ==================
-class EliteAIAssistant:
-    def __init__(self):
-        self.analysis_models = {}
-        
-    def comprehensive_analysis(self, user_invoices, user_stats):
-        """تحليل شامل متقدم"""
-        if not user_invoices:
-            return self.get_empty_analysis()
-        
-        analysis = {
-            'performance_score': self.calculate_performance_score(user_stats),
-            'revenue_trend': self.analyze_revenue_trend(user_invoices),
-            'client_insights': self.analyze_clients(user_invoices),
-            'service_recommendations': self.generate_service_recommendations(user_invoices),
-            'growth_opportunities': self.identify_growth_opportunities(user_stats)
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
         
-        return analysis
-    
-    def calculate_performance_score(self, stats):
-        """حساب درجة الأداء"""
-        score = 0
-        if stats['total_invoices'] > 10:
-            score += 30
-        if stats['total_revenue'] > 1000:
-            score += 40
-        if stats['pending_invoices'] < 3:
-            score += 30
-        
-        return min(score, 100)
-    
-    def analyze_revenue_trend(self, invoices):
-        """تحليل اتجاهات الإيرادات"""
-        if len(invoices) < 2:
-            return "ثابت"
-        
-        recent_avg = sum(inv['total_amount'] for inv in invoices[:3]) / 3
-        older_avg = sum(inv['total_amount'] for inv in invoices[-3:]) / 3
-        
-        if recent_avg > older_avg * 1.1:
-            return "تصاعدي 📈"
-        elif recent_avg < older_avg * 0.9:
-            return "تنازلي 📉"
-        else:
-            return "مستقر ↔️"
-    
-    def analyze_clients(self, invoices):
-        """تحليل قاعدة العملاء"""
-        clients = {}
-        for invoice in invoices:
-            client = invoice['client_name']
-            if client in clients:
-                clients[client] += 1
-            else:
-                clients[client] = 1
-        
-        if not clients:
-            return "لا توجد بيانات كافية"
-        
-        top_client = max(clients, key=clients.get)
-        return f"أفضل عملائك: {top_client} ({clients[top_client]} معاملة)"
-    
-    def generate_service_recommendations(self, invoices):
-        """توليد توصيات خدمات مخصصة"""
-        service_categories = {}
-        for invoice in invoices:
-            for service in invoice.get('services', []):
-                category = self.categorize_service(service['name'])
-                if category in service_categories:
-                    service_categories[category] += 1
-                else:
-                    service_categories[category] = 1
-        
-        if not service_categories:
-            return ["تطوير مواقع ويب", "استشارات تقنية", "تصميم جرافيك"]
-        
-        top_category = max(service_categories, key=service_categories.get)
-        return self.get_category_recommendations(top_category)
-    
-    def categorize_service(self, service_name):
-        """تصنيف الخدمات"""
-        tech_keywords = ['موقع', 'ويب', 'برمجة', 'تطبيق', 'سوفتوير']
-        design_keywords = ['تصميم', 'شعار', 'جرافيك', 'هوية']
-        
-        if any(keyword in service_name for keyword in tech_keywords):
-            return 'تكنولوجيا'
-        elif any(keyword in service_name for keyword in design_keywords):
-            return 'تصميم'
-        else:
-            return 'استشارات'
-    
-    def get_category_recommendations(self, category):
-        """الحصول على توصيات حسب التصنيف"""
-        recommendations = {
-            'تكنولوجيا': ['تطبيقات جوال متقدمة', 'أنظمة إدارة محتوى', 'حلول سحابية'],
-            'تصميم': ['هوية بصرية متكاملة', 'تصميم واجهات مستخدم', 'مواد تسويقية'],
-            'استشارات': ['دراسات جدوى متقدمة', 'خطط عمل استراتيجية', 'تحليل أسواق']
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gold-gradient);
+            border-radius: 24px 24px 0 0;
         }
-        return recommendations.get(category, ['خدمات متخصصة', 'حلول مخصصة'])
-    
-    def identify_growth_opportunities(self, stats):
-        """تحديد فرص النمو"""
-        opportunities = []
         
-        if stats['total_invoices'] < 5:
-            opportunities.append("تنويع قاعدة العملاء")
-        if stats['total_revenue'] / max(stats['total_invoices'], 1) < 200:
-            opportunities.append("رفع قيمة الخدمات المقدمة")
-        if stats['pending_invoices'] > 2:
-            opportunities.append("تحسين متابعة المدفوعات")
-        
-        return opportunities if opportunities else ["الحفاظ على الأداء المتميز"]
-    
-    def get_empty_analysis(self):
-        """تحليل للبيانات الفارغة"""
-        return {
-            'performance_score': 0,
-            'revenue_trend': "غير محدد",
-            'client_insights': "ابدأ بإنشاء فاتورتك الأولى",
-            'service_recommendations': ["تطوير مواقع ويب", "استشارات تقنية", "تصميم جرافيك"],
-            'growth_opportunities': ["إنشاء فواتير جديدة", "جذب عملاء جدد"]
+        .logo-section {
+            text-align: center;
+            margin-bottom: 50px;
         }
+        
+        .logo-icon {
+            font-size: 3.5em;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .logo-text {
+            font-size: 2.8em;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .logo-subtitle {
+            color: var(--smoke-white);
+            font-size: 1.1em;
+            font-weight: 300;
+            opacity: 0.8;
+        }
+        
+        .elite-form-group {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 12px;
+            color: var(--pure-white);
+            font-weight: 600;
+            font-size: 1.1em;
+            text-align: right;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .elite-form-control {
+            width: 100%;
+            padding: 20px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            color: var(--pure-white);
+            font-size: 1.1em;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .elite-form-control:focus {
+            outline: none;
+            border-color: var(--elite-gold);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--elite-gold);
+            font-size: 1.2em;
+        }
+        
+        .elite-btn {
+            background: var(--gold-gradient);
+            color: var(--dark-black);
+            padding: 20px 40px;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .elite-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .elite-btn:hover::before {
+            left: 100%;
+        }
+        
+        .elite-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4);
+        }
+        
+        .elite-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--elite-gold);
+            color: var(--elite-gold);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--elite-gold);
+            color: var(--dark-black);
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .footer-text {
+            color: var(--smoke-white);
+            opacity: 0.7;
+            font-size: 0.95em;
+        }
+        
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(39, 174, 96, 0.1);
+            border: 1px solid rgba(39, 174, 96, 0.3);
+            color: var(--accent-green);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+            margin-top: 15px;
+        }
+        
+        /* ================== لوحة التحكم ================== */
+        .elite-header {
+            background: var(--card-gradient);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .elite-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gold-gradient);
+        }
+        
+        .header-content h1 {
+            font-size: 3.2em;
+            font-weight: 800;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        
+        .header-content p {
+            font-size: 1.3em;
+            color: var(--smoke-white);
+            opacity: 0.8;
+            font-weight: 300;
+        }
+        
+        .elite-user-panel {
+            position: absolute;
+            left: 40px;
+            top: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            color: var(--smoke-white);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .elite-admin-badge {
+            background: var(--gold-gradient);
+            color: var(--dark-black);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            border: 1px solid var(--elite-gold);
+        }
+        
+        .elite-navigation {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .elite-nav-card {
+            background: var(--card-gradient);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px 30px;
+            text-align: center;
+            color: var(--pure-white);
+            text-decoration: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .elite-nav-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gold-gradient);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        
+        .elite-nav-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--elite-gold);
+            box-shadow: var(--shadow-card), var(--shadow-gold);
+        }
+        
+        .elite-nav-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .elite-nav-card i {
+            font-size: 3.2em;
+            margin-bottom: 25px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: all 0.4s ease;
+        }
+        
+        .elite-nav-card:hover i {
+            transform: scale(1.1);
+        }
+        
+        .elite-nav-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--pure-white);
+            font-weight: 700;
+        }
+        
+        .elite-nav-card p {
+            color: var(--smoke-white);
+            font-size: 1em;
+            line-height: 1.6;
+            opacity: 0.8;
+        }
+        
+        .elite-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .elite-stat-card {
+            background: var(--card-gradient);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .elite-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gold-gradient);
+        }
+        
+        .elite-stat-number {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin: 20px 0;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .elite-stat-card p {
+            font-size: 1.2em;
+            color: var(--smoke-white);
+            font-weight: 600;
+            opacity: 0.9;
+        }
+        
+        .elite-alert {
+            padding: 25px 30px;
+            border-radius: 16px;
+            margin: 25px 0;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid;
+            backdrop-filter: blur(10px);
+            font-size: 1.1em;
+        }
+        
+        .elite-alert-success {
+            background: rgba(39, 174, 96, 0.1);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+        
+        .elite-alert-error {
+            background: rgba(231, 76, 60, 0.1);
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+        
+        .elite-profile-section {
+            background: var(--card-gradient);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 35px;
+            margin: 25px 0;
+            box-shadow: var(--shadow-card);
+        }
+        
+        /* تأثيرات الاستجابة */
+        @media (max-width: 768px) {
+            .elite-container {
+                padding: 15px;
+            }
+            
+            .login-card {
+                padding: 40px 30px;
+                margin: 20px;
+            }
+            
+            .elite-header {
+                padding: 25px;
+            }
+            
+            .header-content h1 {
+                font-size: 2.5em;
+            }
+            
+            .elite-user-panel {
+                position: relative;
+                left: auto;
+                top: auto;
+                margin-bottom: 20px;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .elite-navigation {
+                grid-template-columns: 1fr;
+            }
+            
+            .elite-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* تأثيرات تحميل إضافية */
+        .loading-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        
+        .loading-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--elite-gold);
+            animation: loadingDot 1.4s ease-in-out infinite both;
+        }
+        
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes loadingDot {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    {% if not is_login_page %}
+    <div class="elite-container">
+        {% if session.user_logged_in %}
+        <div class="elite-user-panel">
+            {% if session.user_type == 'admin' %}
+            <span class="elite-admin-badge">👑 نخبة</span>
+            {% endif %}
+            <i class="fas fa-user-tie"></i> {{ session.username }}
+            | <a href="/elite/profile" style="color: var(--elite-gold); margin: 0 15px;">الملف الشخصي</a>
+            | <a href="/elite/logout" style="color: var(--smoke-white);">تسجيل خروج</a>
+        </div>
+        {% endif %}
+        
+        <div class="elite-header">
+            <div class="header-content">
+                <h1><i class="fas fa-crown"></i> InvoiceFlow Elite</h1>
+                <p>🚀 النظام النخبوي الأسود - التميز في كل تفصيل</p>
+                <p>⏰ مدة التشغيل: {{ uptime }}</p>
+            </div>
+        </div>
+        
+        {% if session.user_logged_in %}
+        <div class="elite-navigation">
+            <a href="/" class="elite-nav-card">
+                <i class="fas fa-home"></i>
+                <h3>الرئيسية</h3>
+                <p>لوحة التحكم الشاملة والإحصائيات المتقدمة</p>
+            </a>
+            <a href="/elite/invoices" class="elite-nav-card">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <h3>الفواتير</h3>
+                <p>إدارة وعرض وتتبع الفواتير النخبوية</p>
+            </a>
+            <a href="/elite/create" class="elite-nav-card">
+                <i class="fas fa-plus-circle"></i>
+                <h3>إنشاء فاتورة</h3>
+                <p>إنشاء فاتورة نخبوية جديدة بتصميم فاخر</p>
+            </a>
+            {% if session.user_type == 'admin' %}
+            <a href="/elite/admin" class="elite-nav-card">
+                <i class="fas fa-crown"></i>
+                <h3>لوحة التحكم</h3>
+                <p>الإدارة المتقدمة والنخبوية للنظام</p>
+            </a>
+            {% endif %}
+            <a href="/elite/profile" class="elite-nav-card">
+                <i class="fas fa-user-cog"></i>
+                <h3>الملف الشخصي</h3>
+                <p>بياناتك الشخصية وإعدادات الحساب</p>
+            </a>
+            <a href="/elite/ai" class="elite-nav-card">
+                <i class="fas fa-robot"></i>
+                <h3>الذكاء الاصطناعي</h3>
+                <p>تحليلات متقدمة وتوصيات ذكية مخصصة</p>
+            </a>
+        </div>
+        {% endif %}
 
-# ================== نظام إدارة المستخدمين النخبوي ==================
+        {{ content | safe }}
+    </div>
+    {% else %}
+    <div class="login-wrapper">
+        {{ content | safe }}
+    </div>
+    {% endif %}
+
+    <script>
+        // تأثيرات النخبة المتقدمة
+        document.addEventListener('DOMContentLoaded', function() {
+            // تأثيرات الكروت
+            const cards = document.querySelectorAll('.elite-nav-card, .elite-stat-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // تأثيرات الأزرار
+            const buttons = document.querySelectorAll('.elite-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // تأثيرات حقول الإدخال
+            const inputs = document.querySelectorAll('.elite-form-control');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // تحميل متحرك للصفحة
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+        
+        // تأثيرات العدادات المتحركة
+        function animateValue(element, start, end, duration) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                element.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        
+        // تفعيل العدادات المتحركة
+        document.addEventListener('DOMContentLoaded', function() {
+            const counters = document.querySelectorAll('.elite-stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                if (!isNaN(target)) {
+                    animateValue(counter, 0, target, 2000);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+"""
+
+# ================== نظام إدارة المستخدمين ==================
 class EliteUserManager:
     def __init__(self):
         self.db_path = 'invoices_elite.db'
@@ -595,42 +817,82 @@ class EliteUserManager:
             print(f"🔧 خطأ في إنشاء المستخدم: {e}")
             return False, f"خطأ في إنشاء الحساب: {str(e)}"
 
-    def get_elite_profile(self, username):
-        """جلب الملف الشخصي النخبوي"""
+# ================== نظام قاعدة البيانات ==================
+class EliteDatabaseManager:
+    def __init__(self):
+        self.db_path = 'invoices_elite.db'
+        self.init_elite_database()
+
+    def init_elite_database(self):
+        """تهيئة قاعدة البيانات النخبوية"""
         try:
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
+
             cursor.execute('''
-                SELECT username, email, full_name, company_name, phone, 
-                       user_type, subscription_tier, created_at, last_login, profile_data
-                FROM elite_users WHERE username = ?
-            ''', (username,))
+                CREATE TABLE IF NOT EXISTS elite_invoices (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    invoice_id TEXT UNIQUE,
+                    user_id TEXT,
+                    user_name TEXT,
+                    company_name TEXT,
+                    client_name TEXT,
+                    client_email TEXT,
+                    client_phone TEXT,
+                    client_address TEXT,
+                    services_json TEXT,
+                    subtotal REAL,
+                    tax_rate REAL DEFAULT 0.0,
+                    tax_amount REAL DEFAULT 0.0,
+                    total_amount REAL,
+                    issue_date TEXT,
+                    due_date TEXT,
+                    payment_terms TEXT DEFAULT '30 يوم',
+                    notes TEXT,
+                    pdf_path TEXT,
+                    status TEXT DEFAULT 'معلقة',
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            conn.commit()
+            conn.close()
+            print("✅ قاعدة البيانات النخبوية جاهزة")
+        except Exception as e:
+            print(f"🔧 خطأ في قاعدة البيانات: {e}")
+
+    def get_elite_stats(self, username):
+        """إحصائيات نخبوية للمستخدم"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
+            
+            # إجمالي الفواتير
+            cursor.execute('SELECT COUNT(*), COALESCE(SUM(total_amount), 0) FROM elite_invoices WHERE user_id = ?', (username,))
             result = cursor.fetchone()
+            total_invoices = result[0] if result else 0
+            total_revenue = result[1] if result else 0
+            
+            # الفواتير المعلقة
+            cursor.execute('SELECT COUNT(*) FROM elite_invoices WHERE user_id = ? AND status = "معلقة"', (username,))
+            pending_invoices = cursor.fetchone()[0] or 0
+            
+            # فواتير اليوم
+            cursor.execute('SELECT COUNT(*) FROM elite_invoices WHERE user_id = ? AND date(created_at) = date("now")', (username,))
+            today_invoices = cursor.fetchone()[0] or 0
+            
             conn.close()
             
-            if result:
-                return {
-                    'username': result[0],
-                    'email': result[1],
-                    'full_name': result[2],
-                    'company_name': result[3],
-                    'phone': result[4],
-                    'user_type': result[5],
-                    'subscription_tier': result[6],
-                    'created_at': result[7],
-                    'last_login': result[8],
-                    'profile_data': json.loads(result[9]) if result[9] else {}
-                }
-            return None
+            return {
+                'total_invoices': total_invoices,
+                'total_revenue': total_revenue,
+                'pending_invoices': pending_invoices,
+                'today_invoices': today_invoices
+            }
         except Exception as e:
-            print(f"🔧 خطأ في جلب الملف الشخصي: {e}")
-            return None
-
-# ================== إعداد الأنظمة النخبوية ==================
-elite_db = EliteDatabaseManager()
-elite_pdf = ElitePDFGenerator()
-elite_ai = EliteAIAssistant()
-elite_users = EliteUserManager()
+            print(f"🔧 خطأ في جلب الإحصائيات: {e}")
+            return {'total_invoices': 0, 'total_revenue': 0, 'pending_invoices': 0, 'today_invoices': 0}
 
 # ================== نظام الإبقاء على التشغيل ==================
 class EliteKeepAlive:
@@ -639,9 +901,9 @@ class EliteKeepAlive:
         self.ping_count = 0
         
     def start_elite_keep_alive(self):
-        print("🔄 بدء أنظمة النخبة...")
+        print("🔄 بدء أنظمة النخبة السوداء...")
         self.start_elite_monitoring()
-        print("✅ أنظمة النخبة مفعلة!")
+        print("✅ أنظمة النخبة السوداء مفعلة!")
     
     def start_elite_monitoring(self):
         def monitor():
@@ -652,7 +914,7 @@ class EliteKeepAlive:
                 if int(current_time) % 600 == 0:
                     hours = int(uptime // 3600)
                     minutes = int((uptime % 3600) // 60)
-                    print(f"📊 تقرير النخبة: {hours}س {minutes}د - {self.ping_count} زيارات نخبوية")
+                    print(f"📊 تقرير النخبة السوداء: {hours}س {minutes}د - {self.ping_count} زيارات نخبوية")
                 
                 time.sleep(1)
         
@@ -660,540 +922,13 @@ class EliteKeepAlive:
         monitor_thread.daemon = True
         monitor_thread.start()
 
-# إعداد نظام النخبة
+# ================== إعداد الأنظمة النخبوية ==================
+elite_db = EliteDatabaseManager()
+elite_users = EliteUserManager()
 keep_alive_system = EliteKeepAlive()
 keep_alive_system.start_elite_keep_alive()
 
-# ================== التصميم النخبوي (بيج/بني) ==================
-ELITE_DESIGN_HTML = """
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            /* الألوان النخبوية - بيج/بني */
-            --primary-beige: #F5F5DC;
-            --light-beige: #FAF0E6;
-            --dark-beige: #F5E6D3;
-            --primary-brown: #8B7355;
-            --dark-brown: #654321;
-            --light-brown: #A0522D;
-            --accent-gold: #D4AF37;
-            --text-dark: #2C1810;
-            --text-light: #5D4037;
-            --success: #27AE60;
-            --warning: #F39C12;
-            --danger: #E74C3C;
-            --shadow: rgba(139, 115, 85, 0.2);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', 'Tahoma', 'Geneva', 'Verdana', sans-serif;
-            background: linear-gradient(135deg, var(--primary-beige) 0%, var(--light-beige) 100%);
-            color: var(--text-dark);
-            min-height: 100vh;
-            line-height: 1.7;
-        }
-        
-        .elite-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        .elite-header {
-            background: linear-gradient(135deg, var(--primary-brown) 0%, var(--dark-brown) 100%);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-            border: 2px solid var(--accent-gold);
-            box-shadow: 0 15px 35px var(--shadow);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .elite-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-gold), var(--primary-brown));
-        }
-        
-        .header-content h1 {
-            font-size: 3.8em;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--accent-gold), var(--light-beige));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .header-content p {
-            font-size: 1.4em;
-            color: var(--light-beige);
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-        
-        .elite-user-panel {
-            position: absolute;
-            left: 40px;
-            top: 40px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 25px;
-            border-radius: 15px;
-            border: 1px solid var(--accent-gold);
-            color: var(--light-beige);
-        }
-        
-        .elite-admin-badge {
-            background: linear-gradient(135deg, var(--accent-gold), var(--primary-brown));
-            color: var(--text-dark);
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 700;
-            margin-left: 10px;
-            border: 1px solid var(--accent-gold);
-        }
-        
-        .elite-navigation {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-        
-        .elite-nav-card {
-            background: linear-gradient(135deg, var(--light-beige) 0%, var(--dark-beige) 100%);
-            border-radius: 20px;
-            padding: 35px 30px;
-            text-align: center;
-            color: var(--text-dark);
-            text-decoration: none;
-            transition: all 0.4s ease;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 25px var(--shadow);
-        }
-        
-        .elite-nav-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-brown), var(--accent-gold));
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-        }
-        
-        .elite-nav-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px var(--shadow);
-            border-color: var(--primary-brown);
-        }
-        
-        .elite-nav-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .elite-nav-card i {
-            font-size: 3.5em;
-            margin-bottom: 25px;
-            background: linear-gradient(135deg, var(--primary-brown), var(--dark-brown));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            transition: all 0.4s ease;
-        }
-        
-        .elite-nav-card:hover i {
-            transform: scale(1.1);
-        }
-        
-        .elite-nav-card h3 {
-            font-size: 1.6em;
-            margin-bottom: 15px;
-            color: var(--dark-brown);
-            font-weight: 700;
-        }
-        
-        .elite-nav-card p {
-            color: var(--text-light);
-            font-size: 1.1em;
-            line-height: 1.6;
-        }
-        
-        .elite-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-            margin: 40px 0;
-        }
-        
-        .elite-stat-card {
-            background: linear-gradient(135deg, var(--light-beige) 0%, var(--primary-beige) 100%);
-            border-radius: 20px;
-            padding: 35px 30px;
-            text-align: center;
-            border: 2px solid var(--dark-beige);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 25px var(--shadow);
-        }
-        
-        .elite-stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary-brown), var(--accent-gold));
-        }
-        
-        .elite-stat-number {
-            font-size: 4em;
-            font-weight: 800;
-            margin: 20px 0;
-            background: linear-gradient(135deg, var(--dark-brown), var(--primary-brown));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .elite-stat-card p {
-            font-size: 1.3em;
-            color: var(--text-light);
-            font-weight: 600;
-        }
-        
-        .elite-ai-section {
-            background: linear-gradient(135deg, var(--light-beige) 0%, var(--dark-beige) 100%);
-            border-radius: 20px;
-            padding: 35px;
-            margin: 30px 0;
-            border: 2px solid var(--primary-brown);
-            box-shadow: 0 10px 30px var(--shadow);
-        }
-        
-        .elite-btn {
-            background: linear-gradient(135deg, var(--primary-brown), var(--dark-brown));
-            color: var(--light-beige);
-            padding: 18px 40px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin: 8px;
-            box-shadow: 0 5px 15px var(--shadow);
-        }
-        
-        .elite-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(139, 115, 85, 0.4);
-            background: linear-gradient(135deg, var(--dark-brown), var(--primary-brown));
-        }
-        
-        .elite-btn-secondary {
-            background: transparent;
-            border: 2px solid var(--primary-brown);
-            color: var(--primary-brown);
-        }
-        
-        .elite-btn-secondary:hover {
-            background: var(--primary-brown);
-            color: var(--light-beige);
-        }
-        
-        .elite-form-group {
-            margin-bottom: 30px;
-        }
-        
-        .elite-form-group label {
-            display: block;
-            margin-bottom: 12px;
-            color: var(--dark-brown);
-            font-weight: 700;
-            font-size: 1.2em;
-        }
-        
-        .elite-form-control {
-            width: 100%;
-            padding: 18px 25px;
-            border: 2px solid var(--dark-beige);
-            border-radius: 15px;
-            background: var(--light-beige);
-            color: var(--text-dark);
-            font-size: 1.1em;
-            transition: all 0.3s ease;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .elite-form-control:focus {
-            outline: none;
-            border-color: var(--primary-brown);
-            background: var(--primary-beige);
-            box-shadow: 0 0 0 3px rgba(139, 115, 85, 0.2);
-        }
-        
-        .elite-alert {
-            padding: 25px 30px;
-            border-radius: 15px;
-            margin: 25px 0;
-            text-align: center;
-            font-weight: 600;
-            border: 2px solid;
-            backdrop-filter: blur(10px);
-            font-size: 1.1em;
-        }
-        
-        .elite-alert-success {
-            background: rgba(39, 174, 96, 0.1);
-            border-color: var(--success);
-            color: var(--success);
-        }
-        
-        .elite-alert-error {
-            background: rgba(231, 76, 60, 0.1);
-            border-color: var(--danger);
-            color: var(--danger);
-        }
-        
-        .elite-alert-warning {
-            background: rgba(243, 156, 18, 0.1);
-            border-color: var(--warning);
-            color: var(--warning);
-        }
-        
-        .elite-login-container {
-            max-width: 480px;
-            margin: 80px auto;
-        }
-        
-        .elite-profile-section {
-            background: linear-gradient(135deg, var(--light-beige) 0%, var(--primary-beige) 100%);
-            border-radius: 20px;
-            padding: 35px;
-            margin: 25px 0;
-            border: 2px solid var(--dark-beige);
-            box-shadow: 0 8px 25px var(--shadow);
-        }
-        
-        .elite-feature-list {
-            list-style: none;
-            margin: 25px 0;
-        }
-        
-        .elite-feature-list li {
-            padding: 15px 0;
-            border-bottom: 1px solid var(--dark-beige);
-            color: var(--text-dark);
-            font-size: 1.1em;
-            position: relative;
-            padding-right: 40px;
-        }
-        
-        .elite-feature-list li:before {
-            content: '✓';
-            position: absolute;
-            right: 0;
-            color: var(--success);
-            font-weight: bold;
-            font-size: 1.3em;
-        }
-        
-        .elite-service-item {
-            background: var(--light-beige);
-            border: 2px solid var(--dark-beige);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-            transition: all 0.3s ease;
-        }
-        
-        .elite-service-item:hover {
-            border-color: var(--primary-brown);
-            transform: translateX(-5px);
-        }
-        
-        @media (max-width: 768px) {
-            .elite-container {
-                padding: 15px;
-            }
-            
-            .elite-header {
-                padding: 25px;
-            }
-            
-            .header-content h1 {
-                font-size: 2.5em;
-            }
-            
-            .elite-user-panel {
-                position: relative;
-                left: auto;
-                top: auto;
-                margin-bottom: 20px;
-                text-align: center;
-            }
-            
-            .elite-navigation {
-                grid-template-columns: 1fr;
-            }
-            
-            .elite-stats-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="elite-container">
-        {% if session.user_logged_in %}
-        <div class="elite-user-panel">
-            {% if session.user_type == 'admin' %}
-            <span class="elite-admin-badge">👑 نخبة</span>
-            {% endif %}
-            <i class="fas fa-user-tie"></i> {{ session.username }}
-            | <a href="/elite/profile" style="color: var(--accent-gold); margin: 0 15px;">الملف الشخصي</a>
-            | <a href="/elite/logout" style="color: var(--light-beige);">تسجيل خروج</a>
-        </div>
-        {% endif %}
-        
-        <div class="elite-header">
-            <div class="header-content">
-                <h1><i class="fas fa-crown"></i> InvoiceFlow Elite</h1>
-                <p>🚀 النظام النخبوي لإدارة الفواتير - التميز في كل تفصيل</p>
-                <p>⏰ مدة التشغيل: {{ uptime }}</p>
-            </div>
-        </div>
-        
-        {% if session.user_logged_in %}
-        <div class="elite-navigation">
-            <a href="/" class="elite-nav-card">
-                <i class="fas fa-home"></i>
-                <h3>الرئيسية</h3>
-                <p>لوحة التحكم الشاملة والإحصائيات المتقدمة</p>
-            </a>
-            <a href="/elite/invoices" class="elite-nav-card">
-                <i class="fas fa-file-invoice-dollar"></i>
-                <h3>الفواتير</h3>
-                <p>إدارة وعرض وتتبع الفواتير النخبوية</p>
-            </a>
-            <a href="/elite/create" class="elite-nav-card">
-                <i class="fas fa-plus-circle"></i>
-                <h3>إنشاء فاتورة</h3>
-                <p>إنشاء فاتورة نخبوية جديدة بتصميم فاخر</p>
-            </a>
-            {% if session.user_type == 'admin' %}
-            <a href="/elite/admin" class="elite-nav-card">
-                <i class="fas fa-crown"></i>
-                <h3>لوحة التحكم</h3>
-                <p>الإدارة المتقدمة والنخبوية للنظام</p>
-            </a>
-            {% endif %}
-            <a href="/elite/profile" class="elite-nav-card">
-                <i class="fas fa-user-cog"></i>
-                <h3>الملف الشخصي</h3>
-                <p>بياناتك الشخصية وإعدادات الحساب</p>
-            </a>
-            <a href="/elite/ai" class="elite-nav-card">
-                <i class="fas fa-robot"></i>
-                <h3>الذكاء الاصطناعي</h3>
-                <p>تحليلات متقدمة وتوصيات ذكية مخصصة</p>
-            </a>
-        </div>
-        {% endif %}
-
-        {{ content | safe }}
-    </div>
-
-    <script>
-        // تأثيرات النخبة
-        document.addEventListener('DOMContentLoaded', function() {
-            // تأثيرات الكروت
-            const cards = document.querySelectorAll('.elite-nav-card, .elite-stat-card');
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-8px) scale(1.02)';
-                });
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0) scale(1)';
-                });
-            });
-            
-            // تأثيرات الأزرار
-            const buttons = document.querySelectorAll('.elite-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-3px)';
-                });
-                btn.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-            
-            // تحميل متحرك للصفحة
-            setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 100);
-        });
-        
-        // تأثيرات إضافية للواجهات
-        function animateValue(element, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                element.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-        
-        // تفعيل العدادات المتحركة
-        document.addEventListener('DOMContentLoaded', function() {
-            const counters = document.querySelectorAll('.elite-stat-number');
-            counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-target'));
-                if (!isNaN(target)) {
-                    animateValue(counter, 0, target, 2000);
-                }
-            });
-        });
-    </script>
-</body>
-</html>
-"""
-
-# ================== Routes النخبوية المصححة ==================
+# ================== Routes النخبوية ==================
 @app.route('/')
 def elite_home():
     """الصفحة الرئيسية النخبوية"""
@@ -1207,79 +942,45 @@ def elite_home():
     
     # جلب الإحصائيات النخبوية
     stats = elite_db.get_elite_stats(session['username'])
-    user_invoices = elite_db.get_user_elite_invoices(session['username'])
-    ai_analysis = elite_ai.comprehensive_analysis(user_invoices, stats)
     
-    # إصلاح الخطأ: استخدام علامات اقتباس مختلفة
     admin_button = ''
     if session.get('user_type') == 'admin':
-        admin_button = '<a href="/elite/admin" class="elite-btn" style="background: linear-gradient(135deg, var(--accent-gold), var(--primary-brown));"><i class="fas fa-crown"></i> لوحة التحكم</a>'
+        admin_button = '<a href="/elite/admin" class="elite-btn" style="margin-top: 20px;"><i class="fas fa-crown"></i> لوحة التحكم</a>'
     
     content = f"""
     <div class="elite-stats-grid">
         <div class="elite-stat-card">
-            <i class="fas fa-file-invoice" style="color: var(--primary-brown);"></i>
+            <i class="fas fa-file-invoice"></i>
             <div class="elite-stat-number" data-target="{stats['total_invoices']}">{stats['total_invoices']}</div>
             <p>إجمالي الفواتير</p>
         </div>
         <div class="elite-stat-card">
-            <i class="fas fa-dollar-sign" style="color: var(--primary-brown);"></i>
+            <i class="fas fa-dollar-sign"></i>
             <div class="elite-stat-number" data-target="{int(stats['total_revenue'])}">${stats['total_revenue']:,.0f}</div>
             <p>إجمالي الإيرادات</p>
         </div>
         <div class="elite-stat-card">
-            <i class="fas fa-clock" style="color: var(--primary-brown);"></i>
+            <i class="fas fa-clock"></i>
             <div class="elite-stat-number" data-target="{stats['pending_invoices']}">{stats['pending_invoices']}</div>
             <p>فواتير معلقة</p>
         </div>
         <div class="elite-stat-card">
-            <i class="fas fa-chart-line" style="color: var(--primary-brown);"></i>
-            <div class="elite-stat-number" data-target="{int(ai_analysis['performance_score'])}">{ai_analysis['performance_score']}%</div>
-            <p>درجة الأداء</p>
-        </div>
-    </div>
-    
-    <div class="elite-ai-section">
-        <h2 style="margin-bottom: 25px; text-align: center; color: var(--dark-brown);">
-            <i class="fas fa-robot"></i> لوحة التحليل الذكي
-        </h2>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
-            <div>
-                <h3 style="color: var(--primary-brown); margin-bottom: 15px;">📊 أداؤك</h3>
-                <div style="background: var(--primary-beige); padding: 20px; border-radius: 15px; border: 2px solid var(--dark-beige);">
-                    <p><strong>اتجاه الإيرادات:</strong> {ai_analysis['revenue_trend']}</p>
-                    <p><strong>رؤى العملاء:</strong> {ai_analysis['client_insights']}</p>
-                    <p><strong>درجة الأداء:</strong> {ai_analysis['performance_score']}%</p>
-                </div>
-            </div>
-            
-            <div>
-                <h3 style="color: var(--primary-brown); margin-bottom: 15px;">💡 فرص النمو</h3>
-                <div style="background: var(--primary-beige); padding: 20px; border-radius: 15px; border: 2px solid var(--dark-beige);">
-                    {''.join([f'<p>• {opportunity}</p>' for opportunity in ai_analysis['growth_opportunities']])}
-                </div>
-            </div>
-        </div>
-        
-        <div>
-            <h3 style="color: var(--primary-brown); margin-bottom: 15px;">🎯 توصيات الخدمات</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
-                {''.join([f'<div class="elite-service-item">{service}</div>' for service in ai_analysis['service_recommendations']])}
-            </div>
+            <i class="fas fa-chart-line"></i>
+            <div class="elite-stat-number" data-target="{85}">85%</div>
+            <p>كفاءة النظام</p>
         </div>
     </div>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px;">
         <div class="elite-profile-section">
-            <h3 style="margin-bottom: 20px; color: var(--dark-brown);">
+            <h3 style="margin-bottom: 20px; color: var(--pure-white);">
                 <i class="fas fa-bolt"></i> إجراءات سريعة
             </h3>
             <div style="display: flex; flex-direction: column; gap: 15px;">
                 <a href="/elite/create" class="elite-btn">
                     <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
                 </a>
-                <a href="/elite/invoices" class="elite-btn elite-btn-secondary">
+                <a href="/elite/invoices" class="elite-btn btn-secondary">
                     <i class="fas fa-list"></i> عرض جميع الفواتير
                 </a>
                 {admin_button}
@@ -1287,21 +988,21 @@ def elite_home():
         </div>
         
         <div class="elite-profile-section">
-            <h3 style="margin-bottom: 20px; color: var(--dark-brown);">
-                <i class="fas fa-star"></i> مزايا النخبة
+            <h3 style="margin-bottom: 20px; color: var(--pure-white);">
+                <i class="fas fa-star"></i> مزايا النخبة السوداء
             </h3>
-            <ul class="elite-feature-list">
-                <li>فواتير PDF نخبوية فاخرة</li>
-                <li>تحليلات ذكاء اصطناعي متقدمة</li>
-                <li>تصميم بيج/بني فاخر</li>
-                <li>نظام أمني متكامل</li>
-                <li>واجهات مستخدم قوية</li>
-            </ul>
+            <div style="color: var(--smoke-white); line-height: 2;">
+                <p>🎯 تصميم أسود فاخر بلمسات ذهبية</p>
+                <p>⚡ واجهات مستخدم سريعة واستجابة</p>
+                <p>🔐 نظام أمني متكامل وحماية بيانات</p>
+                <p>📊 تحليلات ذكية وتقارير متقدمة</p>
+                <p>🎨 تجربة مستخدم فريدة ومتميزة</p>
+            </div>
         </div>
     </div>
     """
     
-    return render_template_string(ELITE_DESIGN_HTML, title="InvoiceFlow Elite - النظام النخبوي", uptime=uptime_str, content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="InvoiceFlow Elite - النظام الأسود", uptime=uptime_str, content=content, is_login_page=False)
 
 @app.route('/elite/login', methods=['GET', 'POST'])
 def elite_login():
@@ -1324,61 +1025,112 @@ def elite_login():
             
             return redirect(url_for('elite_home'))
         else:
-            content = """
-            <div class="elite-login-container">
-                <div class="elite-header">
-                    <h2 style="margin-bottom: 30px; text-align: center;">تسجيل الدخول النخبوي</h2>
-                    <div class="elite-alert elite-alert-error">
-                        <i class="fas fa-exclamation-triangle"></i> بيانات الدخول غير صحيحة
+            login_content = """
+            <div class="login-card">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-crown"></i>
                     </div>
-                    <form method="POST">
-                        <div class="elite-form-group">
-                            <input type="text" name="username" class="elite-form-control" placeholder="اسم المستخدم النخبوي" required>
+                    <div class="logo-text">InvoiceFlow Elite</div>
+                    <div class="logo-subtitle">النظام الأسود الفاخر لإدارة الفواتير</div>
+                </div>
+                
+                <div class="elite-alert elite-alert-error">
+                    <i class="fas fa-exclamation-triangle"></i> بيانات الدخول غير صحيحة
+                </div>
+                
+                <form method="POST">
+                    <div class="elite-form-group">
+                        <label class="form-label">اسم المستخدم</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="username" class="elite-form-control" placeholder="أدخل اسم المستخدم النخبوي" required>
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
                         </div>
-                        <div class="elite-form-group">
-                            <input type="password" name="password" class="elite-form-control" placeholder="كلمة المرور" required>
+                    </div>
+                    
+                    <div class="elite-form-group">
+                        <label class="form-label">كلمة المرور</label>
+                        <div class="input-wrapper">
+                            <input type="password" name="password" class="elite-form-control" placeholder="أدخل كلمة المرور" required>
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
                         </div>
-                        <button type="submit" class="elite-btn" style="width: 100%;">
-                            <i class="fas fa-sign-in-alt"></i> دخول النخبة
-                        </button>
-                    </form>
-                    <div style="margin-top: 25px; text-align: center;">
-                        <a href="/elite/register" class="elite-btn elite-btn-secondary" style="width: 100%;">
-                            <i class="fas fa-user-plus"></i> انضم إلى النخبة
-                        </a>
+                    </div>
+                    
+                    <button type="submit" class="elite-btn">
+                        <i class="fas fa-sign-in-alt"></i> دخول النخبة
+                    </button>
+                </form>
+                
+                <div class="login-footer">
+                    <div class="footer-text">ليس لديك حساب؟ انضم إلى النخبة</div>
+                    <a href="/elite/register" class="elite-btn btn-secondary" style="margin-top: 15px;">
+                        <i class="fas fa-user-plus"></i> إنشاء حساب جديد
+                    </a>
+                    <div class="security-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        نظام آمن ومشفر
                     </div>
                 </div>
             </div>
             """
-            return render_template_string(ELITE_DESIGN_HTML, title="تسجيل الدخول - InvoiceFlow Elite", uptime="", content=content)
+            return render_template_string(BLACK_ELITE_DESIGN, title="تسجيل الدخول - InvoiceFlow Elite", content=login_content, is_login_page=True)
     
     if 'user_logged_in' in session:
         return redirect(url_for('elite_home'))
     
-    content = """
-    <div class="elite-login-container">
-        <div class="elite-header">
-            <h2 style="margin-bottom: 30px; text-align: center;">تسجيل الدخول النخبوي</h2>
-            <form method="POST">
-                <div class="elite-form-group">
-                    <input type="text" name="username" class="elite-form-control" placeholder="اسم المستخدم النخبوي" required>
+    login_content = """
+    <div class="login-card">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-crown"></i>
+            </div>
+            <div class="logo-text">InvoiceFlow Elite</div>
+            <div class="logo-subtitle">النظام الأسود الفاخر لإدارة الفواتير</div>
+        </div>
+        
+        <form method="POST">
+            <div class="elite-form-group">
+                <label class="form-label">اسم المستخدم</label>
+                <div class="input-wrapper">
+                    <input type="text" name="username" class="elite-form-control" placeholder="أدخل اسم المستخدم النخبوي" required>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
                 </div>
-                <div class="elite-form-group">
-                    <input type="password" name="password" class="elite-form-control" placeholder="كلمة المرور" required>
+            </div>
+            
+            <div class="elite-form-group">
+                <label class="form-label">كلمة المرور</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" class="elite-form-control" placeholder="أدخل كلمة المرور" required>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
                 </div>
-                <button type="submit" class="elite-btn" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> دخول النخبة
-                </button>
-            </form>
-            <div style="margin-top: 25px; text-align: center;">
-                <a href="/elite/register" class="elite-btn elite-btn-secondary" style="width: 100%;">
-                    <i class="fas fa-user-plus"></i> انضم إلى النخبة
-                </a>
+            </div>
+            
+            <button type="submit" class="elite-btn">
+                <i class="fas fa-sign-in-alt"></i> دخول النخبة
+            </button>
+        </form>
+        
+        <div class="login-footer">
+            <div class="footer-text">ليس لديك حساب؟ انضم إلى النخبة</div>
+            <a href="/elite/register" class="elite-btn btn-secondary" style="margin-top: 15px;">
+                <i class="fas fa-user-plus"></i> إنشاء حساب جديد
+            </a>
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                نظام آمن ومشفر
             </div>
         </div>
     </div>
     """
-    return render_template_string(ELITE_DESIGN_HTML, title="تسجيل الدخول - InvoiceFlow Elite", uptime="", content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="تسجيل الدخول - InvoiceFlow Elite", content=login_content, is_login_page=True)
 
 @app.route('/elite/register', methods=['GET', 'POST'])
 def elite_register():
@@ -1394,92 +1146,182 @@ def elite_register():
         success, message = elite_users.create_elite_user(username, password, email, full_name, company_name, phone)
         
         if success:
-            content = f"""
-            <div class="elite-login-container">
-                <div class="elite-header">
-                    <div class="elite-alert elite-alert-success">
-                        <i class="fas fa-check-circle"></i> {message}
+            register_content = f"""
+            <div class="login-card">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-crown"></i>
                     </div>
-                    <div style="text-align: center; margin-top: 25px;">
-                        <a href="/elite/login" class="elite-btn">
-                            <i class="fas fa-sign-in-alt"></i> الانتقال لتسجيل الدخول
-                        </a>
-                    </div>
+                    <div class="logo-text">InvoiceFlow Elite</div>
+                    <div class="logo-subtitle">انضم إلى النخبة</div>
+                </div>
+                
+                <div class="elite-alert elite-alert-success">
+                    <i class="fas fa-check-circle"></i> {message}
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="/elite/login" class="elite-btn">
+                        <i class="fas fa-sign-in-alt"></i> الانتقال لتسجيل الدخول
+                    </a>
                 </div>
             </div>
             """
-            return render_template_string(ELITE_DESIGN_HTML, title="تم الإنشاء - InvoiceFlow Elite", uptime="", content=content)
+            return render_template_string(BLACK_ELITE_DESIGN, title="تم الإنشاء - InvoiceFlow Elite", content=register_content, is_login_page=True)
         else:
-            content = f"""
-            <div class="elite-login-container">
-                <div class="elite-header">
-                    <div class="elite-alert elite-alert-error">
-                        <i class="fas fa-exclamation-triangle"></i> {message}
+            register_content = f"""
+            <div class="login-card">
+                <div class="logo-section">
+                    <div class="logo-icon">
+                        <i class="fas fa-crown"></i>
                     </div>
-                    <form method="POST">
-                        <div class="elite-form-group">
-                            <input type="text" name="username" class="elite-form-control" placeholder="اسم المستخدم" value="{username}" required>
+                    <div class="logo-text">InvoiceFlow Elite</div>
+                    <div class="logo-subtitle">انضم إلى النخبة</div>
+                </div>
+                
+                <div class="elite-alert elite-alert-error">
+                    <i class="fas fa-exclamation-triangle"></i> {message}
+                </div>
+                
+                <form method="POST">
+                    <div class="elite-form-group">
+                        <label class="form-label">اسم المستخدم</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="username" class="elite-form-control" placeholder="اختر اسم مستخدم فريد" value="{username}" required>
+                            <div class="input-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
                         </div>
-                        <div class="elite-form-group">
-                            <input type="password" name="password" class="elite-form-control" placeholder="كلمة المرور" required>
+                    </div>
+                    
+                    <div class="elite-form-group">
+                        <label class="form-label">كلمة المرور</label>
+                        <div class="input-wrapper">
+                            <input type="password" name="password" class="elite-form-control" placeholder="كلمة مرور قوية" required>
+                            <div class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
                         </div>
-                        <div class="elite-form-group">
-                            <input type="email" name="email" class="elite-form-control" placeholder="البريد الإلكتروني" value="{email}" required>
+                    </div>
+                    
+                    <div class="elite-form-group">
+                        <label class="form-label">البريد الإلكتروني</label>
+                        <div class="input-wrapper">
+                            <input type="email" name="email" class="elite-form-control" placeholder="example@elite.com" value="{email}" required>
+                            <div class="input-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
                         </div>
-                        <div class="elite-form-group">
-                            <input type="text" name="full_name" class="elite-form-control" placeholder="الاسم الكامل" value="{full_name}" required>
+                    </div>
+                    
+                    <div class="elite-form-group">
+                        <label class="form-label">الاسم الكامل</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="full_name" class="elite-form-control" placeholder="الاسم الثلاثي" value="{full_name}" required>
+                            <div class="input-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
                         </div>
-                        <div class="elite-form-group">
-                            <input type="text" name="company_name" class="elite-form-control" placeholder="اسم الشركة (اختياري)" value="{company_name}">
+                    </div>
+                    
+                    <div class="elite-form-group">
+                        <label class="form-label">اسم الشركة (اختياري)</label>
+                        <div class="input-wrapper">
+                            <input type="text" name="company_name" class="elite-form-control" placeholder="اسم شركتك" value="{company_name}">
+                            <div class="input-icon">
+                                <i class="fas fa-building"></i>
+                            </div>
                         </div>
-                        <div class="elite-form-group">
-                            <input type="text" name="phone" class="elite-form-control" placeholder="رقم الهاتف (اختياري)" value="{phone}">
-                        </div>
-                        <button type="submit" class="elite-btn" style="width: 100%;">
-                            <i class="fas fa-user-plus"></i> انضم إلى النخبة
-                        </button>
-                    </form>
+                    </div>
+                    
+                    <button type="submit" class="elite-btn">
+                        <i class="fas fa-user-plus"></i> انضم إلى النخبة
+                    </button>
+                </form>
+                
+                <div class="login-footer">
+                    <a href="/elite/login" class="elite-btn btn-secondary">
+                        <i class="fas fa-arrow-right"></i> لديك حساب؟ سجل الدخول
+                    </a>
                 </div>
             </div>
             """
-            return render_template_string(ELITE_DESIGN_HTML, title="التسجيل - InvoiceFlow Elite", uptime="", content=content)
+            return render_template_string(BLACK_ELITE_DESIGN, title="التسجيل - InvoiceFlow Elite", content=register_content, is_login_page=True)
     
-    content = """
-    <div class="elite-login-container">
-        <div class="elite-header">
-            <h2 style="margin-bottom: 30px; text-align: center;">انضم إلى النخبة</h2>
-            <form method="POST">
-                <div class="elite-form-group">
-                    <input type="text" name="username" class="elite-form-control" placeholder="اسم المستخدم" required>
-                </div>
-                <div class="elite-form-group">
-                    <input type="password" name="password" class="elite-form-control" placeholder="كلمة المرور" required>
-                </div>
-                <div class="elite-form-group">
-                    <input type="email" name="email" class="elite-form-control" placeholder="البريد الإلكتروني" required>
-                </div>
-                <div class="elite-form-group">
-                    <input type="text" name="full_name" class="elite-form-control" placeholder="الاسم الكامل" required>
-                </div>
-                <div class="elite-form-group">
-                    <input type="text" name="company_name" class="elite-form-control" placeholder="اسم الشركة (اختياري)">
-                </div>
-                <div class="elite-form-group">
-                    <input type="text" name="phone" class="elite-form-control" placeholder="رقم الهاتف (اختياري)">
-                </div>
-                <button type="submit" class="elite-btn" style="width: 100%;">
-                    <i class="fas fa-user-plus"></i> انضم إلى النخبة
-                </button>
-            </form>
-            <div style="margin-top: 25px; text-align: center;">
-                <a href="/elite/login" class="elite-btn elite-btn-secondary" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> لديك حساب؟ سجل الدخول
-                </a>
+    register_content = """
+    <div class="login-card">
+        <div class="logo-section">
+            <div class="logo-icon">
+                <i class="fas fa-crown"></i>
             </div>
+            <div class="logo-text">InvoiceFlow Elite</div>
+            <div class="logo-subtitle">انضم إلى النخبة</div>
+        </div>
+        
+        <form method="POST">
+            <div class="elite-form-group">
+                <label class="form-label">اسم المستخدم</label>
+                <div class="input-wrapper">
+                    <input type="text" name="username" class="elite-form-control" placeholder="اختر اسم مستخدم فريد" required>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="elite-form-group">
+                <label class="form-label">كلمة المرور</label>
+                <div class="input-wrapper">
+                    <input type="password" name="password" class="elite-form-control" placeholder="كلمة مرور قوية" required>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="elite-form-group">
+                <label class="form-label">البريد الإلكتروني</label>
+                <div class="input-wrapper">
+                    <input type="email" name="email" class="elite-form-control" placeholder="example@elite.com" required>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="elite-form-group">
+                <label class="form-label">الاسم الكامل</label>
+                <div class="input-wrapper">
+                    <input type="text" name="full_name" class="elite-form-control" placeholder="الاسم الثلاثي" required>
+                    <div class="input-icon">
+                        <i class="fas fa-id-card"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="elite-form-group">
+                <label class="form-label">اسم الشركة (اختياري)</label>
+                <div class="input-wrapper">
+                    <input type="text" name="company_name" class="elite-form-control" placeholder="اسم شركتك">
+                    <div class="input-icon">
+                        <i class="fas fa-building"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="elite-btn">
+                <i class="fas fa-user-plus"></i> انضم إلى النخبة
+            </button>
+        </form>
+        
+        <div class="login-footer">
+            <a href="/elite/login" class="elite-btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> لديك حساب؟ سجل الدخول
+            </a>
         </div>
     </div>
     """
-    return render_template_string(ELITE_DESIGN_HTML, title="التسجيل - InvoiceFlow Elite", uptime="", content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="التسجيل - InvoiceFlow Elite", content=register_content, is_login_page=True)
 
 @app.route('/elite/logout')
 def elite_logout():
@@ -1498,7 +1340,6 @@ def elite_profile():
     minutes = int((uptime % 3600) // 60)
     uptime_str = f"{hours} ساعة {minutes} دقيقة"
     
-    user_profile = elite_users.get_elite_profile(session['username'])
     stats = elite_db.get_elite_stats(session['username'])
     
     content = f"""
@@ -1510,54 +1351,53 @@ def elite_profile():
     
     <div class="elite-stats-grid">
         <div class="elite-stat-card">
-            <i class="fas fa-file-invoice" style="color: var(--primary-brown);"></i>
+            <i class="fas fa-file-invoice"></i>
             <div class="elite-stat-number">{stats['total_invoices']}</div>
             <p>فواتيرك</p>
         </div>
         <div class="elite-stat-card">
-            <i class="fas fa-dollar-sign" style="color: var(--primary-brown);"></i>
+            <i class="fas fa-dollar-sign"></i>
             <div class="elite-stat-number">${stats['total_revenue']:,.0f}</div>
             <p>إيراداتك</p>
         </div>
         <div class="elite-stat-card">
-            <i class="fas fa-clock" style="color: var(--primary-brown);"></i>
+            <i class="fas fa-clock"></i>
             <div class="elite-stat-number">{stats['pending_invoices']}</div>
             <p>معلقة</p>
         </div>
         <div class="elite-stat-card">
-            <i class="fas fa-crown" style="color: var(--primary-brown);"></i>
-            <div class="elite-stat-number">{user_profile.get('subscription_tier', 'basic').title()}</div>
+            <i class="fas fa-crown"></i>
+            <div class="elite-stat-number">{session.get('subscription_tier', 'basic').title()}</div>
             <p>مستواك</p>
         </div>
     </div>
     
     <div class="elite-profile-section">
-        <h3 style="margin-bottom: 25px; color: var(--dark-brown);">
+        <h3 style="margin-bottom: 25px; color: var(--pure-white);">
             <i class="fas fa-id-card"></i> المعلومات الشخصية
         </h3>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-            <div>
-                <p><strong>اسم المستخدم:</strong> {user_profile['username']}</p>
-                <p><strong>البريد الإلكتروني:</strong> {user_profile['email']}</p>
-                <p><strong>الاسم الكامل:</strong> {user_profile['full_name']}</p>
-                <p><strong>الشركة:</strong> {user_profile.get('company_name', 'غير محدد')}</p>
+            <div style="color: var(--smoke-white);">
+                <p style="margin-bottom: 15px;"><strong>اسم المستخدم:</strong> {session['username']}</p>
+                <p style="margin-bottom: 15px;"><strong>البريد الإلكتروني:</strong> {session['email']}</p>
+                <p style="margin-bottom: 15px;"><strong>الاسم الكامل:</strong> {session['full_name']}</p>
+                <p style="margin-bottom: 15px;"><strong>الشركة:</strong> {session.get('company_name', 'غير محدد')}</p>
             </div>
-            <div>
-                <p><strong>نوع الحساب:</strong> {user_profile['user_type']}</p>
-                <p><strong>مستوى الاشتراك:</strong> {user_profile.get('subscription_tier', 'basic').title()}</p>
-                <p><strong>آخر دخول:</strong> {user_profile['last_login'] or 'لم يسجل'}</p>
-                <p><strong>تاريخ الانضمام:</strong> {user_profile['created_at'][:10] if user_profile['created_at'] else 'غير محدد'}</p>
+            <div style="color: var(--smoke-white);">
+                <p style="margin-bottom: 15px;"><strong>نوع الحساب:</strong> {session['user_type']}</p>
+                <p style="margin-bottom: 15px;"><strong>مستوى الاشتراك:</strong> {session.get('subscription_tier', 'basic').title()}</p>
+                <p style="margin-bottom: 15px;"><strong>حالة الحساب:</strong> <span style="color: var(--accent-green);">نشط</span></p>
+                <p style="margin-bottom: 15px;"><strong>تاريخ الانضمام:</strong> {datetime.now().strftime('%Y-%m-%d')}</p>
             </div>
         </div>
     </div>
     """
     
-    return render_template_string(ELITE_DESIGN_HTML, title="الملف الشخصي - InvoiceFlow Elite", uptime=uptime_str, content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="الملف الشخصي - InvoiceFlow Elite", uptime=uptime_str, content=content, is_login_page=False)
 
-# ================== إضافة الروابط المفقودة ==================
+# إضافة الروابط الأساسية
 @app.route('/elite/invoices')
 def elite_invoices():
-    """صفحة الفواتير"""
     if 'user_logged_in' not in session:
         return redirect(url_for('elite_login'))
     
@@ -1571,14 +1411,13 @@ def elite_invoices():
         <h2 style="margin-bottom: 20px; text-align: center;">
             <i class="fas fa-file-invoice-dollar"></i> إدارة الفواتير
         </h2>
-        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة نظام الفواتير المتكامل</p>
+        <p style="text-align: center; color: var(--smoke-white); opacity: 0.8;">قريباً... سيتم إضافة نظام الفواتير المتكامل</p>
     </div>
     """
-    return render_template_string(ELITE_DESIGN_HTML, title="الفواتير - InvoiceFlow Elite", uptime=uptime_str, content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="الفواتير - InvoiceFlow Elite", uptime=uptime_str, content=content, is_login_page=False)
 
 @app.route('/elite/create')
 def elite_create_invoice():
-    """صفحة إنشاء الفواتير"""
     if 'user_logged_in' not in session:
         return redirect(url_for('elite_login'))
     
@@ -1592,14 +1431,13 @@ def elite_create_invoice():
         <h2 style="margin-bottom: 20px; text-align: center;">
             <i class="fas fa-plus-circle"></i> إنشاء فاتورة جديدة
         </h2>
-        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة نظام إنشاء الفواتير المتكامل</p>
+        <p style="text-align: center; color: var(--smoke-white); opacity: 0.8;">قريباً... سيتم إضافة نظام إنشاء الفواتير المتكامل</p>
     </div>
     """
-    return render_template_string(ELITE_DESIGN_HTML, title="إنشاء فاتورة - InvoiceFlow Elite", uptime=uptime_str, content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="إنشاء فاتورة - InvoiceFlow Elite", uptime=uptime_str, content=content, is_login_page=False)
 
 @app.route('/elite/admin')
 def elite_admin():
-    """لوحة التحكم الإدارية"""
     if 'user_logged_in' not in session or session.get('user_type') != 'admin':
         return redirect(url_for('elite_home'))
     
@@ -1613,14 +1451,13 @@ def elite_admin():
         <h2 style="margin-bottom: 20px; text-align: center;">
             <i class="fas fa-crown"></i> لوحة التحكم الإدارية
         </h2>
-        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة لوحة التحكم المتكاملة</p>
+        <p style="text-align: center; color: var(--smoke-white); opacity: 0.8;">قريباً... سيتم إضافة لوحة التحكم المتكاملة</p>
     </div>
     """
-    return render_template_string(ELITE_DESIGN_HTML, title="لوحة التحكم - InvoiceFlow Elite", uptime=uptime_str, content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="لوحة التحكم - InvoiceFlow Elite", uptime=uptime_str, content=content, is_login_page=False)
 
 @app.route('/elite/ai')
 def elite_ai_insights():
-    """صفحة الذكاء الاصطناعي"""
     if 'user_logged_in' not in session:
         return redirect(url_for('elite_login'))
     
@@ -1634,21 +1471,18 @@ def elite_ai_insights():
         <h2 style="margin-bottom: 20px; text-align: center;">
             <i class="fas fa-robot"></i> الذكاء الاصطناعي والتحليلات
         </h2>
-        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة نظام الذكاء الاصطناعي المتكامل</p>
+        <p style="text-align: center; color: var(--smoke-white); opacity: 0.8;">قريباً... سيتم إضافة نظام الذكاء الاصطناعي المتكامل</p>
     </div>
     """
-    return render_template_string(ELITE_DESIGN_HTML, title="الذكاء الاصطناعي - InvoiceFlow Elite", uptime=uptime_str, content=content)
+    return render_template_string(BLACK_ELITE_DESIGN, title="الذكاء الاصطناعي - InvoiceFlow Elite", uptime=uptime_str, content=content, is_login_page=False)
 
 # ================== التشغيل الرئيسي للنخبة ==================
 if __name__ == '__main__':
     try:
-        print("🌟 بدء تشغيل النظام النخبوي...")
+        print("🌟 بدء تشغيل النظام النخبوي الأسود...")
         print(f"🌐 الخادم النخبوي يعمل على: http://0.0.0.0:{port}")
-        print("✅ النظام النخبوي جاهز لاستقبال الطلبات!")
-        print("🎨 التصميم البيج/بني الفاخر مفعل!")
-        print("🧠 الذكاء الاصطناعي النخبوي نشط!")
-        print("🔐 نظام الأمان النخبوي مفعل!")
-        print("📄 نظام PDF النخبوي جاهز!")
+        print("✅ النظام النخبوي الأسود جاهز لاستقبال الطلبات!")
+        print("🎨 التصميم الأسود الفاخر مفعل!")
         print("👑 فريق النخبة البروفيسوري في الخدمة!")
         
         # تشغيل خادم Flask
