@@ -208,10 +208,10 @@ class EliteDatabaseManager:
             conn.close()
             
             return {
-                'total_invoices': total_invoices,
-                'total_revenue': total_revenue,
-                'pending_invoices': pending_invoices,
-                'today_invoices': today_invoices
+                'total_invoices': total_invoices or 0,
+                'total_revenue': total_revenue or 0,
+                'pending_invoices': pending_invoices or 0,
+                'today_invoices': today_invoices or 0
             }
         except Exception as e:
             print(f"🔧 خطأ في جلب الإحصائيات: {e}")
@@ -632,6 +632,38 @@ elite_pdf = ElitePDFGenerator()
 elite_ai = EliteAIAssistant()
 elite_users = EliteUserManager()
 
+# ================== نظام الإبقاء على التشغيل ==================
+class EliteKeepAlive:
+    def __init__(self):
+        self.uptime_start = time.time()
+        self.ping_count = 0
+        
+    def start_elite_keep_alive(self):
+        print("🔄 بدء أنظمة النخبة...")
+        self.start_elite_monitoring()
+        print("✅ أنظمة النخبة مفعلة!")
+    
+    def start_elite_monitoring(self):
+        def monitor():
+            while True:
+                current_time = time.time()
+                uptime = current_time - self.uptime_start
+                
+                if int(current_time) % 600 == 0:
+                    hours = int(uptime // 3600)
+                    minutes = int((uptime % 3600) // 60)
+                    print(f"📊 تقرير النخبة: {hours}س {minutes}د - {self.ping_count} زيارات نخبوية")
+                
+                time.sleep(1)
+        
+        monitor_thread = Thread(target=monitor)
+        monitor_thread.daemon = True
+        monitor_thread.start()
+
+# إعداد نظام النخبة
+keep_alive_system = EliteKeepAlive()
+keep_alive_system.start_elite_keep_alive()
+
 # ================== التصميم النخبوي (بيج/بني) ==================
 ELITE_DESIGN_HTML = """
 <!DOCTYPE html>
@@ -1048,8 +1080,8 @@ ELITE_DESIGN_HTML = """
             <span class="elite-admin-badge">👑 نخبة</span>
             {% endif %}
             <i class="fas fa-user-tie"></i> {{ session.username }}
-            | <a href="{{ url_for('elite_profile') }}" style="color: var(--accent-gold); margin: 0 15px;">الملف الشخصي</a>
-            | <a href="{{ url_for('elite_logout') }}" style="color: var(--light-beige);">تسجيل خروج</a>
+            | <a href="/elite/profile" style="color: var(--accent-gold); margin: 0 15px;">الملف الشخصي</a>
+            | <a href="/elite/logout" style="color: var(--light-beige);">تسجيل خروج</a>
         </div>
         {% endif %}
         
@@ -1063,34 +1095,34 @@ ELITE_DESIGN_HTML = """
         
         {% if session.user_logged_in %}
         <div class="elite-navigation">
-            <a href="{{ url_for('elite_home') }}" class="elite-nav-card">
+            <a href="/" class="elite-nav-card">
                 <i class="fas fa-home"></i>
                 <h3>الرئيسية</h3>
                 <p>لوحة التحكم الشاملة والإحصائيات المتقدمة</p>
             </a>
-            <a href="{{ url_for('elite_invoices') }}" class="elite-nav-card">
+            <a href="/elite/invoices" class="elite-nav-card">
                 <i class="fas fa-file-invoice-dollar"></i>
                 <h3>الفواتير</h3>
                 <p>إدارة وعرض وتتبع الفواتير النخبوية</p>
             </a>
-            <a href="{{ url_for('elite_create_invoice') }}" class="elite-nav-card">
+            <a href="/elite/create" class="elite-nav-card">
                 <i class="fas fa-plus-circle"></i>
                 <h3>إنشاء فاتورة</h3>
                 <p>إنشاء فاتورة نخبوية جديدة بتصميم فاخر</p>
             </a>
             {% if session.user_type == 'admin' %}
-            <a href="{{ url_for('elite_admin') }}" class="elite-nav-card">
+            <a href="/elite/admin" class="elite-nav-card">
                 <i class="fas fa-crown"></i>
                 <h3>لوحة التحكم</h3>
                 <p>الإدارة المتقدمة والنخبوية للنظام</p>
             </a>
             {% endif %}
-            <a href="{{ url_for('elite_profile') }}" class="elite-nav-card">
+            <a href="/elite/profile" class="elite-nav-card">
                 <i class="fas fa-user-cog"></i>
                 <h3>الملف الشخصي</h3>
                 <p>بياناتك الشخصية وإعدادات الحساب</p>
             </a>
-            <a href="{{ url_for('elite_ai_insights') }}" class="elite-nav-card">
+            <a href="/elite/ai" class="elite-nav-card">
                 <i class="fas fa-robot"></i>
                 <h3>الذكاء الاصطناعي</h3>
                 <p>تحليلات متقدمة وتوصيات ذكية مخصصة</p>
@@ -1522,37 +1554,90 @@ def elite_profile():
     
     return render_template_string(ELITE_DESIGN_HTML, title="الملف الشخصي - InvoiceFlow Elite", uptime=uptime_str, content=content)
 
-# ================== نظام الإبقاء على التشغيل ==================
-class EliteKeepAlive:
-    def __init__(self):
-        self.uptime_start = time.time()
-        self.ping_count = 0
-        
-    def start_elite_keep_alive(self):
-        print("🔄 بدء أنظمة النخبة...")
-        self.start_elite_monitoring()
-        print("✅ أنظمة النخبة مفعلة!")
+# ================== إضافة الروابط المفقودة ==================
+@app.route('/elite/invoices')
+def elite_invoices():
+    """صفحة الفواتير"""
+    if 'user_logged_in' not in session:
+        return redirect(url_for('elite_login'))
     
-    def start_elite_monitoring(self):
-        def monitor():
-            while True:
-                current_time = time.time()
-                uptime = current_time - self.uptime_start
-                
-                if int(current_time) % 600 == 0:
-                    hours = int(uptime // 3600)
-                    minutes = int((uptime % 3600) // 60)
-                    print(f"📊 تقرير النخبة: {hours}س {minutes}د - {self.ping_count} زيارات نخبوية")
-                
-                time.sleep(1)
-        
-        monitor_thread = Thread(target=monitor)
-        monitor_thread.daemon = True
-        monitor_thread.start()
+    uptime = time.time() - keep_alive_system.uptime_start
+    hours = int(uptime // 3600)
+    minutes = int((uptime % 3600) // 60)
+    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    
+    content = """
+    <div class="elite-header">
+        <h2 style="margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-file-invoice-dollar"></i> إدارة الفواتير
+        </h2>
+        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة نظام الفواتير المتكامل</p>
+    </div>
+    """
+    return render_template_string(ELITE_DESIGN_HTML, title="الفواتير - InvoiceFlow Elite", uptime=uptime_str, content=content)
 
-# إعداد نظام النخبة
-elite_keep_alive = EliteKeepAlive()
-elite_keep_alive.start_elite_keep_alive()
+@app.route('/elite/create')
+def elite_create_invoice():
+    """صفحة إنشاء الفواتير"""
+    if 'user_logged_in' not in session:
+        return redirect(url_for('elite_login'))
+    
+    uptime = time.time() - keep_alive_system.uptime_start
+    hours = int(uptime // 3600)
+    minutes = int((uptime % 3600) // 60)
+    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    
+    content = """
+    <div class="elite-header">
+        <h2 style="margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-plus-circle"></i> إنشاء فاتورة جديدة
+        </h2>
+        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة نظام إنشاء الفواتير المتكامل</p>
+    </div>
+    """
+    return render_template_string(ELITE_DESIGN_HTML, title="إنشاء فاتورة - InvoiceFlow Elite", uptime=uptime_str, content=content)
+
+@app.route('/elite/admin')
+def elite_admin():
+    """لوحة التحكم الإدارية"""
+    if 'user_logged_in' not in session or session.get('user_type') != 'admin':
+        return redirect(url_for('elite_home'))
+    
+    uptime = time.time() - keep_alive_system.uptime_start
+    hours = int(uptime // 3600)
+    minutes = int((uptime % 3600) // 60)
+    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    
+    content = """
+    <div class="elite-header">
+        <h2 style="margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-crown"></i> لوحة التحكم الإدارية
+        </h2>
+        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة لوحة التحكم المتكاملة</p>
+    </div>
+    """
+    return render_template_string(ELITE_DESIGN_HTML, title="لوحة التحكم - InvoiceFlow Elite", uptime=uptime_str, content=content)
+
+@app.route('/elite/ai')
+def elite_ai_insights():
+    """صفحة الذكاء الاصطناعي"""
+    if 'user_logged_in' not in session:
+        return redirect(url_for('elite_login'))
+    
+    uptime = time.time() - keep_alive_system.uptime_start
+    hours = int(uptime // 3600)
+    minutes = int((uptime % 3600) // 60)
+    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    
+    content = """
+    <div class="elite-header">
+        <h2 style="margin-bottom: 20px; text-align: center;">
+            <i class="fas fa-robot"></i> الذكاء الاصطناعي والتحليلات
+        </h2>
+        <p style="text-align: center; color: var(--light-beige);">قريباً... سيتم إضافة نظام الذكاء الاصطناعي المتكامل</p>
+    </div>
+    """
+    return render_template_string(ELITE_DESIGN_HTML, title="الذكاء الاصطناعي - InvoiceFlow Elite", uptime=uptime_str, content=content)
 
 # ================== التشغيل الرئيسي للنخبة ==================
 if __name__ == '__main__':
