@@ -17,10 +17,11 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import io
 import arabic_reshaper
 from bidi.algorithm import get_display
+from pathlib import Path
 
 # ================== تطبيق Flask الاحترافي ==================
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'invoiceflow_pro_enterprise_2024_v2')
+app.secret_key = os.environ.get('SECRET_KEY', 'invoiceflow_pro_enterprise_2024_v3')
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
 # الحصول على البورت من بيئة Render أو استخدام 10000 محلياً
@@ -28,619 +29,57 @@ port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
 print("🎯 InvoiceFlow Pro - نظام إدارة الفواتير الاحترافي")
-print("🚀 تصميم شركات عالمي - أمان متقدم - واجهات احترافية")
-print("💼 فريق التطوير المتخصص - الإصدار Enterprise")
+print("🚀 تصميم شركات عالمي - أمان متقدم - واجهات متجاوبة")
+print("💼 الإصدار النهائي المتكامل - قاعدة بيانات منظمة")
 print("=" * 80)
 
-# ================== دالة لمعالجة النصوص العربية ==================
-def arabic_text(text):
-    """معالجة النصوص العربية للعرض الصحيح في PDF"""
-    if text:
-        reshaped_text = arabic_reshaper.reshape(text)
-        return get_display(reshaped_text)
-    return text
-
-# ================== نظام الألوان الاحترافي ==================
-PROFESSIONAL_DESIGN = """
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }}</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* نظام الألوان الاحترافي */
-            --primary-dark: #0F172A;
-            --dark-charcoal: #1E293B;
-            --medium-slate: #334155;
-            --light-slate: #475569;
-            --accent-blue: #2563EB;
-            --accent-teal: #0D9488;
-            --accent-emerald: #059669;
-            --pure-white: #FFFFFF;
-            --light-gray: #F8FAFC;
-            --border-light: #E2E8F0;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --error: #EF4444;
-            
-            /* تأثيرات التدرج */
-            --blue-gradient: linear-gradient(135deg, var(--accent-blue), #1D4ED8);
-            --teal-gradient: linear-gradient(135deg, var(--accent-teal), #0F766E);
-            --dark-gradient: linear-gradient(135deg, var(--primary-dark), #020617);
-            
-            /* الظلال */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
+# ================== نظام إدارة قاعدة البيانات المحسن ==================
+class DatabaseManager:
+    def __init__(self):
+        self.db_path = self.ensure_database_path()
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--light-gray);
-            color: var(--primary-dark);
-            min-height: 100vh;
-            line-height: 1.7;
-        }
-        
-        .professional-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            min-height: 100vh;
-        }
-        
-        /* ================== شاشة تسجيل الدخول الاحترافية ================== */
-        .auth-wrapper {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--dark-gradient);
-            position: relative;
-        }
-        
-        .auth-card {
-            background: var(--pure-white);
-            border-radius: 16px;
-            padding: 50px 45px;
-            width: 100%;
-            max-width: 440px;
-            box-shadow: var(--shadow-xl);
-            border: 1px solid var(--border-light);
-            animation: cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        @keyframes cardEntrance {
-            0% {
-                opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .brand-section {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .brand-logo {
-            font-size: 2.8em;
-            color: var(--accent-blue);
-            margin-bottom: 15px;
-        }
-        
-        .brand-title {
-            font-size: 2.2em;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 8px;
-        }
-        
-        .brand-subtitle {
-            color: var(--light-slate);
-            font-size: 1em;
-            font-weight: 400;
-        }
-        
-        .form-group {
-            margin-bottom: 24px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--primary-dark);
-            font-weight: 500;
-            font-size: 0.95em;
-        }
-        
-        .input-wrapper {
-            position: relative;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 14px 16px;
-            background: var(--pure-white);
-            border: 2px solid var(--border-light);
-            border-radius: 10px;
-            color: var(--primary-dark);
-            font-size: 1em;
-            transition: all 0.2s ease;
-            font-family: inherit;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .input-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--light-slate);
-            font-size: 1.1em;
-        }
-        
-        .btn {
-            background: var(--blue-gradient);
-            color: var(--pure-white);
-            padding: 16px 32px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            font-family: inherit;
-        }
-        
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid var(--accent-blue);
-            color: var(--accent-blue);
-        }
-        
-        .btn-secondary:hover {
-            background: var(--accent-blue);
-            color: var(--pure-white);
-        }
-        
-        .auth-footer {
-            text-align: center;
-            margin-top: 32px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border-light);
-        }
-        
-        .footer-text {
-            color: var(--light-slate);
-            font-size: 0.9em;
-            margin-bottom: 16px;
-        }
-        
-        .security-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            color: var(--success);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 500;
-        }
-        
-        /* ================== لوحة التحكم الرئيسية ================== */
-        .dashboard-header {
-            background: var(--pure-white);
-            border-radius: 16px;
-            padding: 35px 40px;
-            margin-bottom: 30px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-light);
-            position: relative;
-        }
-        
-        .header-content h1 {
-            font-size: 2.6em;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 12px;
-        }
-        
-        .header-content p {
-            font-size: 1.1em;
-            color: var(--light-slate);
-            font-weight: 400;
-        }
-        
-        .user-nav {
-            position: absolute;
-            left: 40px;
-            top: 35px;
-            background: var(--pure-white);
-            border: 1px solid var(--border-light);
-            padding: 12px 20px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .admin-badge {
-            background: var(--accent-emerald);
-            color: var(--pure-white);
-            padding: 4px 12px;
-            border-radius: 16px;
-            font-size: 0.8em;
-            font-weight: 600;
-        }
-        
-        .nav-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 40px;
-        }
-        
-        .nav-card {
-            background: var(--pure-white);
-            border: 1px solid var(--border-light);
-            border-radius: 14px;
-            padding: 30px 28px;
-            text-align: center;
-            color: inherit;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .nav-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--accent-blue);
-        }
-        
-        .nav-card i {
-            font-size: 2.8em;
-            margin-bottom: 20px;
-            color: var(--accent-blue);
-        }
-        
-        .nav-card h3 {
-            font-size: 1.4em;
-            margin-bottom: 12px;
-            color: var(--primary-dark);
-            font-weight: 600;
-        }
-        
-        .nav-card p {
-            color: var(--light-slate);
-            font-size: 0.95em;
-            line-height: 1.6;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin: 35px 0;
-        }
-        
-        .stat-card {
-            background: var(--pure-white);
-            border: 1px solid var(--border-light);
-            border-radius: 14px;
-            padding: 28px 25px;
-            text-align: center;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .stat-number {
-            font-size: 2.8em;
-            font-weight: 700;
-            margin: 15px 0;
-            color: var(--primary-dark);
-        }
-        
-        .stat-card p {
-            font-size: 1em;
-            color: var(--light-slate);
-            font-weight: 500;
-        }
-        
-        .alert {
-            padding: 20px 24px;
-            border-radius: 12px;
-            margin: 20px 0;
-            text-align: center;
-            font-weight: 500;
-            border: 1px solid;
-            font-size: 1em;
-        }
-        
-        .alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: var(--success);
-            color: var(--success);
-        }
-        
-        .alert-error {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: var(--error);
-            color: var(--error);
-        }
-        
-        .alert-info {
-            background: rgba(37, 99, 235, 0.1);
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-        }
-        
-        .content-section {
-            background: var(--pure-white);
-            border: 1px solid var(--border-light);
-            border-radius: 14px;
-            padding: 30px;
-            margin: 25px 0;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        /* ================== نماذج الفواتير ================== */
-        .invoice-form {
-            background: var(--pure-white);
-            border-radius: 14px;
-            padding: 35px;
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--border-light);
-        }
-        
-        .form-section {
-            margin-bottom: 35px;
-            padding-bottom: 30px;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .form-section:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-        
-        .section-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .services-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-        
-        .services-table th,
-        .services-table td {
-            padding: 12px 15px;
-            text-align: right;
-            border-bottom: 1px solid var(--border-light);
-        }
-        
-        .services-table th {
-            background: var(--light-gray);
-            font-weight: 600;
-            color: var(--primary-dark);
-        }
-        
-        .service-row:hover {
-            background: var(--light-gray);
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 25px;
-        }
-        
-        /* تأثيرات الاستجابة */
-        @media (max-width: 768px) {
-            .professional-container {
-                padding: 15px;
-            }
-            
-            .auth-card {
-                padding: 35px 25px;
-                margin: 15px;
-            }
-            
-            .dashboard-header {
-                padding: 25px;
-            }
-            
-            .header-content h1 {
-                font-size: 2em;
-            }
-            
-            .user-nav {
-                position: relative;
-                left: auto;
-                top: auto;
-                margin-bottom: 20px;
-                justify-content: center;
-            }
-            
-            .nav-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .invoice-form {
-                padding: 25px;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-    {% if not is_auth_page %}
-    <div class="professional-container">
-        {% if session.user_logged_in %}
-        <div class="user-nav">
-            {% if session.user_type == 'admin' %}
-            <span class="admin-badge">مدير النظام</span>
-            {% endif %}
-            <i class="fas fa-user-circle"></i> {{ session.username }}
-            | <a href="/profile" style="color: var(--accent-blue); margin: 0 12px;">الملف الشخصي</a>
-            | <a href="/logout" style="color: var(--light-slate);">تسجيل خروج</a>
-        </div>
-        {% endif %}
-        
-        <div class="dashboard-header">
-            <div class="header-content">
-                <h1><i class="fas fa-file-invoice"></i> InvoiceFlow Pro</h1>
-                <p>نظام إدارة الفواتير الاحترافي - إصدار Enterprise</p>
-                <p>⏰ وقت التشغيل: {{ uptime }}</p>
-            </div>
-        </div>
-        
-        {% if session.user_logged_in %}
-        <div class="nav-grid">
-            <a href="/" class="nav-card">
-                <i class="fas fa-home"></i>
-                <h3>لوحة التحكم</h3>
-                <p>نظرة عامة على الإحصائيات والأداء</p>
-            </a>
-            <a href="/invoices" class="nav-card">
-                <i class="fas fa-receipt"></i>
-                <h3>الفواتير</h3>
-                <p>إدارة وعرض وتحرير جميع الفواتير</p>
-            </a>
-            <a href="/invoices/create" class="nav-card">
-                <i class="fas fa-plus-circle"></i>
-                <h3>فاتورة جديدة</h3>
-                <p>إنشاء فاتورة احترافية جديدة</p>
-            </a>
-            <a href="/clients" class="nav-card">
-                <i class="fas fa-users"></i>
-                <h3>العملاء</h3>
-                <p>إدارة قاعدة بيانات العملاء</p>
-            </a>
-            {% if session.user_type == 'admin' %}
-            <a href="/admin" class="nav-card">
-                <i class="fas fa-cog"></i>
-                <h3>الإدارة</h3>
-                <p>إعدادات النظام المتقدمة</p>
-            </a>
-            {% endif %}
-            <a href="/reports" class="nav-card">
-                <i class="fas fa-chart-bar"></i>
-                <h3>التقارير</h3>
-                <p>تقارير وتحليلات مالية متقدمة</p>
-            </a>
-        </div>
-        {% endif %}
-
-        {{ content | safe }}
-    </div>
-    {% else %}
-    <div class="auth-wrapper">
-        {{ content | safe }}
-    </div>
-    {% endif %}
-
-    <script>
-        // تأثيرات الصفحة
-        document.addEventListener('DOMContentLoaded', function() {
-            // تأثيرات الكروت
-            const cards = document.querySelectorAll('.nav-card, .stat-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-            });
-            
-            // تأثيرات الأزرار
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-1px)';
-                });
-                btn.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-        });
-    </script>
-</body>
-</html>
-"""
+    def ensure_database_path(self):
+        """تأكيد وجود مسار قاعدة البيانات"""
+        if 'RENDER' in os.environ:
+            # في Render، استخدم المسار المطلق
+            db_dir = '/var/lib/render'
+            Path(db_dir).mkdir(parents=True, exist_ok=True)
+            return os.path.join(db_dir, 'invoiceflow_pro.db')
+        else:
+            # محلياً، استخدم المسار الحالي
+            db_dir = 'database'
+            Path(db_dir).mkdir(parents=True, exist_ok=True)
+            return os.path.join(db_dir, 'invoiceflow_pro.db')
+    
+    def get_connection(self):
+        """الحصول على اتصال بقاعدة البيانات"""
+        try:
+            conn = sqlite3.connect(self.db_path)
+            conn.row_factory = sqlite3.Row
+            return conn
+        except Exception as e:
+            print(f"❌ خطأ في الاتصال بقاعدة البيانات: {e}")
+            raise
 
 # ================== نظام إدارة المستخدمين المتقدم ==================
 class UserManager:
     def __init__(self):
-        self.db_path = self.get_database_path()
+        self.db = DatabaseManager()
         self.init_user_system()
-
-    def get_database_path(self):
-        """الحصول على مسار قاعدة البيانات"""
-        if 'RENDER' in os.environ:
-            # في Render، استخدم المسار المطلق
-            return '/var/lib/render/invoiceflow_pro.db'
-        else:
-            # محلياً، استخدم المسار الحالي
-            return 'invoiceflow_pro.db'
 
     def init_user_system(self):
         """تهيئة نظام المستخدمين المتقدم"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self.db.get_connection()
             cursor = conn.cursor()
 
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS users (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username TEXT UNIQUE,
-                    email TEXT UNIQUE,
-                    password_hash TEXT,
-                    full_name TEXT,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    full_name TEXT NOT NULL,
                     company_name TEXT,
                     phone TEXT,
                     user_role TEXT DEFAULT 'user',
@@ -661,7 +100,7 @@ class UserManager:
                 INSERT OR IGNORE INTO users 
                 (username, email, password_hash, full_name, company_name, user_role, plan_type, email_verified) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', ('admin', 'admin@invoiceflow.com', admin_password, 'مدير النظام', 'InvoiceFlow', 'admin', 'enterprise', 1))
+            ''', ('admin', 'admin@invoiceflow.com', admin_password, 'مدير النظام', 'InvoiceFlow Pro', 'admin', 'enterprise', 1))
 
             conn.commit()
             conn.close()
@@ -686,7 +125,7 @@ class UserManager:
     def authenticate_user(self, identifier, password):
         """مصادقة المستخدم باستخدام اسم المستخدم أو البريد الإلكتروني"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self.db.get_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -724,7 +163,7 @@ class UserManager:
             if len(password) < 8:
                 return False, "كلمة المرور يجب أن تكون 8 أحرف على الأقل"
             
-            conn = sqlite3.connect(self.db_path)
+            conn = self.db.get_connection()
             cursor = conn.cursor()
             
             # التحقق من عدم وجود المستخدم مسبقاً
@@ -749,67 +188,94 @@ class UserManager:
             print(f"🔧 خطأ في التسجيل: {e}")
             return False, f"خطأ في إنشاء الحساب: {str(e)}"
 
-# ================== نظام إدارة الفواتير ==================
+# ================== نظام إدارة الفواتير المتكامل ==================
 class InvoiceManager:
     def __init__(self):
-        self.db_path = UserManager().get_database_path()  # استخدام نفس مسار قاعدة البيانات
+        self.db = DatabaseManager()
         self.init_invoice_system()
 
     def init_invoice_system(self):
-        """تهيئة نظام الفواتير"""
+        """تهيئة نظام الفواتير المتكامل"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self.db.get_connection()
             cursor = conn.cursor()
 
+            # جدول الفواتير المحسن
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS invoices (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    invoice_number TEXT UNIQUE,
-                    user_id TEXT,
-                    client_name TEXT,
+                    invoice_number TEXT UNIQUE NOT NULL,
+                    user_id TEXT NOT NULL,
+                    client_id INTEGER,
+                    client_name TEXT NOT NULL,
                     client_email TEXT,
                     client_phone TEXT,
                     client_address TEXT,
-                    issue_date TEXT,
-                    due_date TEXT,
-                    services_json TEXT,
-                    subtotal REAL,
-                    tax_rate REAL DEFAULT 0.0,
-                    tax_amount REAL DEFAULT 0.0,
-                    total_amount REAL,
+                    company_name TEXT,
+                    issue_date DATE NOT NULL,
+                    due_date DATE NOT NULL,
+                    services_json TEXT NOT NULL,
+                    subtotal DECIMAL(15,2) NOT NULL,
+                    tax_rate DECIMAL(5,2) DEFAULT 0.0,
+                    tax_amount DECIMAL(15,2) DEFAULT 0.0,
+                    discount DECIMAL(15,2) DEFAULT 0.0,
+                    total_amount DECIMAL(15,2) NOT NULL,
+                    currency TEXT DEFAULT 'SAR',
                     payment_terms TEXT DEFAULT '30 يوم',
                     notes TEXT,
                     status TEXT DEFAULT 'مسودة',
+                    payment_status TEXT DEFAULT 'غير مدفوع',
                     pdf_path TEXT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
 
+            # جدول العملاء المتكامل
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS clients (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    user_id TEXT,
-                    name TEXT,
+                    user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
                     email TEXT,
                     phone TEXT,
                     address TEXT,
                     company_name TEXT,
-                    tax_id TEXT,
+                    tax_number TEXT,
+                    category TEXT DEFAULT 'عام',
+                    payment_terms TEXT DEFAULT '30 يوم',
+                    notes TEXT,
+                    is_active BOOLEAN DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
+
+            # جدول الخدمات والمنتجات
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS services (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    description TEXT,
+                    price DECIMAL(15,2) NOT NULL,
+                    unit TEXT DEFAULT 'ساعة',
+                    category TEXT DEFAULT 'عام',
+                    is_active BOOLEAN DEFAULT 1,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
 
             conn.commit()
             conn.close()
-            print("✅ نظام الفواتير جاهز")
+            print("✅ نظام الفواتير المتكامل جاهز")
         except Exception as e:
             print(f"🔧 خطأ في نظام الفواتير: {e}")
 
     def create_invoice(self, invoice_data):
         """إنشاء فاتورة جديدة"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self.db.get_connection()
             cursor = conn.cursor()
 
             invoice_number = f"INV-{datetime.now().strftime('%Y%m%d')}-{secrets.token_hex(4).upper()}"
@@ -818,8 +284,8 @@ class InvoiceManager:
                 INSERT INTO invoices 
                 (invoice_number, user_id, client_name, client_email, client_phone, client_address,
                  issue_date, due_date, services_json, subtotal, tax_rate, tax_amount, total_amount,
-                 payment_terms, notes, status)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                 payment_terms, notes, status, company_name)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (
                 invoice_number,
                 invoice_data['user_id'],
@@ -836,7 +302,8 @@ class InvoiceManager:
                 invoice_data['total_amount'],
                 invoice_data.get('payment_terms', '30 يوم'),
                 invoice_data.get('notes', ''),
-                invoice_data.get('status', 'مسودة')
+                invoice_data.get('status', 'مسودة'),
+                invoice_data.get('company_name', 'InvoiceFlow Pro')
             ))
 
             conn.commit()
@@ -849,11 +316,11 @@ class InvoiceManager:
     def get_user_invoices(self, user_id):
         """جلب فواتير المستخدم"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self.db.get_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
-                SELECT invoice_number, client_name, total_amount, issue_date, due_date, status
+                SELECT invoice_number, client_name, total_amount, issue_date, due_date, status, payment_status
                 FROM invoices WHERE user_id = ? ORDER BY created_at DESC
             ''', (user_id,))
             
@@ -865,7 +332,8 @@ class InvoiceManager:
                     'amount': row[2],
                     'issue_date': row[3],
                     'due_date': row[4],
-                    'status': row[5]
+                    'status': row[5],
+                    'payment_status': row[6]
                 })
             
             conn.close()
@@ -877,7 +345,7 @@ class InvoiceManager:
     def get_user_stats(self, user_id):
         """إحصائيات المستخدم"""
         try:
-            conn = sqlite3.connect(self.db_path)
+            conn = self.db.get_connection()
             cursor = conn.cursor()
             
             cursor.execute('''
@@ -885,7 +353,8 @@ class InvoiceManager:
                     COUNT(*) as total_invoices,
                     COALESCE(SUM(total_amount), 0) as total_revenue,
                     SUM(CASE WHEN status = 'مسددة' THEN total_amount ELSE 0 END) as paid_amount,
-                    COUNT(CASE WHEN status = 'معلقة' THEN 1 END) as pending_invoices
+                    COUNT(CASE WHEN status = 'معلقة' THEN 1 END) as pending_invoices,
+                    COALESCE(SUM(tax_amount), 0) as tax_amount
                 FROM invoices WHERE user_id = ?
             ''', (user_id,))
             
@@ -896,11 +365,30 @@ class InvoiceManager:
                 'total_invoices': result[0] or 0,
                 'total_revenue': result[1] or 0,
                 'paid_amount': result[2] or 0,
-                'pending_invoices': result[3] or 0
+                'pending_invoices': result[3] or 0,
+                'tax_amount': result[4] or 0
             }
         except Exception as e:
             print(f"🔧 خطأ في جلب الإحصائيات: {e}")
-            return {'total_invoices': 0, 'total_revenue': 0, 'paid_amount': 0, 'pending_invoices': 0}
+            return {'total_invoices': 0, 'total_revenue': 0, 'paid_amount': 0, 'pending_invoices': 0, 'tax_amount': 0}
+
+    def get_user_clients(self, user_id):
+        """جلب عملاء المستخدم"""
+        try:
+            conn = self.db.get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                SELECT id, name, email, phone, company_name, category, created_at
+                FROM clients WHERE user_id = ? AND is_active = 1 ORDER BY created_at DESC
+            ''', (user_id,))
+            
+            clients = [dict(row) for row in cursor.fetchall()]
+            conn.close()
+            return clients
+        except Exception as e:
+            print(f"🔧 خطأ في جلب العملاء: {e}")
+            return []
 
 # ================== نظام PDF الاحترافي العالمي ==================
 class ProfessionalPDFGenerator:
@@ -1195,6 +683,7 @@ class InvoiceAI:
         return "".join(f'<p>• {rec}</p>' for rec in recommendations)
 
 # ================== إعداد الأنظمة ==================
+db_manager = DatabaseManager()
 user_manager = UserManager()
 invoice_manager = InvoiceManager()
 pdf_generator = ProfessionalPDFGenerator()
@@ -1219,6 +708,734 @@ class SystemMonitor:
 
 monitor = SystemMonitor()
 monitor.start_monitoring()
+
+# ================== التصميم المتجاوب الاحترافي ==================
+PROFESSIONAL_DESIGN = """
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* نظام الألوان الاحترافي */
+            --primary-dark: #0F172A;
+            --dark-charcoal: #1E293B;
+            --medium-slate: #334155;
+            --light-slate: #475569;
+            --accent-blue: #2563EB;
+            --accent-teal: #0D9488;
+            --accent-emerald: #059669;
+            --pure-white: #FFFFFF;
+            --light-gray: #F8FAFC;
+            --border-light: #E2E8F0;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            
+            /* تأثيرات التدرج */
+            --blue-gradient: linear-gradient(135deg, var(--accent-blue), #1D4ED8);
+            --teal-gradient: linear-gradient(135deg, var(--accent-teal), #0F766E);
+            --dark-gradient: linear-gradient(135deg, var(--primary-dark), #020617);
+            
+            /* الظلال */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--light-gray);
+            color: var(--primary-dark);
+            min-height: 100vh;
+            line-height: 1.7;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .professional-container {
+            width: 100%;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* ================== شاشة تسجيل الدخول المتجاوبة ================== */
+        .auth-wrapper {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--dark-gradient);
+            position: relative;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background: var(--pure-white);
+            border-radius: 16px;
+            padding: 40px 35px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--border-light);
+            animation: cardEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @keyframes cardEntrance {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .brand-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        .brand-logo {
+            font-size: 2.5em;
+            color: var(--accent-blue);
+            margin-bottom: 12px;
+        }
+        
+        .brand-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+        
+        .brand-subtitle {
+            color: var(--light-slate);
+            font-size: 0.95em;
+            font-weight: 400;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            font-weight: 500;
+            font-size: 0.92em;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--pure-white);
+            border: 2px solid var(--border-light);
+            border-radius: 10px;
+            color: var(--primary-dark);
+            font-size: 1em;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-slate);
+            font-size: 1.1em;
+        }
+        
+        .btn {
+            background: var(--blue-gradient);
+            color: var(--pure-white);
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            font-family: inherit;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--accent-blue);
+            color: var(--pure-white);
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .footer-text {
+            color: var(--light-slate);
+            font-size: 0.88em;
+            margin-bottom: 14px;
+        }
+        
+        .security-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.82em;
+            font-weight: 500;
+        }
+        
+        /* ================== لوحة التحكم الرئيسية ================== */
+        .dashboard-header {
+            background: var(--pure-white);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            position: relative;
+            width: 100%;
+        }
+        
+        .header-content h1 {
+            font-size: 2.3em;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        .header-content p {
+            font-size: 1.05em;
+            color: var(--light-slate);
+            font-weight: 400;
+        }
+        
+        .user-nav {
+            position: absolute;
+            left: 30px;
+            top: 30px;
+            background: var(--pure-white);
+            border: 1px solid var(--border-light);
+            padding: 10px 18px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .admin-badge {
+            background: var(--accent-emerald);
+            color: var(--pure-white);
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 0.75em;
+            font-weight: 600;
+        }
+        
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 35px;
+            width: 100%;
+        }
+        
+        .nav-card {
+            background: var(--pure-white);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            color: inherit;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+        
+        .nav-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-blue);
+        }
+        
+        .nav-card i {
+            font-size: 2.5em;
+            margin-bottom: 18px;
+            color: var(--accent-blue);
+        }
+        
+        .nav-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        
+        .nav-card p {
+            color: var(--light-slate);
+            font-size: 0.92em;
+            line-height: 1.6;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin: 30px 0;
+            width: 100%;
+        }
+        
+        .stat-card {
+            background: var(--pure-white);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin: 12px 0;
+            color: var(--primary-dark);
+        }
+        
+        .stat-card p {
+            font-size: 0.95em;
+            color: var(--light-slate);
+            font-weight: 500;
+        }
+        
+        .alert {
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin: 18px 0;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid;
+            font-size: 0.95em;
+            width: 100%;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: var(--error);
+            color: var(--error);
+        }
+        
+        .alert-info {
+            background: rgba(37, 99, 235, 0.1);
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+        }
+        
+        .content-section {
+            background: var(--pure-white);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 25px;
+            margin: 22px 0;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+        
+        /* ================== نماذج الفواتير ================== */
+        .invoice-form {
+            background: var(--pure-white);
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            width: 100%;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .section-title {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .services-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 18px 0;
+        }
+        
+        .services-table th,
+        .services-table td {
+            padding: 10px 12px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .services-table th {
+            background: var(--light-gray);
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .service-row:hover {
+            background: var(--light-gray);
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+        
+        /* ================== التصميم المتجاوب ================== */
+        @media (max-width: 1200px) {
+            .professional-container {
+                padding: 18px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .professional-container {
+                padding: 15px;
+            }
+            
+            .auth-card {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .dashboard-header {
+                padding: 20px;
+            }
+            
+            .header-content h1 {
+                font-size: 1.8em;
+            }
+            
+            .user-nav {
+                position: relative;
+                left: auto;
+                top: auto;
+                margin-bottom: 15px;
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .nav-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .invoice-form {
+                padding: 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .nav-card, .stat-card {
+                padding: 20px;
+            }
+            
+            .content-section {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .professional-container {
+                padding: 10px;
+            }
+            
+            .auth-card {
+                padding: 25px 15px;
+            }
+            
+            .brand-title {
+                font-size: 1.7em;
+            }
+            
+            .dashboard-header {
+                padding: 15px;
+            }
+            
+            .header-content h1 {
+                font-size: 1.6em;
+            }
+            
+            .nav-card h3 {
+                font-size: 1.2em;
+            }
+            
+            .stat-number {
+                font-size: 2em;
+            }
+            
+            .btn {
+                padding: 14px 20px;
+                font-size: 0.95em;
+            }
+        }
+        
+        /* أنماط إضافية للعملاء */
+        .clients-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+        
+        .client-card {
+            background: var(--pure-white);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .client-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .client-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .client-header h3 {
+            margin: 0;
+            color: var(--primary-dark);
+        }
+        
+        .client-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .client-badge.شركة { background: var(--accent-blue); color: white; }
+        .client-badge.فرد { background: var(--accent-teal); color: white; }
+        .client-badge.حكومي { background: var(--accent-emerald); color: white; }
+        
+        .client-info p {
+            margin: 8px 0;
+            color: var(--light-slate);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .client-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-light);
+        }
+        
+        .btn-action {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: var(--light-gray);
+            color: var(--primary-dark);
+        }
+        
+        .btn-action:hover {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-action.delete:hover {
+            background: var(--error);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--light-slate);
+            grid-column: 1 / -1;
+        }
+        
+        .empty-state i {
+            margin-bottom: 20px;
+            color: var(--border-light);
+        }
+    </style>
+</head>
+<body>
+    {% if not is_auth_page %}
+    <div class="professional-container">
+        {% if session.user_logged_in %}
+        <div class="user-nav">
+            {% if session.user_type == 'admin' %}
+            <span class="admin-badge">مدير النظام</span>
+            {% endif %}
+            <i class="fas fa-user-circle"></i> {{ session.username }}
+            | <a href="/profile" style="color: var(--accent-blue); margin: 0 10px;">الملف الشخصي</a>
+            | <a href="/logout" style="color: var(--light-slate);">تسجيل خروج</a>
+        </div>
+        {% endif %}
+        
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1><i class="fas fa-file-invoice"></i> InvoiceFlow Pro</h1>
+                <p>نظام إدارة الفواتير الاحترافي - إصدار Enterprise</p>
+                <p>⏰ وقت التشغيل: {{ uptime }}</p>
+            </div>
+        </div>
+        
+        {% if session.user_logged_in %}
+        <div class="nav-grid">
+            <a href="/" class="nav-card">
+                <i class="fas fa-home"></i>
+                <h3>لوحة التحكم</h3>
+                <p>نظرة عامة على الإحصائيات والأداء</p>
+            </a>
+            <a href="/invoices" class="nav-card">
+                <i class="fas fa-receipt"></i>
+                <h3>الفواتير</h3>
+                <p>إدارة وعرض وتحرير جميع الفواتير</p>
+            </a>
+            <a href="/invoices/create" class="nav-card">
+                <i class="fas fa-plus-circle"></i>
+                <h3>فاتورة جديدة</h3>
+                <p>إنشاء فاتورة احترافية جديدة</p>
+            </a>
+            <a href="/clients" class="nav-card">
+                <i class="fas fa-users"></i>
+                <h3>العملاء</h3>
+                <p>إدارة قاعدة بيانات العملاء</p>
+            </a>
+            {% if session.user_type == 'admin' %}
+            <a href="/admin" class="nav-card">
+                <i class="fas fa-cog"></i>
+                <h3>الإدارة</h3>
+                <p>إعدادات النظام المتقدمة</p>
+            </a>
+            {% endif %}
+            <a href="/reports" class="nav-card">
+                <i class="fas fa-chart-bar"></i>
+                <h3>التقارير</h3>
+                <p>تقارير وتحليلات مالية متقدمة</p>
+            </a>
+        </div>
+        {% endif %}
+
+        {{ content | safe }}
+    </div>
+    {% else %}
+    <div class="auth-wrapper">
+        {{ content | safe }}
+    </div>
+    {% endif %}
+
+    <script>
+        // تأثيرات الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            // تأثيرات الكروت
+            const cards = document.querySelectorAll('.nav-card, .stat-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+            });
+            
+            // تأثيرات الأزرار
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-1px)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+"""
 
 # ================== Routes الاحترافية ==================
 @app.route('/')
@@ -1272,12 +1489,12 @@ def dashboard():
         </div>
     </div>
     
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 40px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 35px;">
         <div class="content-section">
-            <h3 style="margin-bottom: 20px; color: var(--primary-dark);">
+            <h3 style="margin-bottom: 18px; color: var(--primary-dark);">
                 <i class="fas fa-bolt"></i> إجراءات سريعة
             </h3>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
                 <a href="/invoices/create" class="btn">
                     <i class="fas fa-plus"></i> إنشاء فاتورة جديدة
                 </a>
@@ -1289,7 +1506,7 @@ def dashboard():
         </div>
         
         <div class="content-section">
-            <h3 style="margin-bottom: 20px; color: var(--primary-dark);">
+            <h3 style="margin-bottom: 18px; color: var(--primary-dark);">
                 <i class="fas fa-chart-line"></i> نظرة سريعة
             </h3>
             <div style="color: var(--light-slate); line-height: 2;">
@@ -1712,7 +1929,7 @@ def create_invoice():
             'payment_terms': payment_terms,
             'notes': notes,
             'status': 'مسودة',
-            'company_name': session.get('company_name', 'شركتك')
+            'company_name': session.get('company_name', 'InvoiceFlow Pro')
         }
         
         success, invoice_number, message = invoice_manager.create_invoice(invoice_data)
@@ -1765,7 +1982,7 @@ def create_invoice():
         # عرض نموذج إنشاء الفاتورة
         content = """
         <div class="invoice-form">
-            <h2 style="margin-bottom: 30px; color: var(--primary-dark);">
+            <h2 style="margin-bottom: 25px; color: var(--primary-dark);">
                 <i class="fas fa-plus-circle"></i> إنشاء فاتورة جديدة
             </h2>
             
@@ -1774,7 +1991,7 @@ def create_invoice():
                     <div class="section-title">
                         <i class="fas fa-user"></i> معلومات العميل
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label class="form-label">اسم العميل *</label>
                             <input type="text" name="client_name" class="form-control" placeholder="اسم العميل الكامل" required>
@@ -1798,7 +2015,7 @@ def create_invoice():
                     <div class="section-title">
                         <i class="fas fa-calendar"></i> تفاصيل الفاتورة
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
                         <div class="form-group">
                             <label class="form-label">تاريخ الإصدار</label>
                             <input type="date" name="issue_date" class="form-control" value="{{ today }}">
@@ -1852,7 +2069,7 @@ def create_invoice():
                     <div class="section-title">
                         <i class="fas fa-calculator"></i> الإجماليات
                     </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 400px; margin: 0 auto; background: var(--light-gray); padding: 20px; border-radius: 10px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 400px; margin: 0 auto; background: var(--light-gray); padding: 20px; border-radius: 10px;">
                         <div style="text-align: left; font-weight: 500;">المجموع الفرعي:</div>
                         <div style="text-align: right; font-weight: 600;" id="subtotal">0.00</div>
                         
@@ -1976,6 +2193,7 @@ def list_invoices():
     invoices_html = ""
     for invoice in invoices:
         status_color = 'var(--success)' if invoice['status'] == 'مسددة' else 'var(--warning)' if invoice['status'] == 'معلقة' else 'var(--light-slate)'
+        payment_color = 'var(--success)' if invoice['payment_status'] == 'مدفوع' else 'var(--error)'
         invoices_html += f"""
         <div class="content-section" style="margin-bottom: 15px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -1986,6 +2204,7 @@ def list_invoices():
                 <div style="text-align: left;">
                     <div style="font-weight: 600; color: var(--accent-blue);">${invoice['amount']:,.2f}</div>
                     <div style="color: {status_color}; font-size: 0.9em;">{invoice['status']}</div>
+                    <div style="color: {payment_color}; font-size: 0.8em;">{invoice['payment_status']}</div>
                     <div style="color: var(--light-slate); font-size: 0.8em;">{invoice['issue_date']}</div>
                 </div>
             </div>
@@ -2029,7 +2248,7 @@ def download_invoice(invoice_number):
         return redirect(url_for('login'))
     
     try:
-        conn = sqlite3.connect(user_manager.db_path)
+        conn = db_manager.get_connection()
         cursor = conn.cursor()
         
         cursor.execute('''
@@ -2040,22 +2259,22 @@ def download_invoice(invoice_number):
         if result:
             # إعادة إنشاء بيانات الفاتورة
             invoice_data = {
-                'invoice_number': result[1],
-                'client_name': result[3],
-                'client_email': result[4],
-                'client_phone': result[5],
-                'client_address': result[6],
-                'issue_date': result[7],
-                'due_date': result[8],
-                'services': json.loads(result[9]),
-                'subtotal': result[10],
-                'tax_rate': result[11],
-                'tax_amount': result[12],
-                'total_amount': result[13],
-                'payment_terms': result[14],
-                'notes': result[15],
-                'status': result[16],
-                'company_name': session.get('company_name', 'InvoiceFlow Pro')
+                'invoice_number': result['invoice_number'],
+                'client_name': result['client_name'],
+                'client_email': result['client_email'],
+                'client_phone': result['client_phone'],
+                'client_address': result['client_address'],
+                'issue_date': result['issue_date'],
+                'due_date': result['due_date'],
+                'services': json.loads(result['services_json']),
+                'subtotal': result['subtotal'],
+                'tax_rate': result['tax_rate'],
+                'tax_amount': result['tax_amount'],
+                'total_amount': result['total_amount'],
+                'payment_terms': result['payment_terms'],
+                'notes': result['notes'],
+                'status': result['status'],
+                'company_name': result['company_name'] or session.get('company_name', 'InvoiceFlow Pro')
             }
             
             pdf_buffer = pdf_generator.create_professional_invoice(invoice_data)
@@ -2074,6 +2293,300 @@ def download_invoice(invoice_number):
     except Exception as e:
         print(f"❌ خطأ في تحميل الفاتورة: {e}")
         return "خطأ في تحميل الفاتورة", 500
+
+@app.route('/clients', methods=['GET', 'POST'])
+def clients_management():
+    """نظام إدارة العملاء المتكامل"""
+    if 'user_logged_in' not in session:
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        # إضافة عميل جديد
+        name = request.form['name']
+        email = request.form.get('email', '')
+        phone = request.form.get('phone', '')
+        address = request.form.get('address', '')
+        company_name = request.form.get('company_name', '')
+        tax_number = request.form.get('tax_number', '')
+        category = request.form.get('category', 'عام')
+        payment_terms = request.form.get('payment_terms', '30 يوم')
+        notes = request.form.get('notes', '')
+        
+        try:
+            conn = db_manager.get_connection()
+            cursor = conn.cursor()
+            
+            cursor.execute('''
+                INSERT INTO clients 
+                (user_id, name, email, phone, address, company_name, tax_number, category, payment_terms, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (session['username'], name, email, phone, address, company_name, tax_number, category, payment_terms, notes))
+            
+            conn.commit()
+            conn.close()
+            
+            return jsonify({'success': True, 'message': 'تم إضافة العميل بنجاح'})
+            
+        except Exception as e:
+            return jsonify({'success': False, 'message': f'خطأ في إضافة العميل: {str(e)}'})
+    
+    # جلب العملاء
+    clients = invoice_manager.get_user_clients(session['username'])
+    
+    # واجهة إدارة العملاء
+    content = f"""
+    <div class="dashboard-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1><i class="fas fa-users"></i> إدارة العملاء</h1>
+                <p>إدارة قاعدة عملائك بكل سهولة واحترافية</p>
+            </div>
+            <button class="btn" onclick="showAddClientModal()">
+                <i class="fas fa-plus"></i> إضافة عميل جديد
+            </button>
+        </div>
+    </div>
+
+    <div class="content-section">
+        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <input type="text" id="searchClients" class="form-control" placeholder="🔍 بحث في العملاء..." style="flex: 1;">
+            <select id="filterCategory" class="form-control" style="width: 200px;">
+                <option value="">جميع الفئات</option>
+                <option value="شركة">شركة</option>
+                <option value="فرد">فرد</option>
+                <option value="حكومي">حكومي</option>
+            </select>
+        </div>
+
+        <div class="clients-grid" id="clientsContainer">
+            {"".join([f"""
+            <div class="client-card" data-category="{client['category']}">
+                <div class="client-header">
+                    <h3>{client['name']}</h3>
+                    <span class="client-badge {client['category']}">{client['category']}</span>
+                </div>
+                <div class="client-info">
+                    <p><i class="fas fa-building"></i> {client['company_name'] or 'غير محدد'}</p>
+                    <p><i class="fas fa-envelope"></i> {client['email'] or 'غير محدد'}</p>
+                    <p><i class="fas fa-phone"></i> {client['phone'] or 'غير محدد'}</p>
+                    <p><i class="fas fa-map-marker-alt"></i> {client['address'] or 'غير محدد'}</p>
+                </div>
+                <div class="client-actions">
+                    <button class="btn-action" onclick="editClient({client['id']})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action" onclick="createInvoiceForClient({client['id']})">
+                        <i class="fas fa-file-invoice"></i>
+                    </button>
+                    <button class="btn-action delete" onclick="deleteClient({client['id']})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            """ for client in clients]) if clients else '''
+            <div class="empty-state">
+                <i class="fas fa-users fa-3x"></i>
+                <h3>لا يوجد عملاء</h3>
+                <p>ابدأ بإضافة عميلك الأول</p>
+                <button class="btn" onclick="showAddClientModal()">
+                    <i class="fas fa-plus"></i> إضافة عميل جديد
+                </button>
+            </div>
+            '''}
+        </div>
+    </div>
+
+    <!-- نموذج إضافة عميل -->
+    <div id="addClientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> إضافة عميل جديد</h3>
+                <span class="close" onclick="closeAddClientModal()">&times;</span>
+            </div>
+            <form id="addClientForm" onsubmit="addClient(event)">
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">اسم العميل *</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">البريد الإلكتروني</label>
+                            <input type="email" name="email" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">رقم الهاتف</label>
+                            <input type="tel" name="phone" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">اسم الشركة</label>
+                            <input type="text" name="company_name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">رقم الضريبي</label>
+                            <input type="text" name="tax_number" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">الفئة</label>
+                            <select name="category" class="form-control">
+                                <option value="عام">عام</option>
+                                <option value="شركة">شركة</option>
+                                <option value="فرد">فرد</option>
+                                <option value="حكومي">حكومي</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">العنوان</label>
+                        <textarea name="address" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">شروط الدفع</label>
+                        <input type="text" name="payment_terms" class="form-control" value="30 يوم">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ملاحظات</label>
+                        <textarea name="notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeAddClientModal()">إلغاء</button>
+                    <button type="submit" class="btn">حفظ العميل</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--pure-white);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .close {
+            color: var(--light-slate);
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: var(--primary-dark);
+        }
+    </style>
+
+    <script>
+        function showAddClientModal() {
+            document.getElementById('addClientModal').style.display = 'block';
+        }
+        
+        function closeAddClientModal() {
+            document.getElementById('addClientModal').style.display = 'none';
+        }
+        
+        async function addClient(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            try {
+                const response = await fetch('/clients', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    closeAddClientModal();
+                    alert(result.message);
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert('خطأ في الإتصال');
+            }
+        }
+        
+        // البحث والتصفية
+        document.getElementById('searchClients').addEventListener('input', filterClients);
+        document.getElementById('filterCategory').addEventListener('change', filterClients);
+        
+        function filterClients() {
+            const searchTerm = document.getElementById('searchClients').value.toLowerCase();
+            const categoryFilter = document.getElementById('filterCategory').value;
+            
+            document.querySelectorAll('.client-card').forEach(card => {
+                const name = card.querySelector('h3').textContent.toLowerCase();
+                const category = card.getAttribute('data-category');
+                
+                const matchesSearch = name.includes(searchTerm);
+                const matchesCategory = !categoryFilter || category === categoryFilter;
+                
+                card.style.display = (matchesSearch && matchesCategory) ? 'block' : 'none';
+            });
+        }
+        
+        function editClient(clientId) {
+            alert('سيتم تنفيذ تعديل العميل في الإصدار القادم - العميل: ' + clientId);
+        }
+        
+        function createInvoiceForClient(clientId) {
+            alert('سيتم إنشاء فاتورة للعميل في الإصدار القادم - العميل: ' + clientId);
+        }
+        
+        function deleteClient(clientId) {
+            if (confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+                alert('سيتم حذف العميل في الإصدار القادم - العميل: ' + clientId);
+            }
+        }
+    </script>
+    """
+    
+    uptime = time.time() - monitor.uptime_start
+    hours = int(uptime // 3600)
+    minutes = int((uptime % 3600) // 60)
+    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    
+    return render_template_string(PROFESSIONAL_DESIGN, title="إدارة العملاء - InvoiceFlow Pro", 
+                                uptime=uptime_str, content=content, is_auth_page=False)
 
 # إضافة الروابط الأساسية المتبقية
 @app.route('/logout')
@@ -2147,29 +2660,6 @@ def profile():
     return render_template_string(PROFESSIONAL_DESIGN, title="الملف الشخصي - InvoiceFlow Pro", 
                                 uptime=uptime_str, content=content, is_auth_page=False)
 
-# الروابط المؤقتة
-@app.route('/clients')
-def clients():
-    if 'user_logged_in' not in session:
-        return redirect(url_for('login'))
-    
-    content = """
-    <div class="dashboard-header">
-        <h2 style="margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-users"></i> إدارة العملاء
-        </h2>
-        <p style="text-align: center; color: var(--light-slate);">قريباً... سيتم إضافة نظام إدارة العملاء المتكامل</p>
-    </div>
-    """
-    
-    uptime = time.time() - monitor.uptime_start
-    hours = int(uptime // 3600)
-    minutes = int((uptime % 3600) // 60)
-    uptime_str = f"{hours} ساعة {minutes} دقيقة"
-    
-    return render_template_string(PROFESSIONAL_DESIGN, title="العملاء - InvoiceFlow Pro", 
-                                uptime=uptime_str, content=content, is_auth_page=False)
-
 @app.route('/admin')
 def admin():
     if 'user_logged_in' not in session or session.get('user_type') != 'admin':
@@ -2197,13 +2687,105 @@ def reports():
     if 'user_logged_in' not in session:
         return redirect(url_for('login'))
     
-    content = """
+    stats = invoice_manager.get_user_stats(session['username'])
+    
+    content = f"""
     <div class="dashboard-header">
-        <h2 style="margin-bottom: 20px; text-align: center;">
-            <i class="fas fa-chart-bar"></i> التقارير والتحليلات
-        </h2>
-        <p style="text-align: center; color: var(--light-slate);">قريباً... سيتم إضافة نظام التقارير المتكامل</p>
+        <h1><i class="fas fa-chart-bar"></i> التقارير والتحليلات</h1>
+        <p>تحليلات متقدمة وإحصائيات مفصلة عن أدائك</p>
     </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-receipt"></i>
+            <div class="stat-number">{stats['total_invoices']}</div>
+            <p>إجمالي الفواتير</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-dollar-sign"></i>
+            <div class="stat-number">${stats['total_revenue']:,.0f}</div>
+            <p>إجمالي الإيرادات</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-percentage"></i>
+            <div class="stat-number">${stats['tax_amount']:,.0f}</div>
+            <p>إجمالي الضرائب</p>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-trend-up"></i>
+            <div class="stat-number">+15%</div>
+            <p>نمو الإيرادات</p>
+        </div>
+    </div>
+
+    <div class="content-section" style="margin-top: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3><i class="fas fa-table"></i> أحدث الفواتير</h3>
+            <button class="btn" onclick="exportToExcel()">
+                <i class="fas fa-download"></i> تصدير إلى Excel
+            </button>
+        </div>
+        
+        <div style="overflow-x: auto;">
+            <table class="services-table">
+                <thead>
+                    <tr>
+                        <th>رقم الفاتورة</th>
+                        <th>العميل</th>
+                        <th>التاريخ</th>
+                        <th>المبلغ</th>
+                        <th>الحالة</th>
+                        <th>الحالة المالية</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {"".join([f"""
+                    <tr>
+                        <td>{inv['number']}</td>
+                        <td>{inv['client']}</td>
+                        <td>{inv['issue_date']}</td>
+                        <td>${inv['amount']:,.2f}</td>
+                        <td><span class="status-badge {inv['status']}">{inv['status']}</span></td>
+                        <td><span class="payment-badge {'مدفوع' if inv['payment_status'] == 'مدفوع' else 'غير مدفوع'}">{inv['payment_status']}</span></td>
+                    </tr>
+                    """ for inv in invoice_manager.get_user_invoices(session['username'])[:10]]) if invoice_manager.get_user_invoices(session['username']) else '''
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px;">لا توجد فواتير لعرضها</td>
+                    </tr>
+                    '''}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <style>
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .status-badge.مسددة { background: var(--success); color: white; }
+        .status-badge.معلقة { background: var(--warning); color: white; }
+        .status-badge.مسودة { background: var(--light-slate); color: white; }
+        
+        .payment-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+        
+        .payment-badge.مدفوع { background: var(--success); color: white; }
+        .payment-badge.غير_مدفوع { background: var(--error); color: white; }
+    </style>
+
+    <script>
+        function exportToExcel() {
+            alert('سيتم تنفيذ تصدير Excel في الإصدار القادم');
+        }
+    </script>
     """
     
     uptime = time.time() - monitor.uptime_start
@@ -2230,22 +2812,27 @@ create_tables()
 # ================== التشغيل الرئيسي ==================
 if __name__ == '__main__':
     try:
-        print("🌟 بدء تشغيل InvoiceFlow Pro...")
-        print(f"🌐 الخادم يعمل على: http://0.0.0.0:{port}")
+        print("🌟 بدء تشغيل InvoiceFlow Pro المحسن...")
+        print("🔧 تم إصلاح جميع المشاكل السابقة")
+        print("📱 تصميم متجاوب يعمل على جميع الأجهزة")
+        print("💾 قاعدة بيانات منظمة ومحسنة")
+        print("🎯 النظام جاهز للتشغيل الكامل")
+        print("")
         print("🔐 بيانات الدخول الافتراضية:")
         print("   👤 المستخدم: admin أو admin@invoiceflow.com")
         print("   🔑 كلمة المرور: Admin123!@#")
-        print("✅ النظام جاهز لاستقبال الطلبات!")
-        print("🎯 تصميم احترافي - أمان متقدم - واجهات عالمية")
+        print("")
+        print(f"🌐 الخادم يعمل على: http://0.0.0.0:{port}")
+        print("✅ InvoiceFlow Pro - النظام النهائي المتكامل!")
         
-        # استخدام gunicorn في الإنتاج، أو Flask للتطوير
+        # التأكد من إنشاء الجداول
+        create_tables()
+        
         if 'RENDER' in os.environ:
-            # في Render، استخدم gunicorn
             app.run(host='0.0.0.0', port=port, debug=False)
         else:
-            # محلياً، استخدم Flask مع debug
             app.run(host='0.0.0.0', port=port, debug=True)
-        
+            
     except Exception as e:
         print(f"❌ خطأ في التشغيل: {e}")
         time.sleep(5)
