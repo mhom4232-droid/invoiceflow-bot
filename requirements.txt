@@ -4,3 +4,4 @@ arabic-reshaper==3.0.0
 python-bidi==0.4.2
 gunicorn==20.1.0
 requests==2.32.3
+email-validator==2.2.0
