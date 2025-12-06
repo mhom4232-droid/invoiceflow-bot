@@ -21,7 +21,6 @@ import arabic_reshaper
 from bidi.algorithm import get_display
 import io
 import base64
-from email_validator import validate_email, EmailNotValidError
 
 # ================== تطبيق Flask المتطور ==================
 app = Flask(__name__)
@@ -32,9 +31,8 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 port = int(os.environ.get("PORT", 10000))
 
 print("=" * 80)
-print("🎯 InvoiceFlow Premium - الإصدار الراقي المتميز")
-print("🚀 تصميم ذهبي راقي + ذكاء اصطناعي متقدم + أداء فائق")
-print("👑 فريق النخبة البروفيسوري المتكامل")
+print("InvoiceFlow Premium - الإصدار الراقي المتميز")
+print("تصميم أسود/أبيض احترافي + ذكاء اصطناعي متقدم")
 print("=" * 80)
 
 # ================== نظام الإبقاء على التشغيل ==================
@@ -44,9 +42,9 @@ class PremiumKeepAlive:
         self.request_count = 0
         
     def start_premium_system(self):
-        print("🚀 بدء النظام الراقي...")
+        print("بدء النظام الراقي...")
         self.start_premium_monitoring()
-        print("✅ النظام الراقي مفعل!")
+        print("النظام الراقي مفعل!")
     
     def start_premium_monitoring(self):
         def monitor():
@@ -54,10 +52,10 @@ class PremiumKeepAlive:
                 current_time = time.time()
                 uptime = current_time - self.uptime_start
                 
-                if int(current_time) % 300 == 0:  # كل 5 دقائق
+                if int(current_time) % 300 == 0:
                     hours = int(uptime // 3600)
                     minutes = int((uptime % 3600) // 60)
-                    print(f"📊 تقرير النظام الراقي: {hours}س {minutes}د - {self.request_count} طلب")
+                    print(f"تقرير النظام: {hours}س {minutes}د - {self.request_count} طلب")
                 
                 time.sleep(1)
         
@@ -69,7 +67,99 @@ class PremiumKeepAlive:
 keep_alive_system = PremiumKeepAlive()
 keep_alive_system.start_premium_system()
 
-# ================== نظام التصميم الراقي ==================
+# ================== تسجيل الخط العربي ==================
+def register_arabic_font():
+    """تسجيل خط عربي للـ PDF"""
+    font_urls = [
+        ("https://github.com/AliSoftware/Fonts/raw/main/Amiri-Regular.ttf", "Amiri"),
+        ("https://github.com/AliSoftware/Fonts/raw/main/Cairo-Regular.ttf", "Cairo"),
+    ]
+    
+    fonts_dir = os.path.join(os.path.dirname(__file__), 'fonts')
+    os.makedirs(fonts_dir, exist_ok=True)
+    
+    for url, font_name in font_urls:
+        font_path = os.path.join(fonts_dir, f"{font_name}.ttf")
+        
+        if not os.path.exists(font_path):
+            try:
+                response = requests.get(url, timeout=10)
+                if response.status_code == 200:
+                    with open(font_path, 'wb') as f:
+                        f.write(response.content)
+                    print(f"تم تحميل الخط: {font_name}")
+            except Exception as e:
+                print(f"خطأ في تحميل الخط {font_name}: {e}")
+                continue
+        
+        try:
+            if font_name not in pdfmetrics.getRegisteredFontNames():
+                pdfmetrics.registerFont(TTFont(font_name, font_path))
+                print(f"تم تسجيل الخط: {font_name}")
+                return font_name
+        except Exception as e:
+            print(f"خطأ في تسجيل الخط {font_name}: {e}")
+    
+    return None
+
+# تسجيل الخط عند بدء التشغيل
+ARABIC_FONT = register_arabic_font()
+
+def get_arabic_text(text):
+    """تحويل النص العربي للعرض الصحيح في PDF"""
+    try:
+        reshaped = arabic_reshaper.reshape(text)
+        bidi_text = get_display(reshaped)
+        return bidi_text
+    except:
+        return text
+
+# ================== قاعدة البيانات ==================
+def init_db():
+    """إعداد قاعدة البيانات"""
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        full_name TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS invoices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        invoice_number TEXT UNIQUE NOT NULL,
+        client_name TEXT NOT NULL,
+        client_email TEXT,
+        services TEXT,
+        amount REAL NOT NULL,
+        due_date TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        user_id INTEGER,
+        FOREIGN KEY (user_id) REFERENCES users (id)
+    )''')
+    
+    c.execute('''CREATE TABLE IF NOT EXISTS clients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        email TEXT,
+        phone TEXT,
+        address TEXT,
+        total_invoices INTEGER DEFAULT 0,
+        total_amount REAL DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )''')
+    
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# ================== تصميم أسود/أبيض احترافي ==================
 PREMIUM_DESIGN_HTML = """
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -81,21 +171,22 @@ PREMIUM_DESIGN_HTML = """
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* الألوان الراقية - ذهبي/أسود */
-            --primary-gold: #D4AF37;
-            --light-gold: #F5E6A4;
-            --dark-gold: #B8860B;
-            --primary-black: #0A0A0A;
-            --dark-gray: #1A1A1A;
-            --light-gray: #2A2A2A;
-            --text-gold: #FFD700;
-            --text-light: #E5E5E5;
-            --text-muted: #A0A0A0;
-            --accent-emerald: #10B981;
-            --accent-ruby: #EF4444;
-            --accent-sapphire: #3B82F6;
-            --shadow-premium: rgba(212, 175, 55, 0.15);
-            --gradient-premium: linear-gradient(135deg, var(--primary-gold) 0%, var(--dark-gold) 100%);
+            /* الألوان الجديدة - أسود/أبيض احترافي */
+            --primary-bg: #000000;
+            --secondary-bg: #0a0a0a;
+            --card-bg: #111111;
+            --card-hover: #1a1a1a;
+            --border-color: #222222;
+            --border-light: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #e0e0e0;
+            --text-muted: #888888;
+            --accent-color: #ffffff;
+            --accent-dim: rgba(255, 255, 255, 0.1);
+            --success-color: #22c55e;
+            --warning-color: #eab308;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
         }
 
         * {
@@ -106,32 +197,29 @@ PREMIUM_DESIGN_HTML = """
 
         body {
             font-family: 'Tajawal', 'Segoe UI', sans-serif;
-            background: var(--primary-black);
-            color: var(--text-light);
+            background: var(--primary-bg);
+            color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.8;
-            overflow-x: hidden;
         }
 
-        .premium-container {
-            max-width: 1600px;
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 20px;
-            min-height: 100vh;
         }
 
-        /* شريط التنقل الراقي */
-        .premium-navbar {
-            background: rgba(10, 10, 10, 0.95);
-            backdrop-filter: blur(20px);
-            border-bottom: 2px solid var(--primary-gold);
+        /* شريط التنقل */
+        .navbar {
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
             padding: 0 30px;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             z-index: 1000;
-            height: 80px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -140,901 +228,1536 @@ PREMIUM_DESIGN_HTML = """
         .nav-brand {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .nav-brand h1 {
-            font-size: 2.2em;
-            font-weight: 800;
-            background: var(--gradient-premium);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px var(--shadow-premium);
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
         }
 
         .nav-links {
             display: flex;
-            gap: 30px;
+            gap: 8px;
             align-items: center;
         }
 
         .nav-link {
-            color: var(--text-light);
+            color: var(--text-secondary);
             text-decoration: none;
-            font-weight: 600;
-            padding: 12px 20px;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            position: relative;
+            font-weight: 500;
+            padding: 10px 18px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 0.95em;
         }
 
         .nav-link:hover {
-            color: var(--primary-gold);
-            background: rgba(212, 175, 55, 0.1);
+            color: var(--text-primary);
+            background: var(--accent-dim);
         }
 
         .nav-link.active {
-            background: var(--gradient-premium);
-            color: var(--primary-black);
-            box-shadow: 0 4px 15px var(--shadow-premium);
+            background: var(--text-primary);
+            color: var(--primary-bg);
         }
 
-        .nav-link.active::before {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 20px;
-            right: 20px;
-            height: 2px;
-            background: var(--primary-gold);
-        }
-
-        /* المحتوى الرئيسي */
-        .premium-content {
-            margin-top: 100px;
+        /* المحتوى */
+        .content {
+            margin-top: 90px;
             padding: 40px 0;
         }
 
-        .premium-hero {
-            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
-            border-radius: 30px;
-            padding: 60px;
-            margin-bottom: 50px;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            position: relative;
-            overflow: hidden;
+        /* البطاقات */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
         }
 
-        .premium-hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 80%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
-            pointer-events: none;
+        .card:hover {
+            border-color: var(--border-light);
+            transform: translateY(-2px);
         }
 
-        .hero-content h1 {
-            font-size: 4.5em;
-            font-weight: 800;
-            background: var(--gradient-premium);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .card-icon {
+            font-size: 2.5em;
             margin-bottom: 20px;
-            line-height: 1.2;
+            color: var(--text-primary);
         }
 
-        .hero-content p {
+        .card h3 {
             font-size: 1.4em;
-            color: var(--text-muted);
-            margin-bottom: 30px;
-            max-width: 600px;
-        }
-
-        /* كروت الخدمات الراقية */
-        .premium-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-            gap: 30px;
-            margin: 50px 0;
-        }
-
-        .premium-card {
-            background: linear-gradient(135deg, rgba(26, 26, 26, 0.8) 0%, rgba(42, 42, 42, 0.6) 100%);
-            border-radius: 25px;
-            padding: 40px;
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        .premium-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-premium);
-            transform: scaleX(0);
-            transition: transform 0.4s ease;
-        }
-
-        .premium-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            border-color: var(--primary-gold);
-            box-shadow: 0 20px 40px var(--shadow-premium);
-        }
-
-        .premium-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .premium-card i {
-            font-size: 3.5em;
-            margin-bottom: 25px;
-            background: var(--gradient-premium);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .premium-card h3 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
-            color: var(--text-light);
-            font-weight: 700;
-        }
-
-        .premium-card p {
-            color: var(--text-muted);
-            font-size: 1.1em;
-            line-height: 1.7;
-        }
-
-        /* الإحصائيات الراقية */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin: 60px 0;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, rgba(26, 26, 26, 0.9) 0%, rgba(42, 42, 42, 0.7) 100%);
-            border-radius: 20px;
-            padding: 35px 30px;
-            text-align: center;
-            border: 1px solid rgba(212, 175, 55, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--gradient-premium);
-        }
-
-        .stat-number {
-            font-size: 3.8em;
-            font-weight: 800;
-            margin: 20px 0;
-            background: var(--gradient-premium);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-card p {
-            font-size: 1.2em;
-            color: var(--text-muted);
+            margin-bottom: 12px;
+            color: var(--text-primary);
             font-weight: 600;
         }
 
-        /* الأزرار الراقية */
-        .premium-btn {
-            background: var(--gradient-premium);
-            color: var(--primary-black);
-            padding: 18px 45px;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            text-decoration: none;
+        .card p {
+            color: var(--text-muted);
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        /* الشبكة */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        /* الأزرار */
+        .btn {
             display: inline-flex;
             align-items: center;
-            gap: 12px;
-            margin: 10px;
-            box-shadow: 0 5px 20px var(--shadow-premium);
-            position: relative;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--primary-bg);
+        }
+
+        .btn-primary:hover {
+            background: var(--text-secondary);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-dim);
+            border-color: var(--text-primary);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+
+        /* الإحصائيات */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.8em;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.95em;
+        }
+
+        /* البطل */
+        .hero {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 60px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .hero p {
+            font-size: 1.3em;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        /* القسم */
+        .section-title {
+            text-align: center;
+            margin: 60px 0 40px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .section-title p {
+            color: var(--text-muted);
+            font-size: 1.1em;
+        }
+
+        /* النماذج */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--text-primary);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        textarea.form-input {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* الجداول */
+        .table-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
             overflow: hidden;
         }
 
-        .premium-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
+        .table {
             width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s ease;
+            border-collapse: collapse;
         }
 
-        .premium-btn:hover::before {
-            left: 100%;
+        .table th,
+        .table td {
+            padding: 16px 20px;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
         }
 
-        .premium-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.4);
+        .table th {
+            background: var(--secondary-bg);
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .premium-btn-outline {
-            background: transparent;
-            border: 2px solid var(--primary-gold);
-            color: var(--primary-gold);
+        .table tr:last-child td {
+            border-bottom: none;
         }
 
-        .premium-btn-outline:hover {
-            background: var(--primary-gold);
-            color: var(--primary-black);
+        .table tr:hover td {
+            background: var(--accent-dim);
         }
 
-        /* قسم الذكاء الاصطناعي */
-        .ai-section {
-            background: linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(10, 10, 10, 0.98) 100%);
-            border-radius: 30px;
-            padding: 50px;
-            margin: 60px 0;
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            position: relative;
-        }
-
-        .ai-section::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: var(--gradient-premium);
-            border-radius: 32px;
-            z-index: -1;
-            opacity: 0.1;
-        }
-
-        /* التحميل المتحرك */
-        .loading-spinner {
+        /* الشارات */
+        .badge {
             display: inline-block;
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(212, 175, 55, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-gold);
-            animation: spin 1s ease-in-out infinite;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .badge-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success-color);
         }
 
-        /* تأثيرات النص */
-        .text-glow {
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
+        .badge-warning {
+            background: rgba(234, 179, 8, 0.2);
+            color: var(--warning-color);
         }
 
-        /* التكيف مع الأجهزة المحمولة */
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--info-color);
+        }
+
+        /* الـ AI Section */
+        .ai-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .ai-metric {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .ai-metric-value {
+            font-size: 2.2em;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .ai-metric-label {
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* رسائل التنبيه */
+        .alert {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: var(--success-color);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger-color);
+        }
+
+        /* التجاوب */
         @media (max-width: 768px) {
-            .premium-navbar {
-                padding: 0 15px;
-                height: 70px;
-            }
-
-            .nav-brand h1 {
-                font-size: 1.8em;
+            .navbar {
+                padding: 0 16px;
             }
 
             .nav-links {
                 display: none;
             }
 
-            .premium-hero {
-                padding: 40px 25px;
+            .hero {
+                padding: 40px 24px;
             }
 
-            .hero-content h1 {
-                font-size: 2.8em;
+            .hero h1 {
+                font-size: 2.5em;
             }
 
-            .premium-grid {
+            .card {
+                padding: 24px;
+            }
+
+            .grid {
                 grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .premium-card {
-                padding: 30px;
             }
         }
 
-        /* نظام الثيمات */
-        .theme-switcher {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            z-index: 1000;
+        /* تحريك */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .theme-btn {
-            background: var(--gradient-premium);
-            color: var(--primary-black);
-            border: none;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            cursor: pointer;
-            font-size: 1.3em;
-            box-shadow: 0 5px 15px var(--shadow-premium);
-            transition: all 0.3s ease;
-        }
-
-        .theme-btn:hover {
-            transform: scale(1.1) rotate(180deg);
+        .fade-in {
+            animation: fadeIn 0.4s ease;
         }
     </style>
 </head>
 <body>
-    <!-- شريط التنقل الراقي -->
-    <nav class="premium-navbar">
+    <nav class="navbar">
         <div class="nav-brand">
-            <i class="fas fa-crown" style="color: var(--primary-gold); font-size: 2em;"></i>
-            <h1>InvoiceFlow Premium</h1>
+            <i class="fas fa-file-invoice-dollar" style="font-size: 1.5em;"></i>
+            <h1>InvoiceFlow</h1>
         </div>
         
         <div class="nav-links">
-            <a href="{{ url_for('home') }}" class="nav-link {% if request.endpoint == 'home' %}active{% endif %}">
+            <a href="/" class="nav-link {% if active_page == 'home' %}active{% endif %}">
                 <i class="fas fa-home"></i> الرئيسية
             </a>
-            <a href="{{ url_for('invoices') }}" class="nav-link {% if request.endpoint == 'invoices' %}active{% endif %}">
-                <i class="fas fa-file-invoice-dollar"></i> الفواتير
+            <a href="/invoices" class="nav-link {% if active_page == 'invoices' %}active{% endif %}">
+                <i class="fas fa-file-invoice"></i> الفواتير
             </a>
-            <a href="{{ url_for('create_invoice') }}" class="nav-link {% if request.endpoint == 'create_invoice' %}active{% endif %}">
-                <i class="fas fa-plus-circle"></i> إنشاء فاتورة
+            <a href="/create" class="nav-link {% if active_page == 'create' %}active{% endif %}">
+                <i class="fas fa-plus"></i> إنشاء فاتورة
             </a>
-            <a href="{{ url_for('ai_insights') }}" class="nav-link {% if request.endpoint == 'ai_insights' %}active{% endif %}">
+            <a href="/clients" class="nav-link {% if active_page == 'clients' %}active{% endif %}">
+                <i class="fas fa-users"></i> العملاء
+            </a>
+            <a href="/ai" class="nav-link {% if active_page == 'ai' %}active{% endif %}">
                 <i class="fas fa-robot"></i> الذكاء الاصطناعي
             </a>
-            {% if session.user_logged_in %}
-            <div class="user-menu">
-                <span style="color: var(--primary-gold); margin: 0 15px;">
-                    <i class="fas fa-user-tie"></i> {{ session.username }}
-                </span>
-                <a href="{{ url_for('logout') }}" class="premium-btn" style="padding: 10px 20px; font-size: 0.9em;">
-                    <i class="fas fa-sign-out-alt"></i> خروج
-                </a>
-            </div>
+            <a href="/reports" class="nav-link {% if active_page == 'reports' %}active{% endif %}">
+                <i class="fas fa-chart-bar"></i> التقارير
+            </a>
+            {% if session.get('user_logged_in') %}
+            <a href="/logout" class="btn btn-outline btn-sm" style="margin-right: 10px;">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </a>
             {% else %}
-            <a href="{{ url_for('login') }}" class="premium-btn" style="padding: 12px 25px;">
+            <a href="/login" class="btn btn-primary btn-sm" style="margin-right: 10px;">
                 <i class="fas fa-sign-in-alt"></i> دخول
             </a>
             {% endif %}
         </div>
     </nav>
 
-    <!-- المحتوى الرئيسي -->
-    <div class="premium-container">
-        <div class="premium-content">
+    <div class="container">
+        <div class="content fade-in">
             {{ content | safe }}
         </div>
     </div>
 
-    <!-- زر تبديل الثيمات -->
-    <div class="theme-switcher">
-        <button class="theme-btn" onclick="toggleTheme()">
-            <i class="fas fa-palette"></i>
-        </button>
-    </div>
-
     <script>
-        // تأثيرات الصفحة
         document.addEventListener('DOMContentLoaded', function() {
-            // تأثير التحميل
-            setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 100);
-
-            // تأثيرات الكروت
-            const cards = document.querySelectorAll('.premium-card');
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.1}s`;
-            });
-
-            // تأثيرات الأرقام
-            const counters = document.querySelectorAll('.stat-number');
+            // Counter animation
+            const counters = document.querySelectorAll('[data-count]');
             counters.forEach(counter => {
-                const target = parseInt(counter.getAttribute('data-target'));
-                if (!isNaN(target)) {
-                    animateCounter(counter, 0, target, 2000);
-                }
+                const target = parseInt(counter.getAttribute('data-count'));
+                let current = 0;
+                const increment = target / 50;
+                const timer = setInterval(() => {
+                    current += increment;
+                    if (current >= target) {
+                        counter.textContent = target.toLocaleString();
+                        clearInterval(timer);
+                    } else {
+                        counter.textContent = Math.floor(current).toLocaleString();
+                    }
+                }, 30);
             });
-        });
-
-        // عدادات متحركة
-        function animateCounter(element, start, end, duration) {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                const value = Math.floor(progress * (end - start) + start);
-                element.textContent = value.toLocaleString();
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
-        }
-
-        // تبديل الثيمات
-        function toggleTheme() {
-            const body = document.body;
-            const currentTheme = body.getAttribute('data-theme');
-            
-            if (currentTheme === 'light') {
-                body.setAttribute('data-theme', 'dark');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                body.setAttribute('data-theme', 'light');
-                localStorage.setItem('theme', 'light');
-            }
-        }
-
-        // تحميل الثيم المحفوظ
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        document.body.setAttribute('data-theme', savedTheme);
-
-        // تأثيرات التمرير
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.premium-navbar');
-            if (window.scrollY > 100) {
-                navbar.style.background = 'rgba(10, 10, 10, 0.98)';
-                navbar.style.backdropFilter = 'blur(20px)';
-            } else {
-                navbar.style.background = 'rgba(10, 10, 10, 0.95)';
-                navbar.style.backdropFilter = 'blur(20px)';
-            }
         });
     </script>
 </body>
 </html>
 """
 
-# ================== Routes الأساسية المصححة ==================
+# ================== Routes ==================
 
 @app.route('/')
 def home():
     """الصفحة الرئيسية"""
-    uptime = time.time() - keep_alive_system.uptime_start
-    hours = int(uptime // 3600)
-    minutes = int((uptime % 3600) // 60)
-    uptime_str = f"{hours} ساعة {minutes} دقيقة"
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
     
-    # إحصائيات متقدمة
-    stats = {
-        'total_invoices': 156,
-        'total_revenue': 125000,
-        'active_users': 89,
-        'success_rate': 94
-    }
+    c.execute("SELECT COUNT(*) FROM invoices")
+    total_invoices = c.fetchone()[0]
+    
+    c.execute("SELECT COALESCE(SUM(amount), 0) FROM invoices")
+    total_revenue = c.fetchone()[0]
+    
+    c.execute("SELECT COUNT(*) FROM clients")
+    total_clients = c.fetchone()[0]
+    
+    c.execute("SELECT COUNT(*) FROM invoices WHERE status = 'paid'")
+    paid_invoices = c.fetchone()[0]
+    
+    conn.close()
     
     content = f"""
-    <!-- قسم البطل -->
-    <div class="premium-hero">
-        <div class="hero-content">
-            <h1 class="text-glow">نظام الفواتير الراقي</h1>
-            <p>منصة متكاملة لإدارة الفواتير بمستوى احترافي عالمي، مصممة خصيصاً للشركات النخبوية</p>
-            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <a href="/create" class="premium-btn">
-                    <i class="fas fa-rocket"></i> ابدأ الآن
-                </a>
-                <a href="/demo" class="premium-btn premium-btn-outline">
-                    <i class="fas fa-play-circle"></i> شاهد العرض
-                </a>
-            </div>
+    <div class="hero">
+        <h1>نظام إدارة الفواتير</h1>
+        <p>منصة احترافية متكاملة لإدارة الفواتير والعملاء بأعلى معايير الجودة</p>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="/create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> إنشاء فاتورة
+            </a>
+            <a href="/invoices" class="btn btn-outline">
+                <i class="fas fa-list"></i> عرض الفواتير
+            </a>
         </div>
     </div>
 
-    <!-- الإحصائيات -->
     <div class="stats-grid">
         <div class="stat-card">
-            <i class="fas fa-file-invoice" style="color: var(--primary-gold);"></i>
-            <div class="stat-number" data-target="{stats['total_invoices']}">{stats['total_invoices']}</div>
-            <p>فاتورة تم إنشاؤها</p>
+            <i class="fas fa-file-invoice" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number" data-count="{total_invoices}">{total_invoices}</div>
+            <div class="stat-label">إجمالي الفواتير</div>
         </div>
         <div class="stat-card">
-            <i class="fas fa-dollar-sign" style="color: var(--primary-gold);"></i>
-            <div class="stat-number" data-target="{stats['total_revenue']}">${stats['total_revenue']:,.0f}</div>
-            <p>إيرادات تم تحقيقها</p>
+            <i class="fas fa-dollar-sign" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number" data-count="{int(total_revenue)}">${total_revenue:,.0f}</div>
+            <div class="stat-label">إجمالي الإيرادات</div>
         </div>
         <div class="stat-card">
-            <i class="fas fa-users" style="color: var(--primary-gold);"></i>
-            <div class="stat-number" data-target="{stats['active_users']}">{stats['active_users']}</div>
-            <p>مستخدم نشط</p>
+            <i class="fas fa-users" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number" data-count="{total_clients}">{total_clients}</div>
+            <div class="stat-label">العملاء</div>
         </div>
         <div class="stat-card">
-            <i class="fas fa-chart-line" style="color: var(--primary-gold);"></i>
-            <div class="stat-number" data-target="{stats['success_rate']}">{stats['success_rate']}%</div>
-            <p>معدل النجاح</p>
+            <i class="fas fa-check-circle" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number" data-count="{paid_invoices}">{paid_invoices}</div>
+            <div class="stat-label">فواتير مدفوعة</div>
         </div>
     </div>
 
-    <!-- الخدمات المميزة -->
-    <div style="text-align: center; margin: 80px 0 40px;">
-        <h2 style="font-size: 3em; margin-bottom: 20px; background: var(--gradient-premium); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            المزايا الراقية
-        </h2>
-        <p style="font-size: 1.3em; color: var(--text-muted); max-width: 600px; margin: 0 auto;">
-            اكتشف مجموعة المزايا المتقدمة المصممة خصيصاً لاحتياجاتك النخبوية
-        </p>
+    <div class="section-title">
+        <h2>الخدمات المتاحة</h2>
+        <p>اكتشف مجموعة الأدوات المتقدمة لإدارة أعمالك</p>
     </div>
 
-    <div class="premium-grid">
-        <div class="premium-card">
-            <i class="fas fa-brain"></i>
-            <h3>ذكاء اصطناعي متقدم</h3>
-            <p>نظام تحليلات ذكي يقدم رؤى عميقة وتوصيات مخصصة لتحسين أداء أعمالك</p>
+    <div class="grid">
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-file-invoice-dollar"></i></div>
+            <h3>إدارة الفواتير</h3>
+            <p>إنشاء وتتبع الفواتير بسهولة مع تصدير PDF احترافي باللغة العربية</p>
+            <a href="/invoices" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                عرض الفواتير
+            </a>
         </div>
-        <div class="premium-card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>أمان من المستوى الأول</h3>
-            <p>حماية متقدمة للبيانات مع تشفير من الدرجة الأولى ونسخ احتياطي تلقائي</p>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-users"></i></div>
+            <h3>إدارة العملاء</h3>
+            <p>قاعدة بيانات شاملة للعملاء مع تتبع المعاملات والتاريخ</p>
+            <a href="/clients" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                عرض العملاء
+            </a>
         </div>
-        <div class="premium-card">
-            <i class="fas fa-bolt"></i>
-            <h3>أداء فائق السرعة</h3>
-            <p>تصميم محسن لأقصى أداء مع أوقات تحميل فائقة السرعة واستجابة فورية</p>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-robot"></i></div>
+            <h3>الذكاء الاصطناعي</h3>
+            <p>تحليلات ذكية وتوصيات مخصصة لتحسين أداء أعمالك</p>
+            <a href="/ai" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                استكشاف
+            </a>
         </div>
-        <div class="premium-card">
-            <i class="fas fa-mobile-alt"></i>
-            <h3>تصميم متجاوب راقي</h3>
-            <p>تجربة مستخدم متميزة على جميع الأجهزة بتصميم أنيق واحترافي</p>
-        </div>
-        <div class="premium-card">
-            <i class="fas fa-chart-pie"></i>
-            <h3>تقارير متقدمة</h3>
-            <p>لوحة تحكم شاملة مع رسوم بيانية تفاعلية وتقارير مفصلة عن أدائك</p>
-        </div>
-        <div class="premium-card">
-            <i class="fas fa-headset"></i>
-            <h3>دعم فني متميز</h3>
-            <p>فريق دعم فني متخصص متاح على مدار الساعة لتقديم أفضل تجربة مستخدم</p>
-        </div>
-    </div>
-
-    <!-- قسم الذكاء الاصطناعي -->
-    <div class="ai-section">
-        <div style="text-align: center; margin-bottom: 50px;">
-            <h2 style="font-size: 2.8em; margin-bottom: 15px; background: var(--gradient-premium); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                <i class="fas fa-robot"></i> المساعد الذكي
-            </h2>
-            <p style="font-size: 1.2em; color: var(--text-muted);">
-                استفد من قوة الذكاء الاصطناعي لتحليل بياناتك وتقديم توصيات ذكية
-            </p>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-            <div>
-                <h3 style="color: var(--primary-gold); margin-bottom: 20px;">📊 تحليلات متقدمة</h3>
-                <div style="background: rgba(212, 175, 55, 0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2);">
-                    <p style="margin-bottom: 15px;">• تحليل أنماط الإنفاق والعوائد</p>
-                    <p style="margin-bottom: 15px;">• توقعات الإيرادات المستقبلية</p>
-                    <p style="margin-bottom: 15px;">• توصيات تحسين الأسعار</p>
-                    <p>• اكتشاف فرص النمو</p>
-                </div>
-            </div>
-            
-            <div>
-                <h3 style="color: var(--primary-gold); margin-bottom: 20px;">🚀 تحسين الأداء</h3>
-                <div style="background: rgba(212, 175, 55, 0.05); padding: 25px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2);">
-                    <p style="margin-bottom: 15px;">• اقتراحات لتحسين العملية</p>
-                    <p style="margin-bottom: 15px;">• تحليل كفاءة الموارد</p>
-                    <p style="margin-bottom: 15px;">• تقارير أداء مخصصة</p>
-                    <p>• نصائح لزيادة الإنتاجية</p>
-                </div>
-            </div>
-        </div>
-        
-        <div style="text-align: center; margin-top: 40px;">
-            <a href="/ai" class="premium-btn" style="padding: 20px 50px; font-size: 1.2em;">
-                <i class="fas fa-magic"></i> تجربة المساعد الذكي
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-chart-pie"></i></div>
+            <h3>التقارير</h3>
+            <p>تقارير مفصلة ورسوم بيانية تفاعلية لمتابعة الأداء</p>
+            <a href="/reports" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                عرض التقارير
             </a>
         </div>
     </div>
     """
     
-    return render_template_string(PREMIUM_DESIGN_HTML, title="InvoiceFlow Premium - النظام الراقي", uptime=uptime_str, content=content)
+    return render_template_string(PREMIUM_DESIGN_HTML, title="InvoiceFlow - نظام إدارة الفواتير", content=content, active_page='home')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     """صفحة تسجيل الدخول"""
-    content = """
-    <div style="max-width: 500px; margin: 100px auto;">
-        <div class="premium-card" style="text-align: center;">
-            <i class="fas fa-lock" style="font-size: 4em; margin-bottom: 30px;"></i>
-            <h2 style="margin-bottom: 30px;">الدخول إلى النظام الراقي</h2>
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        conn = sqlite3.connect('invoices.db')
+        c = conn.cursor()
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password_hash))
+        user = c.fetchone()
+        conn.close()
+        
+        if user:
+            session['user_logged_in'] = True
+            session['username'] = username
+            session['user_id'] = user[0]
+            return redirect('/')
+        else:
+            return render_template_string(PREMIUM_DESIGN_HTML, 
+                title="تسجيل الدخول", 
+                content=get_login_content(error="اسم المستخدم أو كلمة المرور غير صحيحة"),
+                active_page='login')
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="تسجيل الدخول", content=get_login_content(), active_page='login')
+
+def get_login_content(error=None):
+    error_html = f'<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {error}</div>' if error else ''
+    return f"""
+    <div style="max-width: 450px; margin: 60px auto;">
+        <div class="card" style="text-align: center;">
+            <i class="fas fa-lock" style="font-size: 3em; margin-bottom: 24px; color: var(--text-muted);"></i>
+            <h2 style="margin-bottom: 8px;">تسجيل الدخول</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">أدخل بياناتك للوصول إلى حسابك</p>
             
-            <form style="text-align: right;">
-                <div style="margin-bottom: 25px;">
-                    <input type="text" placeholder="اسم المستخدم" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+            {error_html}
+            
+            <form method="POST" style="text-align: right;">
+                <div class="form-group">
+                    <label class="form-label">اسم المستخدم</label>
+                    <input type="text" name="username" class="form-input" placeholder="أدخل اسم المستخدم" required>
                 </div>
-                <div style="margin-bottom: 25px;">
-                    <input type="password" placeholder="كلمة المرور" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" name="password" class="form-input" placeholder="أدخل كلمة المرور" required>
                 </div>
-                
-                <button type="submit" class="premium-btn" style="width: 100%; padding: 18px;">
-                    <i class="fas fa-sign-in-alt"></i> دخول إلى النظام
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-sign-in-alt"></i> دخول
                 </button>
             </form>
             
-            <div style="margin-top: 30px; color: var(--text-muted);">
-                <p>ليس لديك حساب؟ <a href="/register" style="color: var(--primary-gold); text-decoration: none;">انضم إلينا</a></p>
-            </div>
+            <p style="margin-top: 24px; color: var(--text-muted);">
+                ليس لديك حساب؟ <a href="/register" style="color: var(--text-primary);">إنشاء حساب</a>
+            </p>
         </div>
     </div>
     """
-    return render_template_string(PREMIUM_DESIGN_HTML, title="الدخول - InvoiceFlow Premium", uptime="", content=content)
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     """صفحة التسجيل"""
-    content = """
-    <div style="max-width: 500px; margin: 100px auto;">
-        <div class="premium-card" style="text-align: center;">
-            <i class="fas fa-user-plus" style="font-size: 4em; margin-bottom: 30px;"></i>
-            <h2 style="margin-bottom: 30px;">انضم إلى النخبة</h2>
+    if request.method == 'POST':
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        full_name = request.form.get('full_name')
+        
+        password_hash = hashlib.sha256(password.encode()).hexdigest()
+        
+        try:
+            conn = sqlite3.connect('invoices.db')
+            c = conn.cursor()
+            c.execute("INSERT INTO users (username, email, password, full_name) VALUES (?, ?, ?, ?)",
+                     (username, email, password_hash, full_name))
+            conn.commit()
+            conn.close()
             
-            <form style="text-align: right;">
-                <div style="margin-bottom: 20px;">
-                    <input type="text" placeholder="الاسم الكامل" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+            session['user_logged_in'] = True
+            session['username'] = username
+            return redirect('/')
+        except sqlite3.IntegrityError:
+            return render_template_string(PREMIUM_DESIGN_HTML,
+                title="إنشاء حساب",
+                content=get_register_content(error="اسم المستخدم أو البريد مستخدم مسبقاً"),
+                active_page='register')
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="إنشاء حساب", content=get_register_content(), active_page='register')
+
+def get_register_content(error=None):
+    error_html = f'<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {error}</div>' if error else ''
+    return f"""
+    <div style="max-width: 450px; margin: 60px auto;">
+        <div class="card" style="text-align: center;">
+            <i class="fas fa-user-plus" style="font-size: 3em; margin-bottom: 24px; color: var(--text-muted);"></i>
+            <h2 style="margin-bottom: 8px;">إنشاء حساب جديد</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">انضم إلينا اليوم</p>
+            
+            {error_html}
+            
+            <form method="POST" style="text-align: right;">
+                <div class="form-group">
+                    <label class="form-label">الاسم الكامل</label>
+                    <input type="text" name="full_name" class="form-input" placeholder="أدخل اسمك الكامل" required>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <input type="text" placeholder="اسم المستخدم" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+                <div class="form-group">
+                    <label class="form-label">اسم المستخدم</label>
+                    <input type="text" name="username" class="form-input" placeholder="اختر اسم مستخدم" required>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <input type="email" placeholder="البريد الإلكتروني" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <input type="email" name="email" class="form-input" placeholder="أدخل بريدك الإلكتروني" required>
                 </div>
-                <div style="margin-bottom: 25px;">
-                    <input type="password" placeholder="كلمة المرور" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <input type="password" name="password" class="form-input" placeholder="اختر كلمة مرور قوية" required>
                 </div>
-                
-                <button type="submit" class="premium-btn" style="width: 100%; padding: 18px;">
-                    <i class="fas fa-user-plus"></i> إنشاء حساب
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    <i class="fas fa-user-plus"></i> إنشاء الحساب
                 </button>
             </form>
             
-            <div style="margin-top: 30px; color: var(--text-muted);">
-                <p>لديك حساب؟ <a href="/login" style="color: var(--primary-gold); text-decoration: none;">سجل الدخول</a></p>
-            </div>
+            <p style="margin-top: 24px; color: var(--text-muted);">
+                لديك حساب؟ <a href="/login" style="color: var(--text-primary);">تسجيل الدخول</a>
+            </p>
         </div>
     </div>
     """
-    return render_template_string(PREMIUM_DESIGN_HTML, title="التسجيل - InvoiceFlow Premium", uptime="", content=content)
 
 @app.route('/invoices')
 def invoices():
     """صفحة الفواتير"""
-    content = """
-    <div style="text-align: center; margin-bottom: 50px;">
-        <h2 style="font-size: 3em; margin-bottom: 20px; background: var(--gradient-premium); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            <i class="fas fa-file-invoice-dollar"></i> إدارة الفواتير
-        </h2>
-        <p style="font-size: 1.3em; color: var(--text-muted);">
-            قم بإدارة وعرض وتتبع جميع فواتيرك من مكان واحد
-        </p>
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM invoices ORDER BY created_at DESC")
+    invoice_list = c.fetchall()
+    conn.close()
+    
+    invoices_html = ""
+    if invoice_list:
+        invoices_html = """
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>رقم الفاتورة</th>
+                        <th>العميل</th>
+                        <th>المبلغ</th>
+                        <th>تاريخ الاستحقاق</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """
+        for inv in invoice_list:
+            status_class = "badge-success" if inv[7] == "paid" else "badge-warning" if inv[7] == "pending" else "badge-danger"
+            status_text = "مدفوعة" if inv[7] == "paid" else "معلقة" if inv[7] == "pending" else "متأخرة"
+            invoices_html += f"""
+                <tr>
+                    <td><strong>{inv[1]}</strong></td>
+                    <td>{inv[2]}</td>
+                    <td>${inv[5]:,.2f}</td>
+                    <td>{inv[6] or '-'}</td>
+                    <td><span class="badge {status_class}">{status_text}</span></td>
+                    <td>
+                        <a href="/invoice/{inv[0]}/pdf" class="btn btn-outline btn-sm">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </a>
+                    </td>
+                </tr>
+            """
+        invoices_html += "</tbody></table></div>"
+    else:
+        invoices_html = """
+        <div class="card" style="text-align: center; padding: 60px;">
+            <i class="fas fa-inbox" style="font-size: 4em; color: var(--text-muted); margin-bottom: 20px;"></i>
+            <h3>لا توجد فواتير</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">ابدأ بإنشاء فاتورتك الأولى</p>
+            <a href="/create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> إنشاء فاتورة
+            </a>
+        </div>
+        """
+    
+    content = f"""
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="font-size: 2.5em; margin-bottom: 8px;">الفواتير</h1>
+            <p style="color: var(--text-muted);">إدارة وتتبع جميع الفواتير</p>
+        </div>
+        <a href="/create" class="btn btn-primary">
+            <i class="fas fa-plus"></i> فاتورة جديدة
+        </a>
     </div>
-
-    <div class="premium-grid">
-        <div class="premium-card">
-            <i class="fas fa-search"></i>
-            <h3>استعراض الفواتير</h3>
-            <p>تصفح جميع فواتيرك مع إمكانيات البحث والتصفية المتقدمة</p>
-            <a href="/invoices/list" class="premium-btn" style="margin-top: 20px; padding: 12px 25px;">
-                <i class="fas fa-list"></i> عرض الكل
-            </a>
-        </div>
-        
-        <div class="premium-card">
-            <i class="fas fa-plus"></i>
-            <h3>إنشاء فاتورة</h3>
-            <p>أنشئ فاتورة جديدة بتصميم احترافي وخيارات متقدمة</p>
-            <a href="/create" class="premium-btn" style="margin-top: 20px; padding: 12px 25px;">
-                <i class="fas fa-plus-circle"></i> إنشاء جديد
-            </a>
-        </div>
-        
-        <div class="premium-card">
-            <i class="fas fa-chart-bar"></i>
-            <h3>إحصائيات الفواتير</h3>
-            <p>اطلع على إحصائيات مفصلة عن أداء فواتيرك وإيراداتك</p>
-            <a href="/invoices/stats" class="premium-btn" style="margin-top: 20px; padding: 12px 25px;">
-                <i class="fas fa-chart-line"></i> عرض الإحصائيات
-            </a>
-        </div>
-    </div>
+    
+    {invoices_html}
     """
-    return render_template_string(PREMIUM_DESIGN_HTML, title="الفواتير - InvoiceFlow Premium", uptime="", content=content)
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="الفواتير", content=content, active_page='invoices')
 
-@app.route('/create')
+@app.route('/create', methods=['GET', 'POST'])
 def create_invoice():
-    """صفحة إنشاء الفاتورة"""
+    """إنشاء فاتورة جديدة"""
+    if request.method == 'POST':
+        client_name = request.form.get('client_name')
+        client_email = request.form.get('client_email')
+        services = request.form.get('services')
+        amount = float(request.form.get('amount', 0))
+        due_date = request.form.get('due_date')
+        
+        # إنشاء رقم فاتورة فريد
+        invoice_number = f"INV-{datetime.now().strftime('%Y%m%d')}-{secrets.token_hex(3).upper()}"
+        
+        conn = sqlite3.connect('invoices.db')
+        c = conn.cursor()
+        c.execute("""INSERT INTO invoices (invoice_number, client_name, client_email, services, amount, due_date, status)
+                    VALUES (?, ?, ?, ?, ?, ?, 'pending')""",
+                 (invoice_number, client_name, client_email, services, amount, due_date))
+        invoice_id = c.lastrowid
+        conn.commit()
+        conn.close()
+        
+        # توجيه مباشر لتحميل PDF
+        return redirect(f'/invoice/{invoice_id}/pdf')
+    
     content = """
-    <div style="text-align: center; margin-bottom: 50px;">
-        <h2 style="font-size: 3em; margin-bottom: 20px; background: var(--gradient-premium); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            <i class="fas fa-plus-circle"></i> إنشاء فاتورة جديدة
-        </h2>
-        <p style="font-size: 1.3em; color: var(--text-muted);">
-            أنشئ فاتورة احترافية بتصميم راقي وخيارات متقدمة
-        </p>
-    </div>
-
-    <div class="premium-card" style="max-width: 800px; margin: 0 auto;">
-        <form style="text-align: right;">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-                <div>
-                    <label style="display: block; margin-bottom: 10px; color: var(--primary-gold);">اسم العميل</label>
-                    <input type="text" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+    <div style="max-width: 700px; margin: 0 auto;">
+        <h1 style="font-size: 2.5em; margin-bottom: 8px; text-align: center;">إنشاء فاتورة جديدة</h1>
+        <p style="color: var(--text-muted); text-align: center; margin-bottom: 40px;">أدخل بيانات الفاتورة وسيتم تحميل ملف PDF تلقائياً</p>
+        
+        <div class="card">
+            <form method="POST">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">اسم العميل *</label>
+                        <input type="text" name="client_name" class="form-input" placeholder="أدخل اسم العميل" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">البريد الإلكتروني</label>
+                        <input type="email" name="client_email" class="form-input" placeholder="email@example.com">
+                    </div>
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 10px; color: var(--primary-gold);">البريد الإلكتروني</label>
-                    <input type="email" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
+                
+                <div class="form-group">
+                    <label class="form-label">الخدمات / الوصف *</label>
+                    <textarea name="services" class="form-input" placeholder="أدخل وصف الخدمات المقدمة..." required></textarea>
                 </div>
-            </div>
-            
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 10px; color: var(--primary-gold);">الخدمات</label>
-                <textarea style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light); height: 120px;" placeholder="أدخل الخدمات المقدمة..."></textarea>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-                <div>
-                    <label style="display: block; margin-bottom: 10px; color: var(--primary-gold);">المبلغ</label>
-                    <input type="number" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);" placeholder="0.00">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">المبلغ ($) *</label>
+                        <input type="number" name="amount" class="form-input" placeholder="0.00" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">تاريخ الاستحقاق</label>
+                        <input type="date" name="due_date" class="form-input">
+                    </div>
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 10px; color: var(--primary-gold);">تاريخ الاستحقاق</label>
-                    <input type="date" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 10px; color: var(--text-light);">
-                </div>
-            </div>
-            
-            <button type="submit" class="premium-btn" style="width: 100%; padding: 18px; font-size: 1.2em;">
-                <i class="fas fa-file-pdf"></i> إنشاء الفاتورة
-            </button>
-        </form>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 18px;">
+                    <i class="fas fa-file-pdf"></i> إنشاء الفاتورة وتحميل PDF
+                </button>
+            </form>
+        </div>
     </div>
     """
-    return render_template_string(PREMIUM_DESIGN_HTML, title="إنشاء فاتورة - InvoiceFlow Premium", uptime="", content=content)
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="إنشاء فاتورة", content=content, active_page='create')
+
+@app.route('/invoice/<int:invoice_id>/pdf')
+def generate_pdf(invoice_id):
+    """توليد ملف PDF للفاتورة"""
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM invoices WHERE id = ?", (invoice_id,))
+    invoice = c.fetchone()
+    conn.close()
+    
+    if not invoice:
+        return "الفاتورة غير موجودة", 404
+    
+    # إنشاء ملف PDF
+    buffer = io.BytesIO()
+    
+    c = canvas.Canvas(buffer, pagesize=A4)
+    width, height = A4
+    
+    # تحديد الخط
+    font_name = ARABIC_FONT if ARABIC_FONT else "Helvetica"
+    
+    # الخلفية
+    c.setFillColor(colors.HexColor("#ffffff"))
+    c.rect(0, 0, width, height, fill=True)
+    
+    # الهيدر
+    c.setFillColor(colors.HexColor("#000000"))
+    c.rect(0, height - 120, width, 120, fill=True)
+    
+    # عنوان الشركة
+    c.setFillColor(colors.white)
+    if font_name != "Helvetica":
+        c.setFont(font_name, 28)
+        c.drawRightString(width - 40, height - 50, get_arabic_text("InvoiceFlow"))
+        c.setFont(font_name, 14)
+        c.drawRightString(width - 40, height - 75, get_arabic_text("نظام إدارة الفواتير الاحترافي"))
+    else:
+        c.setFont("Helvetica-Bold", 28)
+        c.drawRightString(width - 40, height - 50, "InvoiceFlow")
+        c.setFont("Helvetica", 14)
+        c.drawRightString(width - 40, height - 75, "Professional Invoice System")
+    
+    # رقم الفاتورة
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(40, height - 50, f"Invoice: {invoice[1]}")
+    c.setFont("Helvetica", 10)
+    c.drawString(40, height - 70, f"Date: {invoice[8][:10] if invoice[8] else datetime.now().strftime('%Y-%m-%d')}")
+    
+    # معلومات العميل
+    y_pos = height - 160
+    c.setFillColor(colors.HexColor("#000000"))
+    
+    if font_name != "Helvetica":
+        c.setFont(font_name, 16)
+        c.drawRightString(width - 40, y_pos, get_arabic_text("معلومات العميل"))
+        c.setFont(font_name, 12)
+        c.drawRightString(width - 40, y_pos - 25, get_arabic_text(f"الاسم: {invoice[2]}"))
+        if invoice[3]:
+            c.drawRightString(width - 40, y_pos - 45, get_arabic_text(f"البريد: {invoice[3]}"))
+    else:
+        c.setFont("Helvetica-Bold", 16)
+        c.drawRightString(width - 40, y_pos, "Client Information")
+        c.setFont("Helvetica", 12)
+        c.drawRightString(width - 40, y_pos - 25, f"Name: {invoice[2]}")
+        if invoice[3]:
+            c.drawRightString(width - 40, y_pos - 45, f"Email: {invoice[3]}")
+    
+    # خط فاصل
+    c.setStrokeColor(colors.HexColor("#e0e0e0"))
+    c.setLineWidth(1)
+    c.line(40, y_pos - 70, width - 40, y_pos - 70)
+    
+    # تفاصيل الخدمات
+    y_pos = y_pos - 100
+    
+    if font_name != "Helvetica":
+        c.setFont(font_name, 16)
+        c.drawRightString(width - 40, y_pos, get_arabic_text("تفاصيل الخدمات"))
+    else:
+        c.setFont("Helvetica-Bold", 16)
+        c.drawRightString(width - 40, y_pos, "Services Details")
+    
+    # جدول الخدمات
+    c.setFillColor(colors.HexColor("#f5f5f5"))
+    c.rect(40, y_pos - 80, width - 80, 50, fill=True)
+    
+    c.setFillColor(colors.HexColor("#000000"))
+    if font_name != "Helvetica":
+        c.setFont(font_name, 12)
+        c.drawRightString(width - 60, y_pos - 50, get_arabic_text("الوصف"))
+        c.drawString(60, y_pos - 50, get_arabic_text("المبلغ"))
+    else:
+        c.setFont("Helvetica-Bold", 12)
+        c.drawRightString(width - 60, y_pos - 50, "Description")
+        c.drawString(60, y_pos - 50, "Amount")
+    
+    # بيانات الخدمة
+    c.setFillColor(colors.white)
+    c.rect(40, y_pos - 130, width - 80, 50, fill=True)
+    
+    c.setFillColor(colors.HexColor("#000000"))
+    if font_name != "Helvetica":
+        c.setFont(font_name, 11)
+        services_text = invoice[4][:50] + "..." if len(invoice[4]) > 50 else invoice[4]
+        c.drawRightString(width - 60, y_pos - 100, get_arabic_text(services_text))
+    else:
+        c.setFont("Helvetica", 11)
+        services_text = invoice[4][:50] + "..." if len(invoice[4]) > 50 else invoice[4]
+        c.drawRightString(width - 60, y_pos - 100, services_text)
+    
+    c.setFont("Helvetica-Bold", 11)
+    c.drawString(60, y_pos - 100, f"${invoice[5]:,.2f}")
+    
+    # المجموع
+    c.setFillColor(colors.HexColor("#000000"))
+    c.rect(40, y_pos - 180, width - 80, 40, fill=True)
+    
+    c.setFillColor(colors.white)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(60, y_pos - 160, f"TOTAL: ${invoice[5]:,.2f}")
+    
+    if font_name != "Helvetica":
+        c.setFont(font_name, 14)
+        c.drawRightString(width - 60, y_pos - 160, get_arabic_text("المجموع الكلي"))
+    
+    # تاريخ الاستحقاق
+    if invoice[6]:
+        y_pos = y_pos - 220
+        if font_name != "Helvetica":
+            c.setFillColor(colors.HexColor("#000000"))
+            c.setFont(font_name, 12)
+            c.drawRightString(width - 40, y_pos, get_arabic_text(f"تاريخ الاستحقاق: {invoice[6]}"))
+        else:
+            c.setFont("Helvetica", 12)
+            c.drawRightString(width - 40, y_pos, f"Due Date: {invoice[6]}")
+    
+    # الفوتر
+    c.setFillColor(colors.HexColor("#888888"))
+    c.setFont("Helvetica", 9)
+    c.drawCentredString(width/2, 40, "InvoiceFlow - Professional Invoice Management System")
+    c.drawCentredString(width/2, 25, f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    
+    c.save()
+    buffer.seek(0)
+    
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'{invoice[1]}.pdf'
+    )
+
+@app.route('/clients')
+def clients():
+    """صفحة العملاء"""
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
+    c.execute("SELECT * FROM clients ORDER BY created_at DESC")
+    client_list = c.fetchall()
+    conn.close()
+    
+    clients_html = ""
+    if client_list:
+        clients_html = """
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>الاسم</th>
+                        <th>البريد</th>
+                        <th>الهاتف</th>
+                        <th>عدد الفواتير</th>
+                        <th>إجمالي المبلغ</th>
+                    </tr>
+                </thead>
+                <tbody>
+        """
+        for client in client_list:
+            clients_html += f"""
+                <tr>
+                    <td><strong>{client[1]}</strong></td>
+                    <td>{client[2] or '-'}</td>
+                    <td>{client[3] or '-'}</td>
+                    <td>{client[5]}</td>
+                    <td>${client[6]:,.2f}</td>
+                </tr>
+            """
+        clients_html += "</tbody></table></div>"
+    else:
+        clients_html = """
+        <div class="card" style="text-align: center; padding: 60px;">
+            <i class="fas fa-users" style="font-size: 4em; color: var(--text-muted); margin-bottom: 20px;"></i>
+            <h3>لا يوجد عملاء</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">سيظهر العملاء هنا بعد إنشاء الفواتير</p>
+        </div>
+        """
+    
+    content = f"""
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 style="font-size: 2.5em; margin-bottom: 8px;">العملاء</h1>
+            <p style="color: var(--text-muted);">إدارة قاعدة بيانات العملاء</p>
+        </div>
+    </div>
+    
+    {clients_html}
+    """
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="العملاء", content=content, active_page='clients')
 
 @app.route('/ai')
 def ai_insights():
     """صفحة الذكاء الاصطناعي"""
     content = """
-    <div style="text-align: center; margin-bottom: 50px;">
-        <h2 style="font-size: 3em; margin-bottom: 20px; background: var(--gradient-premium); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            <i class="fas fa-robot"></i> الذكاء الاصطناعي
-        </h2>
-        <p style="font-size: 1.3em; color: var(--text-muted);">
-            استفد من قوة الذكاء الاصطناعي لتحليل بياناتك وتقديم توصيات ذكية
-        </p>
+    <div class="section-title" style="margin-top: 0;">
+        <h1 style="font-size: 2.5em;">الذكاء الاصطناعي</h1>
+        <p>تحليلات ذكية وتوصيات مخصصة لتحسين أداء أعمالك</p>
     </div>
 
-    <div class="premium-grid">
-        <div class="premium-card">
-            <i class="fas fa-chart-line"></i>
+    <div class="grid">
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-chart-line"></i></div>
             <h3>تحليل الإيرادات</h3>
             <p>تحليل متقدم لأنماط الإيرادات وتوقعات النمو المستقبلية</p>
-            <a href="/ai/revenue" class="premium-btn" style="margin-top: 20px; padding: 12px 25px;">
-                <i class="fas fa-chart-bar"></i> عرض التحليل
+            <a href="/ai/revenue" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                عرض التحليل
             </a>
         </div>
-        
-        <div class="premium-card">
-            <i class="fas fa-users"></i>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-users"></i></div>
             <h3>تحليل العملاء</h3>
             <p>فهم سلوك عملائك وتحديد أفضل الفرص للنمو</p>
-            <a href="/ai/clients" class="premium-btn" style="margin-top: 20px; padding: 12px 25px;">
-                <i class="fas fa-user-chart"></i> تحليل العملاء
+            <a href="/ai/clients" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                تحليل العملاء
             </a>
         </div>
-        
-        <div class="premium-card">
-            <i class="fas fa-lightbulb"></i>
-            <h3>توصيات ذكية</h3>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-lightbulb"></i></div>
+            <h3>التوصيات الذكية</h3>
             <p>احصل على توصيات مخصصة لتحسين أداء أعمالك</p>
-            <a href="/ai/recommendations" class="premium-btn" style="margin-top: 20px; padding: 12px 25px;">
-                <i class="fas fa-magic"></i> التوصيات
+            <a href="/ai/recommendations" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                عرض التوصيات
             </a>
         </div>
     </div>
 
-    <div class="ai-section" style="margin-top: 50px;">
-        <h3 style="text-align: center; margin-bottom: 30px; color: var(--primary-gold);">📊 لوحة التحكم الذكية</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-            <div style="background: rgba(212, 175, 55, 0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center;">
-                <div style="font-size: 2.5em; font-weight: bold; color: var(--primary-gold);">85%</div>
-                <div style="color: var(--text-muted);">معدل النمو</div>
+    <div class="card" style="margin-top: 40px;">
+        <h3 style="margin-bottom: 24px; text-align: center;">لوحة المؤشرات الذكية</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="ai-metric">
+                <div class="ai-metric-value">85%</div>
+                <div class="ai-metric-label">معدل النمو المتوقع</div>
             </div>
-            <div style="background: rgba(212, 175, 55, 0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center;">
-                <div style="font-size: 2.5em; font-weight: bold; color: var(--primary-gold);">92%</div>
-                <div style="color: var(--text-muted);">رضا العملاء</div>
+            <div class="ai-metric">
+                <div class="ai-metric-value">92%</div>
+                <div class="ai-metric-label">رضا العملاء</div>
             </div>
-            <div style="background: rgba(212, 175, 55, 0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center;">
-                <div style="font-size: 2.5em; font-weight: bold; color: var(--primary-gold);">78%</div>
-                <div style="color: var(--text-muted);">كفاءة الأداء</div>
+            <div class="ai-metric">
+                <div class="ai-metric-value">78%</div>
+                <div class="ai-metric-label">كفاءة التحصيل</div>
             </div>
         </div>
     </div>
     """
-    return render_template_string(PREMIUM_DESIGN_HTML, title="الذكاء الاصطناعي - InvoiceFlow Premium", uptime="", content=content)
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="الذكاء الاصطناعي", content=content, active_page='ai')
+
+@app.route('/ai/revenue')
+def ai_revenue():
+    """تحليل الإيرادات"""
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
+    c.execute("SELECT COALESCE(SUM(amount), 0) FROM invoices")
+    total_revenue = c.fetchone()[0]
+    c.execute("SELECT COALESCE(SUM(amount), 0) FROM invoices WHERE status = 'paid'")
+    paid_revenue = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM invoices")
+    total_count = c.fetchone()[0]
+    conn.close()
+    
+    avg_invoice = total_revenue / total_count if total_count > 0 else 0
+    collection_rate = (paid_revenue / total_revenue * 100) if total_revenue > 0 else 0
+    
+    content = f"""
+    <div style="margin-bottom: 30px;">
+        <a href="/ai" class="btn btn-outline btn-sm">
+            <i class="fas fa-arrow-right"></i> العودة للذكاء الاصطناعي
+        </a>
+    </div>
+
+    <div class="section-title" style="margin-top: 0;">
+        <h1 style="font-size: 2.5em;">تحليل الإيرادات</h1>
+        <p>نظرة شاملة على أداء الإيرادات والتوقعات</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-dollar-sign" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number">${total_revenue:,.0f}</div>
+            <div class="stat-label">إجمالي الإيرادات</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-check-circle" style="font-size: 1.5em; color: var(--success-color);"></i>
+            <div class="stat-number">${paid_revenue:,.0f}</div>
+            <div class="stat-label">المحصّل</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-receipt" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number">${avg_invoice:,.0f}</div>
+            <div class="stat-label">متوسط الفاتورة</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-percentage" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number">{collection_rate:.1f}%</div>
+            <div class="stat-label">معدل التحصيل</div>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 40px;">
+        <div class="card">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-chart-line"></i> التوقعات</h3>
+            <p style="color: var(--text-muted); margin-bottom: 16px;">بناءً على البيانات الحالية، نتوقع:</p>
+            <ul style="list-style: none; padding: 0;">
+                <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                    <strong>نمو متوقع:</strong> 15% خلال الشهر القادم
+                </li>
+                <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                    <strong>إيرادات متوقعة:</strong> ${total_revenue * 1.15:,.0f}
+                </li>
+                <li style="padding: 12px 0;">
+                    <strong>فرص التحسين:</strong> زيادة معدل التحصيل
+                </li>
+            </ul>
+        </div>
+        <div class="card">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-lightbulb"></i> التوصيات</h3>
+            <ul style="list-style: none; padding: 0; color: var(--text-muted);">
+                <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                    <i class="fas fa-check" style="color: var(--success-color); margin-left: 8px;"></i>
+                    تفعيل التذكيرات التلقائية للفواتير المتأخرة
+                </li>
+                <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                    <i class="fas fa-check" style="color: var(--success-color); margin-left: 8px;"></i>
+                    تقديم خصومات للدفع المبكر
+                </li>
+                <li style="padding: 12px 0;">
+                    <i class="fas fa-check" style="color: var(--success-color); margin-left: 8px;"></i>
+                    توسيع قاعدة العملاء
+                </li>
+            </ul>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="تحليل الإيرادات", content=content, active_page='ai')
+
+@app.route('/ai/clients')
+def ai_clients():
+    """تحليل العملاء"""
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
+    c.execute("SELECT COUNT(DISTINCT client_name) FROM invoices")
+    unique_clients = c.fetchone()[0]
+    c.execute("SELECT client_name, COUNT(*) as count, SUM(amount) as total FROM invoices GROUP BY client_name ORDER BY total DESC LIMIT 5")
+    top_clients = c.fetchall()
+    conn.close()
+    
+    top_clients_html = ""
+    for i, client in enumerate(top_clients, 1):
+        top_clients_html += f"""
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid var(--border-color);">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <span style="background: var(--accent-dim); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">{i}</span>
+                <div>
+                    <strong>{client[0]}</strong>
+                    <div style="color: var(--text-muted); font-size: 0.9em;">{client[1]} فاتورة</div>
+                </div>
+            </div>
+            <strong style="color: var(--success-color);">${client[2]:,.0f}</strong>
+        </div>
+        """
+    
+    content = f"""
+    <div style="margin-bottom: 30px;">
+        <a href="/ai" class="btn btn-outline btn-sm">
+            <i class="fas fa-arrow-right"></i> العودة للذكاء الاصطناعي
+        </a>
+    </div>
+
+    <div class="section-title" style="margin-top: 0;">
+        <h1 style="font-size: 2.5em;">تحليل العملاء</h1>
+        <p>فهم سلوك العملاء وتحديد الفرص</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-users" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number">{unique_clients}</div>
+            <div class="stat-label">عميل فريد</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-star" style="font-size: 1.5em; color: var(--warning-color);"></i>
+            <div class="stat-number">{len(top_clients)}</div>
+            <div class="stat-label">أفضل العملاء</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-heart" style="font-size: 1.5em; color: var(--danger-color);"></i>
+            <div class="stat-number">92%</div>
+            <div class="stat-label">معدل الرضا</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-redo" style="font-size: 1.5em; color: var(--info-color);"></i>
+            <div class="stat-number">78%</div>
+            <div class="stat-label">معدل العودة</div>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 40px;">
+        <div class="card">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-trophy"></i> أفضل العملاء</h3>
+            {top_clients_html if top_clients_html else '<p style="color: var(--text-muted); text-align: center;">لا توجد بيانات كافية</p>'}
+        </div>
+        <div class="card">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-chart-pie"></i> تحليل السلوك</h3>
+            <ul style="list-style: none; padding: 0; color: var(--text-muted);">
+                <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                    <strong style="color: var(--text-primary);">معدل الطلب:</strong> 2.3 فاتورة/شهر
+                </li>
+                <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                    <strong style="color: var(--text-primary);">متوسط القيمة:</strong> $1,250
+                </li>
+                <li style="padding: 12px 0; border-bottom: 1px solid var(--border-color);">
+                    <strong style="color: var(--text-primary);">أوقات الذروة:</strong> بداية الشهر
+                </li>
+                <li style="padding: 12px 0;">
+                    <strong style="color: var(--text-primary);">التفضيلات:</strong> الدفع الإلكتروني
+                </li>
+            </ul>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="تحليل العملاء", content=content, active_page='ai')
+
+@app.route('/ai/recommendations')
+def ai_recommendations():
+    """التوصيات الذكية"""
+    content = """
+    <div style="margin-bottom: 30px;">
+        <a href="/ai" class="btn btn-outline btn-sm">
+            <i class="fas fa-arrow-right"></i> العودة للذكاء الاصطناعي
+        </a>
+    </div>
+
+    <div class="section-title" style="margin-top: 0;">
+        <h1 style="font-size: 2.5em;">التوصيات الذكية</h1>
+        <p>توصيات مخصصة لتحسين أداء أعمالك</p>
+    </div>
+
+    <div class="grid">
+        <div class="card" style="border-right: 4px solid var(--success-color);">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                <span style="background: rgba(34, 197, 94, 0.2); color: var(--success-color); padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">أولوية عالية</span>
+            </div>
+            <h3>تفعيل التذكيرات التلقائية</h3>
+            <p style="color: var(--text-muted); margin: 16px 0;">إرسال تذكيرات تلقائية للعملاء قبل موعد استحقاق الفاتورة بـ 3 أيام.</p>
+            <div style="color: var(--success-color);">
+                <i class="fas fa-arrow-up"></i> متوقع زيادة التحصيل بنسبة 25%
+            </div>
+        </div>
+        
+        <div class="card" style="border-right: 4px solid var(--warning-color);">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                <span style="background: rgba(234, 179, 8, 0.2); color: var(--warning-color); padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">أولوية متوسطة</span>
+            </div>
+            <h3>تقديم خصم الدفع المبكر</h3>
+            <p style="color: var(--text-muted); margin: 16px 0;">تقديم خصم 5% للعملاء الذين يدفعون خلال 7 أيام من إصدار الفاتورة.</p>
+            <div style="color: var(--warning-color);">
+                <i class="fas fa-clock"></i> تحسين التدفق النقدي
+            </div>
+        </div>
+        
+        <div class="card" style="border-right: 4px solid var(--info-color);">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                <span style="background: rgba(59, 130, 246, 0.2); color: var(--info-color); padding: 8px 16px; border-radius: 20px; font-size: 0.85em; font-weight: 600;">اقتراح</span>
+            </div>
+            <h3>توسيع طرق الدفع</h3>
+            <p style="color: var(--text-muted); margin: 16px 0;">إضافة المزيد من خيارات الدفع مثل Apple Pay وGoogle Pay.</p>
+            <div style="color: var(--info-color);">
+                <i class="fas fa-users"></i> جذب عملاء جدد
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 40px;">
+        <h3 style="margin-bottom: 24px;"><i class="fas fa-tasks"></i> خطة العمل المقترحة</h3>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--accent-dim); border-radius: 10px;">
+                <span style="background: var(--text-primary); color: var(--primary-bg); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">1</span>
+                <div>
+                    <strong>الأسبوع الأول:</strong> تفعيل نظام التذكيرات التلقائية
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--accent-dim); border-radius: 10px;">
+                <span style="background: var(--text-primary); color: var(--primary-bg); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">2</span>
+                <div>
+                    <strong>الأسبوع الثاني:</strong> إطلاق برنامج خصم الدفع المبكر
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--accent-dim); border-radius: 10px;">
+                <span style="background: var(--text-primary); color: var(--primary-bg); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">3</span>
+                <div>
+                    <strong>الأسبوع الثالث:</strong> تقييم النتائج وتعديل الاستراتيجية
+                </div>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="التوصيات الذكية", content=content, active_page='ai')
+
+@app.route('/reports')
+def reports():
+    """صفحة التقارير"""
+    conn = sqlite3.connect('invoices.db')
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM invoices")
+    total = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM invoices WHERE status = 'paid'")
+    paid = c.fetchone()[0]
+    c.execute("SELECT COUNT(*) FROM invoices WHERE status = 'pending'")
+    pending = c.fetchone()[0]
+    c.execute("SELECT COALESCE(SUM(amount), 0) FROM invoices")
+    total_amount = c.fetchone()[0]
+    conn.close()
+    
+    content = f"""
+    <div class="section-title" style="margin-top: 0;">
+        <h1 style="font-size: 2.5em;">التقارير</h1>
+        <p>نظرة شاملة على أداء الأعمال</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fas fa-file-invoice" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number">{total}</div>
+            <div class="stat-label">إجمالي الفواتير</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-check-circle" style="font-size: 1.5em; color: var(--success-color);"></i>
+            <div class="stat-number">{paid}</div>
+            <div class="stat-label">مدفوعة</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-clock" style="font-size: 1.5em; color: var(--warning-color);"></i>
+            <div class="stat-number">{pending}</div>
+            <div class="stat-label">معلقة</div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-dollar-sign" style="font-size: 1.5em; color: var(--text-muted);"></i>
+            <div class="stat-number">${total_amount:,.0f}</div>
+            <div class="stat-label">إجمالي المبلغ</div>
+        </div>
+    </div>
+
+    <div class="grid" style="margin-top: 40px;">
+        <div class="card">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-chart-pie"></i> توزيع الحالات</h3>
+            <div style="display: flex; flex-direction: column; gap: 16px;">
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>مدفوعة</span>
+                        <span>{(paid/total*100) if total > 0 else 0:.1f}%</span>
+                    </div>
+                    <div style="background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--success-color); height: 100%; width: {(paid/total*100) if total > 0 else 0}%;"></div>
+                    </div>
+                </div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span>معلقة</span>
+                        <span>{(pending/total*100) if total > 0 else 0:.1f}%</span>
+                    </div>
+                    <div style="background: var(--border-color); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="background: var(--warning-color); height: 100%; width: {(pending/total*100) if total > 0 else 0}%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h3 style="margin-bottom: 20px;"><i class="fas fa-calendar"></i> الأداء الشهري</h3>
+            <div style="text-align: center; padding: 40px 0; color: var(--text-muted);">
+                <i class="fas fa-chart-bar" style="font-size: 3em; margin-bottom: 16px;"></i>
+                <p>سيتم عرض الرسم البياني هنا</p>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="التقارير", content=content, active_page='reports')
 
 @app.route('/demo')
 def demo():
     """صفحة العرض التوضيحي"""
     content = """
-    <div style="text-align: center; margin-bottom: 50px;">
-        <h2 style="font-size: 3em; margin-bottom: 20px; background: var(--gradient-premium); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-            <i class="fas fa-play-circle"></i> العرض التوضيحي
-        </h2>
-        <p style="font-size: 1.3em; color: var(--text-muted); max-width: 600px; margin: 0 auto;">
-            شاهد كيف يمكن لـ InvoiceFlow Premium تحويل إدارة فواتيرك إلى تجربة راقية ومتقدمة
-        </p>
+    <div class="section-title" style="margin-top: 0;">
+        <h1 style="font-size: 2.5em;">العرض التوضيحي</h1>
+        <p>تعرف على إمكانيات النظام</p>
     </div>
 
-    <div class="premium-card" style="max-width: 900px; margin: 0 auto; text-align: center;">
-        <div style="font-size: 6em; color: var(--primary-gold); margin-bottom: 30px;">
-            <i class="fas fa-video"></i>
-        </div>
-        <h3 style="margin-bottom: 20px; font-size: 2em;">عرض حي للنظام</h3>
-        <p style="color: var(--text-muted); margin-bottom: 30px; line-height: 1.7;">
-            جرب النظام بنفسك وشاهد كيف يمكنه تبسيط عمليات إدارة الفواتير وتحسين كفاءة أعمالك
+    <div class="card" style="text-align: center; max-width: 700px; margin: 0 auto;">
+        <i class="fas fa-play-circle" style="font-size: 5em; color: var(--text-muted); margin-bottom: 24px;"></i>
+        <h2 style="margin-bottom: 16px;">شاهد كيف يعمل النظام</h2>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">
+            اكتشف كيف يمكن لـ InvoiceFlow تبسيط إدارة فواتيرك وتحسين كفاءة أعمالك
         </p>
-        
-        <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-            <a href="/login" class="premium-btn" style="padding: 15px 35px;">
-                <i class="fas fa-play"></i> بدء العرض
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="/create" class="btn btn-primary">
+                <i class="fas fa-plus"></i> جرب إنشاء فاتورة
             </a>
-            <a href="/features" class="premium-btn premium-btn-outline" style="padding: 15px 35px;">
-                <i class="fas fa-list"></i> الميزات الكاملة
+            <a href="/register" class="btn btn-outline">
+                <i class="fas fa-user-plus"></i> إنشاء حساب مجاني
             </a>
         </div>
     </div>
 
-    <div class="premium-grid" style="margin-top: 60px;">
-        <div class="premium-card">
-            <i class="fas fa-bolt"></i>
-            <h3>سهولة الاستخدام</h3>
-            <p>واجهة بديهية وسهلة الاستخدام لا تحتاج إلى تدريب مسبق</p>
+    <div class="grid" style="margin-top: 50px;">
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-bolt"></i></div>
+            <h3>سريع وسهل</h3>
+            <p>إنشاء فاتورة في أقل من دقيقة مع تصدير PDF فوري</p>
         </div>
-        <div class="premium-card">
-            <i class="fas fa-cogs"></i>
-            <h3>التكامل السلس</h3>
-            <p>يتكامل بسهولة مع أنظمتك الحالية بدون تعقيدات</p>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>آمن وموثوق</h3>
+            <p>بياناتك محمية بأعلى معايير الأمان</p>
         </div>
-        <div class="premium-card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>أمان مضمون</h3>
-            <p>حماية كاملة لبياناتك مع أعلى معايير الأمان</p>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-mobile-alt"></i></div>
+            <h3>يعمل في كل مكان</h3>
+            <p>تصميم متجاوب يعمل على جميع الأجهزة</p>
         </div>
     </div>
     """
-    return render_template_string(PREMIUM_DESIGN_HTML, title="العرض التوضيحي - InvoiceFlow Premium", uptime="", content=content)
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="العرض التوضيحي", content=content, active_page='demo')
+
+@app.route('/features')
+def features():
+    """صفحة الميزات"""
+    content = """
+    <div class="section-title" style="margin-top: 0;">
+        <h1 style="font-size: 2.5em;">الميزات</h1>
+        <p>كل ما تحتاجه لإدارة فواتيرك باحترافية</p>
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-file-pdf"></i></div>
+            <h3>تصدير PDF احترافي</h3>
+            <p>فواتير بتصميم أنيق وعرض صحيح للغة العربية</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-database"></i></div>
+            <h3>إدارة العملاء</h3>
+            <p>قاعدة بيانات متكاملة لتتبع العملاء والمعاملات</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-brain"></i></div>
+            <h3>تحليلات ذكية</h3>
+            <p>رؤى وتوصيات مبنية على بياناتك</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+            <h3>تقارير مفصلة</h3>
+            <p>تتبع الأداء والإيرادات بسهولة</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-bell"></i></div>
+            <h3>تذكيرات تلقائية</h3>
+            <p>لا تفوت موعد استحقاق أي فاتورة</p>
+        </div>
+        <div class="card">
+            <div class="card-icon"><i class="fas fa-lock"></i></div>
+            <h3>أمان متقدم</h3>
+            <p>حماية كاملة لبياناتك ومعاملاتك</p>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(PREMIUM_DESIGN_HTML, title="الميزات", content=content, active_page='features')
+
+@app.route('/invoices/list')
+def invoices_list():
+    """قائمة الفواتير"""
+    return redirect('/invoices')
+
+@app.route('/invoices/stats')
+def invoices_stats():
+    """إحصائيات الفواتير"""
+    return redirect('/reports')
 
 @app.route('/logout')
 def logout():
@@ -1042,32 +1765,26 @@ def logout():
     session.clear()
     return redirect('/')
 
-# ================== التشغيل الرئيسي ==================
+# ================== التشغيل ==================
 if __name__ == '__main__':
-    try:
-        print("🌟 بدء تشغيل النظام الراقي...")
-        print(f"🌐 الخادم الراقي يعمل على: http://0.0.0.0:{port}")
-        print("✅ النظام الراقي جاهز لاستقبال الطلبات!")
-        print("🎨 التصميم الذهبي/أسود الراقي مفعل!")
-        print("🧠 الذكاء الاصطناعي المتقدم نشط!")
-        print("🔐 نظام الأمان الراقي مفعل!")
-        print("🚀 الأداء الفائق جاهز!")
-        print("👑 فريق النخبة البروفيسوري في الخدمة!")
-        
-        print("\n📋 المسارات المتاحة:")
-        print("🔹 / - الصفحة الرئيسية")
-        print("🔹 /login - تسجيل الدخول") 
-        print("🔹 /register - إنشاء حساب")
-        print("🔹 /invoices - إدارة الفواتير")
-        print("🔹 /create - إنشاء فاتورة")
-        print("🔹 /ai - الذكاء الاصطناعي")
-        print("🔹 /demo - العرض التوضيحي")
-        print("🔹 /logout - تسجيل الخروج")
-        
-        # تشغيل خادم Flask
-        app.run(host='0.0.0.0', port=port, debug=False)
-        
-    except Exception as e:
-        print(f"❌ خطأ في التشغيل الراقي: {e}")
-        print("🔄 إعادة المحاولة خلال 5 ثوان...")
-        time.sleep(5)
+    print("=" * 60)
+    print("InvoiceFlow - نظام إدارة الفواتير الاحترافي")
+    print(f"الخادم يعمل على: http://0.0.0.0:{port}")
+    print("=" * 60)
+    print("\nالمسارات المتاحة:")
+    print("  / - الصفحة الرئيسية")
+    print("  /login - تسجيل الدخول")
+    print("  /register - إنشاء حساب")
+    print("  /invoices - إدارة الفواتير")
+    print("  /create - إنشاء فاتورة + PDF")
+    print("  /clients - العملاء")
+    print("  /ai - الذكاء الاصطناعي")
+    print("  /ai/revenue - تحليل الإيرادات")
+    print("  /ai/clients - تحليل العملاء")
+    print("  /ai/recommendations - التوصيات")
+    print("  /reports - التقارير")
+    print("  /demo - العرض التوضيحي")
+    print("  /features - الميزات")
+    print("=" * 60)
+    
+    app.run(host='0.0.0.0', port=port, debug=False)
