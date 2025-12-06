@@ -69,13 +69,17 @@ keep_alive_system.start_premium_system()
 
 # ================== تسجيل الخط العربي ==================
 def register_arabic_font():
-    """تسجيل خط عربي للـ PDF"""
+    """تسجيل خط عربي للـ PDF - روابط محدثة وموثوقة"""
     font_urls = [
-        ("https://github.com/AliSoftware/Fonts/raw/main/Amiri-Regular.ttf", "Amiri"),
-        ("https://github.com/AliSoftware/Fonts/raw/main/Cairo-Regular.ttf", "Cairo"),
+        # Amiri font من Google Fonts CDN
+        ("https://cdn.jsdelivr.net/gh/AliSoftware/Fonts@master/Amiri-Regular.ttf", "Amiri"),
+        # Cairo font
+        ("https://cdn.jsdelivr.net/gh/AliSoftware/Fonts@master/Cairo-Regular.ttf", "Cairo"),
+        # Noto Sans Arabic من Google
+        ("https://fonts.gstatic.com/s/notosansarabic/v18/nwpxtLGrOAZMl5nJ_wfgRg3DrWFZWsnVBJ_sS6tlqHHflhQ5l3sQWIHPqzCfyGyfj3JO.ttf", "NotoArabic"),
     ]
     
-    fonts_dir = os.path.join(os.path.dirname(__file__), 'fonts')
+    fonts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
     os.makedirs(fonts_dir, exist_ok=True)
     
     for url, font_name in font_urls:
@@ -83,11 +87,15 @@ def register_arabic_font():
         
         if not os.path.exists(font_path):
             try:
-                response = requests.get(url, timeout=10)
+                print(f"جاري تحميل الخط: {font_name}...")
+                response = requests.get(url, timeout=30)
                 if response.status_code == 200:
                     with open(font_path, 'wb') as f:
                         f.write(response.content)
                     print(f"تم تحميل الخط: {font_name}")
+                else:
+                    print(f"فشل تحميل {font_name}: HTTP {response.status_code}")
+                    continue
             except Exception as e:
                 print(f"خطأ في تحميل الخط {font_name}: {e}")
                 continue
@@ -95,11 +103,15 @@ def register_arabic_font():
         try:
             if font_name not in pdfmetrics.getRegisteredFontNames():
                 pdfmetrics.registerFont(TTFont(font_name, font_path))
-                print(f"تم تسجيل الخط: {font_name}")
+                print(f"تم تسجيل الخط بنجاح: {font_name}")
                 return font_name
         except Exception as e:
             print(f"خطأ في تسجيل الخط {font_name}: {e}")
+            # حذف الملف التالف وإعادة المحاولة
+            if os.path.exists(font_path):
+                os.remove(font_path)
     
+    print("تحذير: لم يتم تسجيل أي خط عربي - سيتم استخدام Helvetica")
     return None
 
 # تسجيل الخط عند بدء التشغيل
@@ -107,12 +119,15 @@ ARABIC_FONT = register_arabic_font()
 
 def get_arabic_text(text):
     """تحويل النص العربي للعرض الصحيح في PDF"""
+    if not text:
+        return ""
     try:
-        reshaped = arabic_reshaper.reshape(text)
+        reshaped = arabic_reshaper.reshape(str(text))
         bidi_text = get_display(reshaped)
         return bidi_text
-    except:
-        return text
+    except Exception as e:
+        print(f"خطأ في تحويل النص العربي: {e}")
+        return str(text)
 
 # ================== قاعدة البيانات ==================
 def init_db():
@@ -213,7 +228,6 @@ PREMIUM_DESIGN_HTML = """
         .navbar {
             background: var(--secondary-bg);
             border-bottom: 1px solid var(--border-color);
-            padding: 0 30px;
             position: fixed;
             top: 0;
             left: 0;
@@ -223,6 +237,7 @@ PREMIUM_DESIGN_HTML = """
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 0 30px;
         }
 
         .nav-brand {
@@ -1059,7 +1074,7 @@ def create_invoice():
 
 @app.route('/invoice/<int:invoice_id>/pdf')
 def generate_pdf(invoice_id):
-    """توليد ملف PDF للفاتورة"""
+    """توليد ملف PDF للفاتورة باللغة العربية"""
     conn = sqlite3.connect('invoices.db')
     c = conn.cursor()
     c.execute("SELECT * FROM invoices WHERE id = ?", (invoice_id,))
@@ -1072,134 +1087,163 @@ def generate_pdf(invoice_id):
     # إنشاء ملف PDF
     buffer = io.BytesIO()
     
-    c = canvas.Canvas(buffer, pagesize=A4)
+    pdf = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
     
-    # تحديد الخط
+    # تحديد الخط - استخدام الخط العربي إذا وُجد
     font_name = ARABIC_FONT if ARABIC_FONT else "Helvetica"
+    use_arabic = ARABIC_FONT is not None
     
-    # الخلفية
-    c.setFillColor(colors.HexColor("#ffffff"))
-    c.rect(0, 0, width, height, fill=True)
+    # الخلفية البيضاء
+    pdf.setFillColor(colors.HexColor("#ffffff"))
+    pdf.rect(0, 0, width, height, fill=True)
     
-    # الهيدر
-    c.setFillColor(colors.HexColor("#000000"))
-    c.rect(0, height - 120, width, 120, fill=True)
+    # ======= الهيدر الأسود =======
+    pdf.setFillColor(colors.HexColor("#000000"))
+    pdf.rect(0, height - 140, width, 140, fill=True)
     
-    # عنوان الشركة
-    c.setFillColor(colors.white)
-    if font_name != "Helvetica":
-        c.setFont(font_name, 28)
-        c.drawRightString(width - 40, height - 50, get_arabic_text("InvoiceFlow"))
-        c.setFont(font_name, 14)
-        c.drawRightString(width - 40, height - 75, get_arabic_text("نظام إدارة الفواتير الاحترافي"))
+    # شعار ومعلومات الشركة
+    pdf.setFillColor(colors.white)
+    
+    if use_arabic:
+        pdf.setFont(font_name, 32)
+        pdf.drawRightString(width - 50, height - 55, get_arabic_text("InvoiceFlow"))
+        pdf.setFont(font_name, 14)
+        pdf.drawRightString(width - 50, height - 80, get_arabic_text("نظام إدارة الفواتير الاحترافي"))
     else:
-        c.setFont("Helvetica-Bold", 28)
-        c.drawRightString(width - 40, height - 50, "InvoiceFlow")
-        c.setFont("Helvetica", 14)
-        c.drawRightString(width - 40, height - 75, "Professional Invoice System")
+        pdf.setFont("Helvetica-Bold", 32)
+        pdf.drawRightString(width - 50, height - 55, "InvoiceFlow")
+        pdf.setFont("Helvetica", 14)
+        pdf.drawRightString(width - 50, height - 80, "Professional Invoice System")
     
-    # رقم الفاتورة
-    c.setFont("Helvetica-Bold", 12)
-    c.drawString(40, height - 50, f"Invoice: {invoice[1]}")
-    c.setFont("Helvetica", 10)
-    c.drawString(40, height - 70, f"Date: {invoice[8][:10] if invoice[8] else datetime.now().strftime('%Y-%m-%d')}")
+    # رقم الفاتورة والتاريخ
+    pdf.setFont("Helvetica-Bold", 14)
+    pdf.drawString(50, height - 55, f"Invoice #{invoice[1]}")
+    pdf.setFont("Helvetica", 11)
+    created_date = invoice[8][:10] if invoice[8] else datetime.now().strftime('%Y-%m-%d')
+    pdf.drawString(50, height - 75, f"Date: {created_date}")
     
-    # معلومات العميل
-    y_pos = height - 160
-    c.setFillColor(colors.HexColor("#000000"))
+    # حالة الفاتورة
+    status = invoice[7] if invoice[7] else 'pending'
+    status_text = "PAID" if status == "paid" else "PENDING" if status == "pending" else "OVERDUE"
+    status_color = "#22c55e" if status == "paid" else "#eab308" if status == "pending" else "#ef4444"
     
-    if font_name != "Helvetica":
-        c.setFont(font_name, 16)
-        c.drawRightString(width - 40, y_pos, get_arabic_text("معلومات العميل"))
-        c.setFont(font_name, 12)
-        c.drawRightString(width - 40, y_pos - 25, get_arabic_text(f"الاسم: {invoice[2]}"))
+    pdf.setFillColor(colors.HexColor(status_color))
+    pdf.roundRect(50, height - 120, 80, 25, 5, fill=True, stroke=False)
+    pdf.setFillColor(colors.white)
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawCentredString(90, height - 112, status_text)
+    
+    # ======= معلومات العميل =======
+    y_pos = height - 180
+    pdf.setFillColor(colors.HexColor("#000000"))
+    
+    if use_arabic:
+        pdf.setFont(font_name, 18)
+        pdf.drawRightString(width - 50, y_pos, get_arabic_text("معلومات العميل"))
+        pdf.setFont(font_name, 12)
+        y_pos -= 30
+        pdf.drawRightString(width - 50, y_pos, get_arabic_text(f"الاسم: {invoice[2]}"))
         if invoice[3]:
-            c.drawRightString(width - 40, y_pos - 45, get_arabic_text(f"البريد: {invoice[3]}"))
+            y_pos -= 22
+            pdf.drawRightString(width - 50, y_pos, get_arabic_text(f"البريد الإلكتروني: {invoice[3]}"))
     else:
-        c.setFont("Helvetica-Bold", 16)
-        c.drawRightString(width - 40, y_pos, "Client Information")
-        c.setFont("Helvetica", 12)
-        c.drawRightString(width - 40, y_pos - 25, f"Name: {invoice[2]}")
+        pdf.setFont("Helvetica-Bold", 18)
+        pdf.drawRightString(width - 50, y_pos, "Client Information")
+        pdf.setFont("Helvetica", 12)
+        y_pos -= 30
+        pdf.drawRightString(width - 50, y_pos, f"Name: {invoice[2]}")
         if invoice[3]:
-            c.drawRightString(width - 40, y_pos - 45, f"Email: {invoice[3]}")
+            y_pos -= 22
+            pdf.drawRightString(width - 50, y_pos, f"Email: {invoice[3]}")
     
     # خط فاصل
-    c.setStrokeColor(colors.HexColor("#e0e0e0"))
-    c.setLineWidth(1)
-    c.line(40, y_pos - 70, width - 40, y_pos - 70)
+    y_pos -= 30
+    pdf.setStrokeColor(colors.HexColor("#e5e5e5"))
+    pdf.setLineWidth(1)
+    pdf.line(50, y_pos, width - 50, y_pos)
     
-    # تفاصيل الخدمات
-    y_pos = y_pos - 100
+    # ======= جدول الخدمات =======
+    y_pos -= 40
     
-    if font_name != "Helvetica":
-        c.setFont(font_name, 16)
-        c.drawRightString(width - 40, y_pos, get_arabic_text("تفاصيل الخدمات"))
+    if use_arabic:
+        pdf.setFont(font_name, 18)
+        pdf.drawRightString(width - 50, y_pos, get_arabic_text("تفاصيل الخدمات"))
     else:
-        c.setFont("Helvetica-Bold", 16)
-        c.drawRightString(width - 40, y_pos, "Services Details")
+        pdf.setFont("Helvetica-Bold", 18)
+        pdf.drawRightString(width - 50, y_pos, "Services Details")
     
-    # جدول الخدمات
-    c.setFillColor(colors.HexColor("#f5f5f5"))
-    c.rect(40, y_pos - 80, width - 80, 50, fill=True)
+    # رأس الجدول
+    y_pos -= 35
+    pdf.setFillColor(colors.HexColor("#f5f5f5"))
+    pdf.rect(50, y_pos - 10, width - 100, 35, fill=True, stroke=False)
     
-    c.setFillColor(colors.HexColor("#000000"))
-    if font_name != "Helvetica":
-        c.setFont(font_name, 12)
-        c.drawRightString(width - 60, y_pos - 50, get_arabic_text("الوصف"))
-        c.drawString(60, y_pos - 50, get_arabic_text("المبلغ"))
+    pdf.setFillColor(colors.HexColor("#000000"))
+    if use_arabic:
+        pdf.setFont(font_name, 12)
+        pdf.drawRightString(width - 70, y_pos + 5, get_arabic_text("الوصف"))
+        pdf.drawString(70, y_pos + 5, get_arabic_text("المبلغ"))
     else:
-        c.setFont("Helvetica-Bold", 12)
-        c.drawRightString(width - 60, y_pos - 50, "Description")
-        c.drawString(60, y_pos - 50, "Amount")
+        pdf.setFont("Helvetica-Bold", 12)
+        pdf.drawRightString(width - 70, y_pos + 5, "Description")
+        pdf.drawString(70, y_pos + 5, "Amount")
     
     # بيانات الخدمة
-    c.setFillColor(colors.white)
-    c.rect(40, y_pos - 130, width - 80, 50, fill=True)
+    y_pos -= 45
+    pdf.setFillColor(colors.white)
+    pdf.rect(50, y_pos - 10, width - 100, 40, fill=True, stroke=False)
     
-    c.setFillColor(colors.HexColor("#000000"))
-    if font_name != "Helvetica":
-        c.setFont(font_name, 11)
-        services_text = invoice[4][:50] + "..." if len(invoice[4]) > 50 else invoice[4]
-        c.drawRightString(width - 60, y_pos - 100, get_arabic_text(services_text))
+    pdf.setFillColor(colors.HexColor("#333333"))
+    services_text = invoice[4] if invoice[4] else "خدمات متنوعة"
+    if len(services_text) > 60:
+        services_text = services_text[:60] + "..."
+    
+    if use_arabic:
+        pdf.setFont(font_name, 11)
+        pdf.drawRightString(width - 70, y_pos + 5, get_arabic_text(services_text))
     else:
-        c.setFont("Helvetica", 11)
-        services_text = invoice[4][:50] + "..." if len(invoice[4]) > 50 else invoice[4]
-        c.drawRightString(width - 60, y_pos - 100, services_text)
+        pdf.setFont("Helvetica", 11)
+        pdf.drawRightString(width - 70, y_pos + 5, services_text)
     
-    c.setFont("Helvetica-Bold", 11)
-    c.drawString(60, y_pos - 100, f"${invoice[5]:,.2f}")
+    pdf.setFont("Helvetica-Bold", 12)
+    pdf.drawString(70, y_pos + 5, f"${invoice[5]:,.2f}")
     
-    # المجموع
-    c.setFillColor(colors.HexColor("#000000"))
-    c.rect(40, y_pos - 180, width - 80, 40, fill=True)
+    # ======= المجموع الكلي =======
+    y_pos -= 50
+    pdf.setFillColor(colors.HexColor("#000000"))
+    pdf.rect(50, y_pos - 15, width - 100, 50, fill=True, stroke=False)
     
-    c.setFillColor(colors.white)
-    c.setFont("Helvetica-Bold", 14)
-    c.drawString(60, y_pos - 160, f"TOTAL: ${invoice[5]:,.2f}")
+    pdf.setFillColor(colors.white)
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(70, y_pos + 5, f"TOTAL: ${invoice[5]:,.2f}")
     
-    if font_name != "Helvetica":
-        c.setFont(font_name, 14)
-        c.drawRightString(width - 60, y_pos - 160, get_arabic_text("المجموع الكلي"))
+    if use_arabic:
+        pdf.setFont(font_name, 14)
+        pdf.drawRightString(width - 70, y_pos + 5, get_arabic_text("المجموع الكلي"))
     
-    # تاريخ الاستحقاق
+    # ======= تاريخ الاستحقاق =======
     if invoice[6]:
-        y_pos = y_pos - 220
-        if font_name != "Helvetica":
-            c.setFillColor(colors.HexColor("#000000"))
-            c.setFont(font_name, 12)
-            c.drawRightString(width - 40, y_pos, get_arabic_text(f"تاريخ الاستحقاق: {invoice[6]}"))
+        y_pos -= 60
+        pdf.setFillColor(colors.HexColor("#000000"))
+        if use_arabic:
+            pdf.setFont(font_name, 12)
+            pdf.drawRightString(width - 50, y_pos, get_arabic_text(f"تاريخ الاستحقاق: {invoice[6]}"))
         else:
-            c.setFont("Helvetica", 12)
-            c.drawRightString(width - 40, y_pos, f"Due Date: {invoice[6]}")
+            pdf.setFont("Helvetica", 12)
+            pdf.drawRightString(width - 50, y_pos, f"Due Date: {invoice[6]}")
     
-    # الفوتر
-    c.setFillColor(colors.HexColor("#888888"))
-    c.setFont("Helvetica", 9)
-    c.drawCentredString(width/2, 40, "InvoiceFlow - Professional Invoice Management System")
-    c.drawCentredString(width/2, 25, f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M')}")
+    # ======= الفوتر =======
+    pdf.setFillColor(colors.HexColor("#888888"))
+    pdf.setFont("Helvetica", 9)
+    pdf.drawCentredString(width/2, 50, "InvoiceFlow - Professional Invoice Management System")
+    pdf.drawCentredString(width/2, 35, f"Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     
-    c.save()
+    # حدود الصفحة
+    pdf.setStrokeColor(colors.HexColor("#e5e5e5"))
+    pdf.setLineWidth(0.5)
+    pdf.rect(30, 20, width - 60, height - 40, fill=False, stroke=True)
+    
+    pdf.save()
     buffer.seek(0)
     
     return send_file(
@@ -1208,6 +1252,7 @@ def generate_pdf(invoice_id):
         as_attachment=True,
         download_name=f'{invoice[1]}.pdf'
     )
+
 
 @app.route('/clients')
 def clients():
