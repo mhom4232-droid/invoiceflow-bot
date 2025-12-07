@@ -5285,7 +5285,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                             <div class="relative">
                                 <button class="notification-btn" onclick="toggleNotifications()">
                                     <i class="fas fa-bell"></i>
-                                    {{ '<span class="notification-badge">{}</span>'.format(notification_count) if notification_count > 0 else '' }}
+                                   {{ f'<span class="notification-badge">{notification_count}</span>' if notification_count > 0 else '' }}
                                 </button>
                                 
                                 <!-- قائمة الإشعارات -->
@@ -9811,4 +9811,5 @@ if __name__ == '__main__':
         traceback.print_exc()
         print("🔄 إعادة المحاولة خلال 5 ثوان...")
         time.sleep(5)
+
 
