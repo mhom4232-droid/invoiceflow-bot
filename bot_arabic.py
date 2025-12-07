@@ -5492,8 +5492,7 @@ def generate_notifications_list(notifications):
                 <p class="notification-message">{notification['message']}</p>
                 <p class="notification-time">{time_ago}</p>
             </div>
-            {{ '<button class="icon-button icon-button-primary" onclick="markNotificationAsRead({})"><i class="fas fa-check"></i></button>'.format(notification['id']) if not notification['is_read'] else '' }}
-        </div>
+{{ '<button class="icon-button icon-button-primary" onclick="markNotificationAsRead(' ~ notification['id']|string ~ ')"><i class="fas fa-check"></i></button>' if not notification['is_read'] else '' }}        </div>
         """
     
     return notifications_html
@@ -8017,5 +8016,6 @@ if __name__ == '__main__':
         traceback.print_exc()
         print("🔄 إعادة المحاولة خلال 5 ثوان...")
         time.sleep(5)
+
 
 
