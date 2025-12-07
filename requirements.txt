@@ -1,45 +1,20 @@
-# متطلبات فريق العمل الشامل
-# الإصدار: 1.0.0
-
-# الأساسيات
 Flask==2.3.3
-Jinja2==3.1.6
-Werkzeug==3.1.4
-
-# قواعد البيانات
-sqlite3
-
-# معالجة النصوص
+reportlab==4.0.4
 arabic-reshaper==3.0.0
 python-bidi==0.4.2
-
-# PDF والتقارير
-reportlab==4.0.4
-Pillow>=10.0.0
-qrcode>=7.4.2
-
-# البيانات والتحليل
-pandas>=2.0.0
-numpy>=1.24.0
-
-# الأمان
+gunicorn==20.1.0
+requests==2.32.3
+email-validator==2.2.0
 PyJWT>=2.3.0
 Flask-Limiter>=3.0.0
-email-validator==2.2.0
-
-# الشبكات
-requests==2.32.3
 Flask-CORS>=4.0.0
-
-# التطوير
 bleach>=6.0.0
-gunicorn==20.1.0
+qrcode>=7.4.2
+pandas>=2.0.0
+numpy>=1.24.0
+Pillow>=10.0.0
+Jinja2==3.1.6
+Werkzeug==3.1.4
+itsdangerous==2.2.0
 click==8.3.1
 blinker==1.9.0
-itsdangerous==2.2.0
-
-# التبعيات
-six>=1.17.0
-python-dateutil>=2.8.2
-pytz>=2020.1
-tzdata>=2022.7
