@@ -5156,17 +5156,17 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             {DASHBOARD_CSS}
             
             /* تنسيقات إضافية للغة الإنجليزية */
-            [dir="ltr"] .arabic-text {{
+            [dir="ltr"] .arabic-text 
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 line-height: 1.6;
             }}
             
-            [dir="ltr"] .sidebar-nav {{
+            [dir="ltr"] .sidebar-nav 
                 padding-left: 0;
                 padding-right: 0;
             }}
             
-            [dir="ltr"] .nav-item {{
+            [dir="ltr"] .nav-item 
                 padding-left: var(--space-4);
                 padding-right: var(--space-4);
             }}
@@ -5201,54 +5201,54 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                 </div>
                 
                 <nav class="sidebar-nav">
-                    <a href="{{{{ url_for('dashboard') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'dashboard' else '' }}}}">
+                    <a href=" url_for('dashboard') }}" class="nav-item  'active' if request.endpoint == 'dashboard' else '' }}">
                         <i class="fas fa-tachometer-alt nav-icon"></i>
                         <span>{t('dashboard')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('invoices') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'invoices' else '' }}}}">
+                    <a href=" url_for('invoices') }}" class="nav-item  'active' if request.endpoint == 'invoices' else '' }}">
                         <i class="fas fa-file-invoice-dollar nav-icon"></i>
                         <span>{t('invoices')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('create_invoice') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'create_invoice' else '' }}}}">
+                    <a href=" url_for('create_invoice') }}" class="nav-item {{ 'active' if request.endpoint == 'create_invoice' else '' }}">
                         <i class="fas fa-plus-circle nav-icon"></i>
                         <span>{t('create_invoice')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('clients') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'clients' else '' }}}}">
+                    <a href="{{ url_for('clients') }}" class="nav-item {{ 'active' if request.endpoint == 'clients' else '' }}">
                         <i class="fas fa-users nav-icon"></i>
                         <span>{t('clients')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('products') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'products' else '' }}}}">
+                    <a href="{{ url_for('products') }}" class="nav-item {{ 'active' if request.endpoint == 'products' else '' }}">
                         <i class="fas fa-box nav-icon"></i>
                         <span>{t('products')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('reports') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'reports' else '' }}}}">
+                    <a href="{{ url_for('reports') }}" class="nav-item {{ 'active' if request.endpoint == 'reports' else '' }}">
                         <i class="fas fa-chart-bar nav-icon"></i>
                         <span>{t('reports')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('ai_insights') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'ai_insights' else '' }}}}">
+                    <a href="{{ url_for('ai_insights') }}" class="nav-item {{ 'active' if request.endpoint == 'ai_insights' else '' }}">
                         <i class="fas fa-robot nav-icon"></i>
                         <span>{t('ai_insights')}</span>
                     </a>
                     
                     <div class="separator"></div>
                     
-                    <a href="{{{{ url_for('profile') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'profile' else '' }}}}">
+                    <a href="{{ url_for('profile') }}" class="nav-item {{ 'active' if request.endpoint == 'profile' else '' }}">
                         <i class="fas fa-user-cog nav-icon"></i>
                         <span>{t('profile')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('settings') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'settings' else '' }}}}">
+                    <a href="{{ url_for('settings') }}" class="nav-item {{ 'active' if request.endpoint == 'settings' else '' }}">
                         <i class="fas fa-cog nav-icon"></i>
                         <span>{t('settings')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('logout') }}}}" class="nav-item">
+                    <a href="{{ url_for('logout') }}" class="nav-item">
                         <i class="fas fa-sign-out-alt nav-icon"></i>
                         <span>{t('logout')}</span>
                     </a>
@@ -5262,8 +5262,8 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                         <!-- تبديل اللغة -->
                         <div class="mt-4">
                             <select id="languageSwitch" class="form-control form-select text-sm" onchange="switchLanguage(this.value)">
-                                <option value="ar" {{{{ 'selected' if session.get('language', 'ar') == 'ar' else '' }}}}>العربية</option>
-                                <option value="en" {{{{ 'selected' if session.get('language', 'ar') == 'en' else '' }}}}>English</option>
+                                <option value="ar" {{ 'selected' if session.get('language', 'ar') == 'ar' else '' }}>العربية</option>
+                                <option value="en" {{ 'selected' if session.get('language', 'ar') == 'en' else '' }}>English</option>
                             </select>
                         </div>
                     </div>
@@ -5285,7 +5285,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                             <div class="relative">
                                 <button class="notification-btn" onclick="toggleNotifications()">
                                     <i class="fas fa-bell"></i>
-                                    {{{{ '<span class="notification-badge">{}</span>'.format(notification_count) if notification_count > 0 else '' }}}}
+                                    {{ '<span class="notification-badge">{}</span>'.format(notification_count) if notification_count > 0 else '' }}
                                 </button>
                                 
                                 <!-- قائمة الإشعارات -->
@@ -5299,7 +5299,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                                         </div>
                                     </div>
                                     <div class="max-h-96 overflow-y-auto">
-                                        {{{{ generate_notifications_list(notifications if notifications else []) }}}}
+                                        {{ generate_notifications_list(notifications if notifications else []) }}
                                     </div>
                                     <div class="p-4 border-t border-dark-border text-center">
                                         <a href="#" class="text-sm text-primary hover:underline">{t('view_all_notifications')}</a>
@@ -5324,7 +5324,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                 </nav>
                 
                 <!-- رسائل التنبيه -->
-                {{{{ get_flashed_messages_html() }}}}
+                {{ get_flashed_messages_html() }}
                 
                 <!-- محتوى الصفحة -->
                 <div class="content-container">
@@ -5338,7 +5338,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             // تحديث الوقت
             function updateTime() {{
                 const now = new Date();
-                const timeStr = now.toLocaleTimeString('{{{{ 'ar-SA' if '{lang}' == 'ar' else 'en-US' }}}}');
+                const timeStr = now.toLocaleTimeString('{{ 'ar-SA' if '{lang}' == 'ar' else 'en-US' }}');
                 document.getElementById('currentTime').textContent = timeStr;
             }}
             
@@ -5347,7 +5347,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             
             // تبديل اللغة
             function switchLanguage(lang) {{
-                fetch('{{{{ url_for('set_language') }}}}', {{
+                fetch('{{ url_for('set_language') }}', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
@@ -5380,7 +5380,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             
             // تحديد جميع الإشعارات كمقروءة
             function markAllNotificationsAsRead() {{
-                fetch('{{{{ url_for('mark_all_notifications_as_read') }}}}', {{
+                fetch('{{ url_for('mark_all_notifications_as_read') }}', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
@@ -5396,7 +5396,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             
             // تحديد إشعار كمقروء
             function markNotificationAsRead(notificationId) {{
-                fetch('{{{{ url_for('mark_notification_as_read') }}}}', {{
+                fetch('{{ url_for('mark_notification_as_read') }}', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
@@ -5483,7 +5483,7 @@ def generate_notifications_list(notifications):
         time_ago = get_time_ago(notification['created_at'])
         
         notifications_html += f"""
-        <div class="notification {{{{ 'unread' if not notification['is_read'] else '' }}}}" data-notification-id="{notification['id']}">
+        <div class="notification {{ 'unread' if not notification['is_read'] else '' }}" data-notification-id="{notification['id']}">
             <div class="notification-icon">
                 <i class="{icon_class}"></i>
             </div>
@@ -5492,7 +5492,7 @@ def generate_notifications_list(notifications):
                 <p class="notification-message">{notification['message']}</p>
                 <p class="notification-time">{time_ago}</p>
             </div>
-            {{{{ '<button class="icon-button icon-button-primary" onclick="markNotificationAsRead({})"><i class="fas fa-check"></i></button>'.format(notification['id']) if not notification['is_read'] else '' }}}}
+            {{ '<button class="icon-button icon-button-primary" onclick="markNotificationAsRead({})"><i class="fas fa-check"></i></button>'.format(notification['id']) if not notification['is_read'] else '' }}
         </div>
         """
     
@@ -7143,7 +7143,7 @@ def invoices():
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">{t('invoices')}</h3>
-            <a href="{{{{ url_for('create_invoice') }}}}" class="btn btn-primary">
+            <a href="{{ url_for('create_invoice') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> {t('create_invoice')}
             </a>
         </div>
@@ -7206,7 +7206,7 @@ def invoices():
                         <td colspan="7" class="text-center p-6 text-muted">
                             <i class="fas fa-file-invoice-dollar text-3xl mb-3"></i>
                             <p>{t('no_invoices')}</p>
-                            <a href="{{{{ url_for('create_invoice') }}}}" class="btn btn-primary mt-3">
+                            <a href="{{ url_for('create_invoice') }}" class="btn btn-primary mt-3">
                                 {t('create_first_invoice')}
                             </a>
                         </td>
@@ -7331,7 +7331,7 @@ def create_invoice():
             <h3 class="card-title">{t('create_invoice')}</h3>
         </div>
         
-        <form method="POST" action="{{{{ url_for('create_invoice') }}}}" class="p-6">
+        <form method="POST" action="{{ url_for('create_invoice') }}" class="p-6">
             <div class="grid grid-2 gap-6 mb-6">
                 <!-- معلومات العميل -->
                 <div class="card">
@@ -7371,13 +7371,13 @@ def create_invoice():
                             <div class="form-group">
                                 <label class="form-label">{t('issue_date')} *</label>
                                 <input type="date" name="issue_date" class="form-control" 
-                                       value="{{{{ datetime.now().strftime('%Y-%m-%d') }}}}" required>
+                                       value="{{ datetime.now().strftime('%Y-%m-%d') }}" required>
                             </div>
                             
                             <div class="form-group">
                                 <label class="form-label">{t('due_date')} *</label>
                                 <input type="date" name="due_date" class="form-control" 
-                                       value="{{{{ (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d') }}}}" required>
+                                       value="{{ (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d') }}" required>
                             </div>
                         </div>
                         
@@ -7481,7 +7481,7 @@ def create_invoice():
             
             <!-- أزرار الحفظ -->
             <div class="flex justify-end gap-4">
-                <a href="{{{{ url_for('invoices') }}}}" class="btn btn-outline">
+                <a href="{{ url_for('invoices') }}" class="btn btn-outline">
                     <i class="fas fa-times"></i> {t('cancel')}
                 </a>
                 <button type="submit" class="btn btn-primary">
@@ -8552,13 +8552,13 @@ def profile():
                     <div class="form-group">
                         <label class="form-label">{t('full_name')}</label>
                         <input type="text" name="full_name" class="form-control" 
-                               value="{{{{ user_data['full_name'] or '' }}}}">
+                               value="{{ user_data['full_name'] or '' }}">
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">{t('company_name')}</label>
                         <input type="text" name="company_name" class="form-control" 
-                               value="{{{{ user_data['company_name'] or '' }}}}">
+                               value="{{ user_data['company_name'] or '' }}">
                     </div>
                 </div>
                 
@@ -8566,20 +8566,20 @@ def profile():
                     <div class="form-group">
                         <label class="form-label">{t('email')}</label>
                         <input type="email" name="email" class="form-control" 
-                               value="{{{{ user_data['email'] or '' }}}}" disabled>
+                               value="{{ user_data['email'] or '' }}" disabled>
                         <p class="form-text">{t('email_cannot_be_changed')}</p>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">{t('phone')}</label>
                         <input type="tel" name="phone" class="form-control" 
-                               value="{{{{ user_data['phone'] or '' }}}}">
+                               value="{{ user_data['phone'] or '' }}">
                     </div>
                 </div>
                 
                 <div class="form-group mb-6">
                     <label class="form-label">{t('address')}</label>
-                    <textarea name="address" class="form-control" rows="3">{{{{ user_data['address'] or '' }}}}</textarea>
+                    <textarea name="address" class="form-control" rows="3">{{ user_data['address'] or '' }}</textarea>
                 </div>
                 
                 <div class="flex justify-end">
@@ -8602,24 +8602,24 @@ def profile():
                 </div>
                 
                 <div class="mb-4">
-                    <h4 class="font-bold mb-1">{{{{ user_data['full_name'] or user_data['username'] }}}}</h4>
-                    <p class="text-sm text-muted">{{{{ user_data['company_name'] or t('my_company') }}}}</p>
+                    <h4 class="font-bold mb-1">{{ user_data['full_name'] or user_data['username'] }}</h4>
+                    <p class="text-sm text-muted">{{ user_data['company_name'] or t('my_company') }}</p>
                 </div>
                 
                 <div class="space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-muted">{t('member_since')}:</span>
-                        <span class="font-medium">{{{{ user_data['created_at'].split()[0] if user_data['created_at'] else 'N/A' }}}}</span>
+                        <span class="font-medium">{{ user_data['created_at'].split()[0] if user_data['created_at'] else 'N/A' }}</span>
                     </div>
                     
                     <div class="flex items-center justify-between">
                         <span class="text-muted">{t('last_login')}:</span>
-                        <span class="font-medium">{{{{ user_data['last_login'].split()[0] if user_data['last_login'] else 'N/A' }}}}</span>
+                        <span class="font-medium">{{ user_data['last_login'].split()[0] if user_data['last_login'] else 'N/A' }}</span>
                     </div>
                     
                     <div class="flex items-center justify-between">
                         <span class="text-muted">{t('user_role')}:</span>
-                        <span class="badge badge-primary">{{{{ user_data['role'] }}}}</span>
+                        <span class="badge badge-primary">{{ user_data['role'] }}</span>
                     </div>
                 </div>
                 
@@ -8801,19 +8801,19 @@ def settings():
                     <div class="form-group">
                         <label class="form-label">{t('language')}</label>
                         <select name="language" class="form-control form-select">
-                            <option value="ar" {{{{ 'selected' if session.get('language', 'ar') == 'ar' else '' }}}}>العربية</option>
-                            <option value="en" {{{{ 'selected' if session.get('language', 'ar') == 'en' else '' }}}}>English</option>
+                            <option value="ar" {{ 'selected' if session.get('language', 'ar') == 'ar' else '' }}>العربية</option>
+                            <option value="en" {{ 'selected' if session.get('language', 'ar') == 'en' else '' }}>English</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">{t('currency')}</label>
                         <select name="currency" class="form-control form-select">
-                            <option value="USD" {{{{ 'selected' if session.get('currency', 'USD') == 'USD' else '' }}}}>USD - $</option>
-                            <option value="SAR" {{{{ 'selected' if session.get('currency', 'USD') == 'SAR' else '' }}}}>SAR - ر.س</option>
-                            <option value="AED" {{{{ 'selected' if session.get('currency', 'USD') == 'AED' else '' }}}}>AED - د.إ</option>
-                            <option value="EUR" {{{{ 'selected' if session.get('currency', 'USD') == 'EUR' else '' }}}}>EUR - €</option>
-                            <option value="GBP" {{{{ 'selected' if session.get('currency', 'USD') == 'GBP' else '' }}}}>GBP - £</option>
+                            <option value="USD" {{ 'selected' if session.get('currency', 'USD') == 'USD' else '' }}>USD - $</option>
+                            <option value="SAR" {{ 'selected' if session.get('currency', 'USD') == 'SAR' else '' }}>SAR - ر.س</option>
+                            <option value="AED" {{ 'selected' if session.get('currency', 'USD') == 'AED' else '' }}>AED - د.إ</option>
+                            <option value="EUR" {{ 'selected' if session.get('currency', 'USD') == 'EUR' else '' }}>EUR - €</option>
+                            <option value="GBP" {{ 'selected' if session.get('currency', 'USD') == 'GBP' else '' }}>GBP - £</option>
                         </select>
                     </div>
                 </div>
@@ -9811,3 +9811,4 @@ if __name__ == '__main__':
         traceback.print_exc()
         print("🔄 إعادة المحاولة خلال 5 ثوان...")
         time.sleep(5)
+
