@@ -5201,54 +5201,54 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                 </div>
                 
                 <nav class="sidebar-nav">
-                    <a href="{{{{ url_for('dashboard') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'dashboard' else '' }}}}">
+                    <a href="{{ url_for('dashboard') }}" class="nav-item {{ 'active' if request.endpoint == 'dashboard' else '' }}">
                         <i class="fas fa-tachometer-alt nav-icon"></i>
                         <span>{t('dashboard')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('invoices') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'invoices' else '' }}}}">
+                    <a href="{{ url_for('invoices') }}" class="nav-item {{ 'active' if request.endpoint == 'invoices' else '' }}">
                         <i class="fas fa-file-invoice-dollar nav-icon"></i>
                         <span>{t('invoices')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('create_invoice') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'create_invoice' else '' }}}}">
+                    <a href="{{ url_for('create_invoice') }}" class="nav-item {{ 'active' if request.endpoint == 'create_invoice' else '' }}">
                         <i class="fas fa-plus-circle nav-icon"></i>
                         <span>{t('create_invoice')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('clients') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'clients' else '' }}}}">
+                    <a href="{{ url_for('clients') }}" class="nav-item {{ 'active' if request.endpoint == 'clients' else '' }}">
                         <i class="fas fa-users nav-icon"></i>
                         <span>{t('clients')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('products') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'products' else '' }}}}">
+                    <a href="{{ url_for('products') }}" class="nav-item {{ 'active' if request.endpoint == 'products' else '' }}">
                         <i class="fas fa-box nav-icon"></i>
                         <span>{t('products')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('reports') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'reports' else '' }}}}">
+                    <a href="{{ url_for('reports') }}" class="nav-item {{ 'active' if request.endpoint == 'reports' else '' }}">
                         <i class="fas fa-chart-bar nav-icon"></i>
                         <span>{t('reports')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('ai_insights') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'ai_insights' else '' }}}}">
+                    <a href="{{ url_for('ai_insights') }}" class="nav-item {{ 'active' if request.endpoint == 'ai_insights' else '' }}">
                         <i class="fas fa-robot nav-icon"></i>
                         <span>{t('ai_insights')}</span>
                     </a>
                     
                     <div class="separator"></div>
                     
-                    <a href="{{{{ url_for('profile') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'profile' else '' }}}}">
+                    <a href="{{ url_for('profile') }}" class="nav-item {{ 'active' if request.endpoint == 'profile' else '' }}">
                         <i class="fas fa-user-cog nav-icon"></i>
                         <span>{t('profile')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('settings') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'settings' else '' }}}}">
+                    <a href="{{ url_for('settings') }}" class="nav-item {{ 'active' if request.endpoint == 'settings' else '' }}">
                         <i class="fas fa-cog nav-icon"></i>
                         <span>{t('settings')}</span>
                     </a>
                     
-                    <a href="{{{{ url_for('logout') }}}}" class="nav-item">
+                    <a href="{{ url_for('logout') }}" class="nav-item">
                         <i class="fas fa-sign-out-alt nav-icon"></i>
                         <span>{t('logout')}</span>
                     </a>
@@ -5262,8 +5262,8 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                         <!-- تبديل اللغة -->
                         <div class="mt-4">
                             <select id="languageSwitch" class="form-control form-select text-sm" onchange="switchLanguage(this.value)">
-                                <option value="ar" {{{{ 'selected' if session.get('language', 'ar') == 'ar' else '' }}}}>العربية</option>
-                                <option value="en" {{{{ 'selected' if session.get('language', 'ar') == 'en' else '' }}}}>English</option>
+                                <option value="ar" {{ 'selected' if session.get('language', 'ar') == 'ar' else '' }}>العربية</option>
+                                <option value="en" {{ 'selected' if session.get('language', 'ar') == 'en' else '' }}>English</option>
                             </select>
                         </div>
                     </div>
@@ -5285,7 +5285,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                             <div class="relative">
                                 <button class="notification-btn" onclick="toggleNotifications()">
                                     <i class="fas fa-bell"></i>
-                                    {{{{ '<span class="notification-badge">{}</span>'.format(notification_count) if notification_count > 0 else '' }}}}
+                                    {{ '<span class="notification-badge">{}</span>'.format(notification_count) if notification_count > 0 else '' }}
                                 </button>
                                 
                                 <!-- قائمة الإشعارات -->
@@ -5299,7 +5299,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                                         </div>
                                     </div>
                                     <div class="max-h-96 overflow-y-auto">
-                                        {{{{ generate_notifications_list(notifications if notifications else []) }}}}
+                                        {{ generate_notifications_list(notifications if notifications else []) }}
                                     </div>
                                     <div class="p-4 border-t border-dark-border text-center">
                                         <a href="#" class="text-sm text-primary hover:underline">{t('view_all_notifications')}</a>
@@ -5324,7 +5324,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
                 </nav>
                 
                 <!-- رسائل التنبيه -->
-                {{{{ get_flashed_messages_html() }}}}
+                {{ get_flashed_messages_html() }}
                 
                 <!-- محتوى الصفحة -->
                 <div class="content-container">
@@ -5338,7 +5338,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             // تحديث الوقت
             function updateTime() {{
                 const now = new Date();
-                const timeStr = now.toLocaleTimeString('{{{{ 'ar-SA' if '{lang}' == 'ar' else 'en-US' }}}}');
+                const timeStr = now.toLocaleTimeString('{{ 'ar-SA' if '{lang}' == 'ar' else 'en-US' }}');
                 document.getElementById('currentTime').textContent = timeStr;
             }}
             
@@ -5347,7 +5347,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             
             // تبديل اللغة
             function switchLanguage(lang) {{
-                fetch('{{{{ url_for('set_language') }}}}', {{
+                fetch('{{ url_for('set_language') }}', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
@@ -5380,7 +5380,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             
             // تحديد جميع الإشعارات كمقروءة
             function markAllNotificationsAsRead() {{
-                fetch('{{{{ url_for('mark_all_notifications_as_read') }}}}', {{
+                fetch('{{ url_for('mark_all_notifications_as_read') }}', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
@@ -5396,7 +5396,7 @@ def get_dashboard_template(title, subtitle, content, current_lang='ar'):
             
             // تحديد إشعار كمقروء
             function markNotificationAsRead(notificationId) {{
-                fetch('{{{{ url_for('mark_notification_as_read') }}}}', {{
+                fetch('{{ url_for('mark_notification_as_read') }}', {{
                     method: 'POST',
                     headers: {{
                         'Content-Type': 'application/json',
@@ -5483,7 +5483,7 @@ def generate_notifications_list(notifications):
         time_ago = get_time_ago(notification['created_at'])
         
         notifications_html += f"""
-        <div class="notification {{{{ 'unread' if not notification['is_read'] else '' }}}}" data-notification-id="{notification['id']}">
+        <div class="notification {{ 'unread' if not notification['is_read'] else '' }}" data-notification-id="{notification['id']}">
             <div class="notification-icon">
                 <i class="{icon_class}"></i>
             </div>
@@ -5492,7 +5492,7 @@ def generate_notifications_list(notifications):
                 <p class="notification-message">{notification['message']}</p>
                 <p class="notification-time">{time_ago}</p>
             </div>
-            {{{{ '<button class="icon-button icon-button-primary" onclick="markNotificationAsRead({})"><i class="fas fa-check"></i></button>'.format(notification['id']) if not notification['is_read'] else '' }}}}
+            {{ '<button class="icon-button icon-button-primary" onclick="markNotificationAsRead({})"><i class="fas fa-check"></i></button>'.format(notification['id']) if not notification['is_read'] else '' }}
         </div>
         """
     
@@ -8017,3 +8017,4 @@ if __name__ == '__main__':
         traceback.print_exc()
         print("🔄 إعادة المحاولة خلال 5 ثوان...")
         time.sleep(5)
+
