@@ -2949,7 +2949,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# ================== نظام التصميم المحسن ==================
+# ================== تنسيقات CSS الأساسية ==================
 BASE_CSS = """
 /* ================== إعدادات التصميم الأساسية ================== */
 :root {
@@ -3133,11 +3133,6 @@ body {
         --space-12: 1.5rem;
         --space-16: 2rem;
     }
-    
-    .container {
-        padding-left: var(--space-4);
-        padding-right: var(--space-4);
-    }
 }
 
 @media (max-width: 480px) {
@@ -3146,2298 +3141,15 @@ body {
         --space-6: 1rem;
     }
 }
-
-/* ================== تنسيق النصوص العربية ================== */
-.arabic-text {
-    font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
-    line-height: 1.8;
-    letter-spacing: 0;
-}
-
-.ltr-text {
-    direction: ltr;
-    text-align: left;
-}
-
-/* ================== فئات المساعدة ================== */
-.fade-in {
-    animation: fadeIn var(--transition-normal);
-}
-
-.slide-in-right {
-    animation: slideInRight var(--transition-normal);
-}
-
-.slide-in-left {
-    animation: slideInLeft var(--transition-normal);
-}
-
-.pulse {
-    animation: pulse 2s infinite;
-}
-
-.spin {
-    animation: spin 1s linear infinite;
-}
-
-.shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-    background-size: 1000px 100%;
-    animation: shimmer 2s infinite;
-}
-
-.float {
-    animation: float 3s ease-in-out infinite;
-}
-
-.bounce {
-    animation: bounce 0.5s ease infinite;
-}
-
-.scale-in {
-    animation: scaleIn var(--transition-normal);
-}
-
-.gradient-animation {
-    background-size: 200% 200%;
-    animation: gradient 3s ease infinite;
-}
-
-.hidden {
-    display: none !important;
-}
-
-.visible {
-    display: block !important;
-}
-
-.text-center {
-    text-align: center !important;
-}
-
-.text-right {
-    text-align: right !important;
-}
-
-.text-left {
-    text-align: left !important;
-}
-
-.flex {
-    display: flex !important;
-}
-
-.flex-col {
-    flex-direction: column !important;
-}
-
-.flex-row {
-    flex-direction: row !important;
-}
-
-.items-center {
-    align-items: center !important;
-}
-
-.items-start {
-    align-items: flex-start !important;
-}
-
-.items-end {
-    align-items: flex-end !important;
-}
-
-.justify-center {
-    justify-content: center !important;
-}
-
-.justify-between {
-    justify-content: space-between !important;
-}
-
-.justify-start {
-    justify-content: flex-start !important;
-}
-
-.justify-end {
-    justify-content: flex-end !important;
-}
-
-.flex-wrap {
-    flex-wrap: wrap !important;
-}
-
-.flex-nowrap {
-    flex-wrap: nowrap !important;
-}
-
-.flex-1 {
-    flex: 1 1 0% !important;
-}
-
-.flex-auto {
-    flex: 1 1 auto !important;
-}
-
-.gap-1 { gap: var(--space-1) !important; }
-.gap-2 { gap: var(--space-2) !important; }
-.gap-3 { gap: var(--space-3) !important; }
-.gap-4 { gap: var(--space-4) !important; }
-.gap-5 { gap: var(--space-5) !important; }
-.gap-6 { gap: var(--space-6) !important; }
-.gap-8 { gap: var(--space-8) !important; }
-
-.w-full { width: 100% !important; }
-.w-screen { width: 100vw !important; }
-.h-full { height: 100% !important; }
-.h-screen { height: 100vh !important; }
-.min-h-screen { min-height: 100vh !important; }
-
-.m-1 { margin: var(--space-1) !important; }
-.m-2 { margin: var(--space-2) !important; }
-.m-3 { margin: var(--space-3) !important; }
-.m-4 { margin: var(--space-4) !important; }
-.m-5 { margin: var(--space-5) !important; }
-.m-6 { margin: var(--space-6) !important; }
-
-.mt-1 { margin-top: var(--space-1) !important; }
-.mt-2 { margin-top: var(--space-2) !important; }
-.mt-3 { margin-top: var(--space-3) !important; }
-.mt-4 { margin-top: var(--space-4) !important; }
-.mt-5 { margin-top: var(--space-5) !important; }
-.mt-6 { margin-top: var(--space-6) !important; }
-.mt-8 { margin-top: var(--space-8) !important; }
-.mt-10 { margin-top: var(--space-10) !important; }
-
-.mb-1 { margin-bottom: var(--space-1) !important; }
-.mb-2 { margin-bottom: var(--space-2) !important; }
-.mb-3 { margin-bottom: var(--space-3) !important; }
-.mb-4 { margin-bottom: var(--space-4) !important; }
-.mb-5 { margin-bottom: var(--space-5) !important; }
-.mb-6 { margin-bottom: var(--space-6) !important; }
-.mb-8 { margin-bottom: var(--space-8) !important; }
-.mb-10 { margin-bottom: var(--space-10) !important; }
-
-.mr-1 { margin-right: var(--space-1) !important; }
-.mr-2 { margin-right: var(--space-2) !important; }
-.mr-3 { margin-right: var(--space-3) !important; }
-.mr-4 { margin-right: var(--space-4) !important; }
-.mr-5 { margin-right: var(--space-5) !important; }
-.mr-6 { margin-right: var(--space-6) !important; }
-
-.ml-1 { margin-left: var(--space-1) !important; }
-.ml-2 { margin-left: var(--space-2) !important; }
-.ml-3 { margin-left: var(--space-3) !important; }
-.ml-4 { margin-left: var(--space-4) !important; }
-.ml-5 { margin-left: var(--space-5) !important; }
-.ml-6 { margin-left: var(--space-6) !important; }
-
-.p-1 { padding: var(--space-1) !important; }
-.p-2 { padding: var(--space-2) !important; }
-.p-3 { padding: var(--space-3) !important; }
-.p-4 { padding: var(--space-4) !important; }
-.p-5 { padding: var(--space-5) !important; }
-.p-6 { padding: var(--space-6) !important; }
-.p-8 { padding: var(--space-8) !important; }
-
-.pt-1 { padding-top: var(--space-1) !important; }
-.pt-2 { padding-top: var(--space-2) !important; }
-.pt-3 { padding-top: var(--space-3) !important; }
-.pt-4 { padding-top: var(--space-4) !important; }
-.pt-5 { padding-top: var(--space-5) !important; }
-.pt-6 { padding-top: var(--space-6) !important; }
-
-.pb-1 { padding-bottom: var(--space-1) !important; }
-.pb-2 { padding-bottom: var(--space-2) !important; }
-.pb-3 { padding-bottom: var(--space-3) !important; }
-.pb-4 { padding-bottom: var(--space-4) !important; }
-.pb-5 { padding-bottom: var(--space-5) !important; }
-.pb-6 { padding-bottom: var(--space-6) !important; }
-
-.pr-1 { padding-right: var(--space-1) !important; }
-.pr-2 { padding-right: var(--space-2) !important; }
-.pr-3 { padding-right: var(--space-3) !important; }
-.pr-4 { padding-right: var(--space-4) !important; }
-.pr-5 { padding-right: var(--space-5) !important; }
-.pr-6 { padding-right: var(--space-6) !important; }
-
-.pl-1 { padding-left: var(--space-1) !important; }
-.pl-2 { padding-left: var(--space-2) !important; }
-.pl-3 { padding-left: var(--space-3) !important; }
-.pl-4 { padding-left: var(--space-4) !important; }
-.pl-5 { padding-left: var(--space-5) !important; }
-.pl-6 { padding-left: var(--space-6) !important; }
-
-.rounded-sm { border-radius: var(--radius-sm) !important; }
-.rounded-md { border-radius: var(--radius-md) !important; }
-.rounded-lg { border-radius: var(--radius-lg) !important; }
-.rounded-xl { border-radius: var(--radius-xl) !important; }
-.rounded-2xl { border-radius: var(--radius-2xl) !important; }
-.rounded-full { border-radius: var(--radius-full) !important; }
-
-.shadow-sm { box-shadow: var(--shadow-sm) !important; }
-.shadow-md { box-shadow: var(--shadow-md) !important; }
-.shadow-lg { box-shadow: var(--shadow-lg) !important; }
-.shadow-xl { box-shadow: var(--shadow-xl) !important; }
-.shadow-2xl { box-shadow: var(--shadow-2xl) !important; }
-
-.shadow-primary { box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3) !important; }
-.shadow-secondary { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3) !important; }
-.shadow-accent { box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3) !important; }
-
-.bg-primary { background-color: var(--primary-color) !important; }
-.bg-primary-dark { background-color: var(--primary-dark) !important; }
-.bg-primary-light { background-color: var(--primary-light) !important; }
-.bg-secondary { background-color: var(--secondary-color) !important; }
-.bg-accent { background-color: var(--accent-color) !important; }
-.bg-danger { background-color: var(--danger-color) !important; }
-.bg-warning { background-color: var(--warning-color) !important; }
-.bg-info { background-color: var(--info-color) !important; }
-.bg-success { background-color: var(--success-color) !important; }
-
-.bg-dark { background-color: var(--dark-bg) !important; }
-.bg-dark-card { background-color: var(--dark-card) !important; }
-
-.bg-gradient-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color)) !important;
-}
-
-.bg-gradient-secondary {
-    background: linear-gradient(135deg, var(--secondary-color), var(--accent-color)) !important;
-}
-
-.bg-gradient-dark {
-    background: linear-gradient(135deg, var(--dark-bg), var(--dark-card)) !important;
-}
-
-.border {
-    border: 1px solid var(--dark-border) !important;
-}
-
-.border-primary { border-color: var(--primary-color) !important; }
-.border-secondary { border-color: var(--secondary-color) !important; }
-.border-danger { border-color: var(--danger-color) !important; }
-.border-warning { border-color: var(--warning-color) !important; }
-.border-success { border-color: var(--success-color) !important; }
-
-.text-primary { color: var(--primary-color) !important; }
-.text-secondary { color: var(--secondary-color) !important; }
-.text-accent { color: var(--accent-color) !important; }
-.text-danger { color: var(--danger-color) !important; }
-.text-warning { color: var(--warning-color) !important; }
-.text-info { color: var(--info-color) !important; }
-.text-success { color: var(--success-color) !important; }
-.text-white { color: white !important; }
-.text-dark { color: var(--dark-text) !important; }
-.text-muted { color: var(--dark-text-secondary) !important; }
-
-.text-xs { font-size: 0.75rem !important; }
-.text-sm { font-size: 0.875rem !important; }
-.text-base { font-size: 1rem !important; }
-.text-lg { font-size: 1.125rem !important; }
-.text-xl { font-size: 1.25rem !important; }
-.text-2xl { font-size: 1.5rem !important; }
-.text-3xl { font-size: 1.875rem !important; }
-.text-4xl { font-size: 2.25rem !important; }
-.text-5xl { font-size: 3rem !important; }
-
-.font-light { font-weight: 300 !important; }
-.font-normal { font-weight: 400 !important; }
-.font-medium { font-weight: 500 !important; }
-.font-semibold { font-weight: 600 !important; }
-.font-bold { font-weight: 700 !important; }
-.font-extrabold { font-weight: 800 !important; }
-
-.leading-tight { line-height: 1.25 !important; }
-.leading-normal { line-height: 1.5 !important; }
-.leading-relaxed { line-height: 1.625 !important; }
-.leading-loose { line-height: 2 !important; }
-
-.tracking-tight { letter-spacing: -0.025em !important; }
-.tracking-normal { letter-spacing: 0 !important; }
-.tracking-wide { letter-spacing: 0.025em !important; }
-
-.opacity-0 { opacity: 0 !important; }
-.opacity-25 { opacity: 0.25 !important; }
-.opacity-50 { opacity: 0.5 !important; }
-.opacity-75 { opacity: 0.75 !important; }
-.opacity-100 { opacity: 1 !important; }
-
-.cursor-pointer { cursor: pointer !important; }
-.cursor-default { cursor: default !important; }
-.cursor-not-allowed { cursor: not-allowed !important; }
-
-.select-none { user-select: none !important; }
-.select-text { user-select: text !important; }
-
-.overflow-hidden { overflow: hidden !important; }
-.overflow-auto { overflow: auto !important; }
-.overflow-x-auto { overflow-x: auto !important; }
-.overflow-y-auto { overflow-y: auto !important; }
-
-.whitespace-nowrap { white-space: nowrap !important; }
-.whitespace-pre-wrap { white-space: pre-wrap !important; }
-
-.truncate {
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-}
-
-.break-words { word-wrap: break-word !important; }
-.break-all { word-break: break-all !important; }
-
-.z-0 { z-index: 0 !important; }
-.z-10 { z-index: 10 !important; }
-.z-20 { z-index: 20 !important; }
-.z-30 { z-index: 30 !important; }
-.z-40 { z-index: 40 !important; }
-.z-50 { z-index: 50 !important; }
-.z-auto { z-index: auto !important; }
-
-.transition-all {
-    transition-property: all !important;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-    transition-duration: 300ms !important;
-}
-
-.transition-colors {
-    transition-property: background-color, border-color, color, fill, stroke !important;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-    transition-duration: 300ms !important;
-}
-
-.transition-transform {
-    transition-property: transform !important;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-    transition-duration: 300ms !important;
-}
-
-.transition-opacity {
-    transition-property: opacity !important;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-    transition-duration: 300ms !important;
-}
-
-.ease-in { transition-timing-function: cubic-bezier(0.4, 0, 1, 1) !important; }
-.ease-out { transition-timing-function: cubic-bezier(0, 0, 0.2, 1) !important; }
-.ease-in-out { transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important; }
-
-.duration-75 { transition-duration: 75ms !important; }
-.duration-100 { transition-duration: 100ms !important; }
-.duration-150 { transition-duration: 150ms !important; }
-.duration-200 { transition-duration: 200ms !important; }
-.duration-300 { transition-duration: 300ms !important; }
-.duration-500 { transition-duration: 500ms !important; }
-.duration-700 { transition-duration: 700ms !important; }
-.duration-1000 { transition-duration: 1000ms !important; }
 """
 
-# ================== تنسيقات لوحة التحكم ==================
-DASHBOARD_CSS = """
-/* ================== تصميم لوحة التحكم ================== */
-.dashboard-layout {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    min-height: 100vh;
-    background: linear-gradient(135deg, var(--dark-bg) 0%, #1a202c 100%);
-}
-
-/* الشريط الجانبي */
-.sidebar {
-    background: linear-gradient(180deg, var(--dark-card) 0%, rgba(30, 41, 59, 0.95) 100%);
-    backdrop-filter: blur(10px);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-    padding: var(--space-6) 0;
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow-xl);
-    z-index: 40;
-}
-
-.sidebar::-webkit-scrollbar {
-    width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-full);
-}
-
-.sidebar-header {
-    padding: 0 var(--space-6) var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: var(--space-6);
-}
-
-.sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    margin-bottom: var(--space-6);
-}
-
-.sidebar-brand-icon {
-    width: 48px;
-    height: 48px;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-    box-shadow: var(--shadow-primary);
-}
-
-.sidebar-brand-text h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.sidebar-brand-text p {
-    font-size: 0.75rem;
-    color: var(--dark-text-secondary);
-}
-
-.sidebar-nav {
-    padding: 0 var(--space-6);
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    margin-bottom: var(--space-2);
-    border-radius: var(--radius-lg);
-    color: var(--dark-text-secondary);
-    text-decoration: none;
-    transition: all var(--transition-fast);
-    position: relative;
-    overflow: hidden;
-}
-
-.nav-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 3px;
-    height: 0;
-    background: linear-gradient(180deg, var(--primary-color), var(--accent-color));
-    border-radius: 0 var(--radius-full) var(--radius-full) 0;
-    transition: height var(--transition-normal);
-}
-
-.nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--dark-text);
-    transform: translateX(-5px);
-}
-
-.nav-item:hover::before {
-    height: 100%;
-}
-
-.nav-item.active {
-    background: rgba(37, 99, 235, 0.1);
-    color: var(--primary-color);
-    font-weight: 500;
-}
-
-.nav-item.active::before {
-    height: 100%;
-}
-
-.nav-item .nav-icon {
-    width: 20px;
-    text-align: center;
-    font-size: 1.125rem;
-    transition: transform var(--transition-normal);
-}
-
-.nav-item:hover .nav-icon {
-    transform: scale(1.1);
-}
-
-.nav-item .nav-badge {
-    margin-right: auto;
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-    background: rgba(239, 68, 68, 0.2);
-    color: var(--danger-color);
-}
-
-/* المحتوى الرئيسي */
-.main-content {
-    overflow-y: auto;
-    max-height: 100vh;
-    padding: var(--space-6);
-}
-
-.navbar {
-    background: var(--dark-card);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: var(--space-4) var(--space-6);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    margin-bottom: var(--space-6);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
-}
-
-.navbar-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
-}
-
-.navbar-title h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.navbar-title p {
-    font-size: 0.875rem;
-    color: var(--dark-text-secondary);
-    margin-top: var(--space-1);
-}
-
-.navbar-actions {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-}
-
-.notification-btn {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--dark-text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.notification-btn:hover {
-    background: rgba(37, 99, 235, 0.1);
-    color: var(--primary-color);
-    border-color: rgba(37, 99, 235, 0.3);
-}
-
-.notification-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    width: 18px;
-    height: 18px;
-    background: linear-gradient(135deg, var(--danger-color), #dc2626);
-    color: white;
-    font-size: 0.75rem;
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-}
-
-.time-display {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: var(--radius-full);
-    font-size: 0.875rem;
-    color: var(--dark-text-secondary);
-}
-
-.time-display i {
-    color: var(--primary-color);
-}
-
-/* الكروت */
-.card {
-    background: var(--dark-card);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    transition: all var(--transition-normal);
-    position: relative;
-    overflow: hidden;
-}
-
-.card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.6s ease;
-}
-
-.card:hover::before {
-    transform: translateX(100%);
-}
-
-.card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-2xl);
-    border-color: rgba(37, 99, 235, 0.3);
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-6);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.card-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--dark-text);
-}
-
-.card-subtitle {
-    font-size: 0.875rem;
-    color: var(--dark-text-secondary);
-    margin-top: var(--space-1);
-}
-
-.card-actions {
-    display: flex;
-    gap: var(--space-2);
-}
-
-/* الشبكات */
-.grid {
-    display: grid;
-    gap: var(--space-6);
-}
-
-.grid-1 { grid-template-columns: repeat(1, 1fr); }
-.grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-4 { grid-template-columns: repeat(4, 1fr); }
-.grid-5 { grid-template-columns: repeat(5, 1fr); }
-.grid-6 { grid-template-columns: repeat(6, 1fr); }
-
-/* الأزرار */
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
-    border-radius: var(--radius-lg);
-    font-weight: 500;
-    text-decoration: none;
-    transition: all var(--transition-fast);
-    border: none;
-    cursor: pointer;
-    font-size: 0.875rem;
-    position: relative;
-    overflow: hidden;
-}
-
-.btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: translate(-50%, -50%);
-    transition: width 0.6s, height 0.6s;
-}
-
-.btn:hover::before {
-    width: 300px;
-    height: 300px;
-}
-
-.btn:active {
-    transform: scale(0.98);
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-    color: white;
-    box-shadow: var(--shadow-primary);
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
-    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-}
-
-.btn-secondary {
-    background: linear-gradient(135deg, var(--secondary-color), var(--secondary-dark));
-    color: white;
-    box-shadow: var(--shadow-secondary);
-}
-
-.btn-success {
-    background: linear-gradient(135deg, var(--success-color), #059669);
-    color: white;
-}
-
-.btn-danger {
-    background: linear-gradient(135deg, var(--danger-color), #dc2626);
-    color: white;
-}
-
-.btn-warning {
-    background: linear-gradient(135deg, var(--warning-color), #d97706);
-    color: white;
-}
-
-.btn-accent {
-    background: linear-gradient(135deg, var(--accent-color), #7c3aed);
-    color: white;
-    box-shadow: var(--shadow-accent);
-}
-
-.btn-outline {
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--dark-text-secondary);
-}
-
-.btn-outline:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    background: rgba(37, 99, 235, 0.05);
-}
-
-.btn-sm {
-    padding: var(--space-2) var(--space-4);
-    font-size: 0.75rem;
-}
-
-.btn-lg {
-    padding: var(--space-4) var(--space-8);
-    font-size: 1rem;
-}
-
-.btn-icon {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border-radius: var(--radius-full);
-}
-
-/* الجداول */
-.table-container {
-    overflow-x: auto;
-    border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    min-width: 800px;
-}
-
-.table thead {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1));
-}
-
-.table th {
-    padding: var(--space-4) var(--space-6);
-    text-align: right;
-    font-weight: 600;
-    color: var(--primary-color);
-    border-bottom: 2px solid rgba(37, 99, 235, 0.2);
-    white-space: nowrap;
-}
-
-.table td {
-    padding: var(--space-4) var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: var(--dark-text-secondary);
-}
-
-.table tbody tr {
-    transition: all var(--transition-fast);
-}
-
-.table tbody tr:hover {
-    background: rgba(255, 255, 255, 0.03);
-    transform: translateX(-4px);
-}
-
-.table tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* البطاقات الإحصائية */
-.stat-card {
-    text-align: center;
-    padding: var(--space-8) var(--space-6);
-    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.stat-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto var(--space-4);
-    font-size: 1.5rem;
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
-    box-shadow: var(--shadow-primary);
-}
-
-.stat-number {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: var(--space-2);
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    color: var(--dark-text-secondary);
-    margin-bottom: var(--space-3);
-}
-
-.stat-change {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    font-size: 0.875rem;
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-full);
-    background: rgba(16, 185, 129, 0.1);
-    color: var(--success-color);
-}
-
-.stat-change.negative {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger-color);
-}
-
-/* الأشكال الهندسية */
-.badge {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-}
-
-.badge-primary {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    color: white;
-}
-
-.badge-success {
-    background: linear-gradient(135deg, var(--success-color), #059669);
-    color: white;
-}
-
-.badge-warning {
-    background: linear-gradient(135deg, var(--warning-color), #d97706);
-    color: white;
-}
-
-.badge-danger {
-    background: linear-gradient(135deg, var(--danger-color), #dc2626);
-    color: white;
-}
-
-.badge-info {
-    background: linear-gradient(135deg, var(--info-color), #2563eb);
-    color: white;
-}
-
-.badge-outline {
-    background: transparent;
-    border: 1px solid currentColor;
-    color: currentColor;
-}
-
-/* النماذج */
-.form-group {
-    margin-bottom: var(--space-6);
-}
-
-.form-label {
-    display: block;
-    margin-bottom: var(--space-2);
-    font-weight: 500;
-    color: var(--dark-text);
-    font-size: 0.875rem;
-}
-
-.form-control {
-    width: 100%;
-    padding: var(--space-3) var(--space-4);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-lg);
-    color: var(--dark-text);
-    font-size: 0.875rem;
-    transition: all var(--transition-fast);
-}
-
-.form-control:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.form-control::placeholder {
-    color: var(--dark-text-secondary);
-}
-
-.form-control:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.form-text {
-    display: block;
-    margin-top: var(--space-1);
-    font-size: 0.75rem;
-    color: var(--dark-text-secondary);
-}
-
-.form-select {
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-    background-position: left 0.5rem center;
-    background-repeat: no-repeat;
-    background-size: 1.5em 1.5em;
-    padding-left: 2.5rem;
-}
-
-.form-check {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    cursor: pointer;
-}
-
-.form-check-input {
-    width: 18px;
-    height: 18px;
-    border-radius: var(--radius-sm);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.05);
-    transition: all var(--transition-fast);
-    appearance: none;
-    position: relative;
-}
-
-.form-check-input:checked {
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    border-color: var(--primary-color);
-}
-
-.form-check-input:checked::after {
-    content: '✓';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.form-check-label {
-    font-size: 0.875rem;
-    color: var(--dark-text);
-}
-
-/* شريط التقدم */
-.progress {
-    width: 100%;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-}
-
-.progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-    border-radius: var(--radius-full);
-    transition: width 1s ease;
-}
-
-/* الأدوات */
-.tooltip {
-    position: relative;
-}
-
-.tooltip-text {
-    position: absolute;
-    bottom: 100%;
-    right: 50%;
-    transform: translateX(50%);
-    background: var(--dark-card);
-    color: var(--dark-text);
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    font-size: 0.75rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all var(--transition-fast);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: var(--shadow-lg);
-    z-index: 50;
-    margin-bottom: var(--space-2);
-}
-
-.tooltip:hover .tooltip-text {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* المودال */
-.modal {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(4px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: var(--space-4);
-    opacity: 0;
-    visibility: hidden;
-    transition: all var(--transition-normal);
-}
-
-.modal.show {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background: var(--dark-card);
-    border-radius: var(--radius-xl);
-    padding: var(--space-8);
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    transform: scale(0.9);
-    transition: transform var(--transition-normal);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: var(--shadow-2xl);
-}
-
-.modal.show .modal-content {
-    transform: scale(1);
-}
-
-.modal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-6);
-    padding-bottom: var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.modal-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--dark-text);
-}
-
-.modal-close {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.05);
-    border: none;
-    color: var(--dark-text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.modal-close:hover {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger-color);
-}
-
-/* التنبيهات */
-.alert {
-    padding: var(--space-4) var(--space-6);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-4);
-    border: 1px solid transparent;
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-3);
-}
-
-.alert-icon {
-    font-size: 1.25rem;
-    flex-shrink: 0;
-    margin-top: 2px;
-}
-
-.alert-content {
-    flex: 1;
-}
-
-.alert-title {
-    font-weight: 600;
-    margin-bottom: var(--space-1);
-    color: inherit;
-}
-
-.alert-message {
-    font-size: 0.875rem;
-    color: inherit;
-    opacity: 0.9;
-}
-
-.alert-success {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.2);
-    color: var(--success-color);
-}
-
-.alert-danger {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.2);
-    color: var(--danger-color);
-}
-
-.alert-warning {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.2);
-    color: var(--warning-color);
-}
-
-.alert-info {
-    background: rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 99, 235, 0.2);
-    color: var(--info-color);
-}
-
-/* الرسوم البيانية */
-.chart-container {
-    position: relative;
-    height: 300px;
-    width: 100%;
-}
-
-/* التحميل */
-.loading {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.loading-spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-/* الصور */
-.img-fluid {
-    max-width: 100%;
-    height: auto;
-}
-
-.img-thumbnail {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-lg);
-    padding: var(--space-2);
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* التجاوب */
-@media (max-width: 1024px) {
-    .dashboard-layout {
-        grid-template-columns: 1fr;
-    }
-    
-    .sidebar {
-        display: none;
-    }
-    
-    .grid-3, .grid-4, .grid-5, .grid-6 {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .grid-2, .grid-3, .grid-4, .grid-5, .grid-6 {
-        grid-template-columns: 1fr;
-    }
-    
-    .navbar-content {
-        flex-direction: column;
-        align-items: stretch;
-        gap: var(--space-3);
-    }
-    
-    .navbar-actions {
-        justify-content: space-between;
-    }
-    
-    .main-content {
-        padding: var(--space-4);
-    }
-}
-
-@media (max-width: 480px) {
-    .card {
-        padding: var(--space-4);
-    }
-    
-    .table th,
-    .table td {
-        padding: var(--space-3);
-    }
-    
-    .btn {
-        padding: var(--space-2) var(--space-4);
-    }
-}
-
-/* تأثيرات خاصة */
-.glass-effect {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.glow-effect {
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
-}
-
-.hover-lift:hover {
-    transform: translateY(-4px);
-    transition: transform var(--transition-normal);
-}
-
-.hover-scale:hover {
-    transform: scale(1.05);
-    transition: transform var(--transition-normal);
-}
-
-/* التحسينات للغة الإنجليزية */
-[dir="ltr"] .sidebar {
-    border-right: none;
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-[dir="ltr"] .nav-item::before {
-    right: auto;
-    left: 0;
-    border-radius: var(--radius-full) 0 0 var(--radius-full);
-}
-
-[dir="ltr"] .nav-item:hover {
-    transform: translateX(5px);
-}
-
-[dir="ltr"] .form-select {
-    background-position: right 0.5rem center;
-    padding-right: 2.5rem;
-    padding-left: var(--space-4);
-}
-
-[dir="ltr"] .table th,
-[dir="ltr"] .table td {
-    text-align: left;
-}
-
-[dir="ltr"] .table tbody tr:hover {
-    transform: translateX(4px);
-}
-
-/* إضافة تنسيقات للرموز */
-.icon-xs { font-size: 0.75rem !important; }
-.icon-sm { font-size: 1rem !important; }
-.icon-md { font-size: 1.25rem !important; }
-.icon-lg { font-size: 1.5rem !important; }
-.icon-xl { font-size: 2rem !important; }
-.icon-2xl { font-size: 3rem !important; }
-
-/* تنسيقات إضافية */
-.separator {
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-    margin: var(--space-6) 0;
-}
-
-.divider {
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    margin: var(--space-4) 0;
-}
-
-.list-group {
-    list-style: none;
-    padding: 0;
-}
-
-.list-group-item {
-    padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all var(--transition-fast);
-}
-
-.list-group-item:hover {
-    background: rgba(255, 255, 255, 0.03);
-}
-
-.list-group-item:last-child {
-    border-bottom: none;
-}
-
-.breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    margin-bottom: var(--space-6);
-}
-
-.breadcrumb-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.875rem;
-    color: var(--dark-text-secondary);
-}
-
-.breadcrumb-item.active {
-    color: var(--primary-color);
-}
-
-.breadcrumb-divider {
-    color: var(--dark-text-secondary);
-    opacity: 0.5;
-}
-
-/* تحسينات للأقسام */
-.section {
-    margin-bottom: var(--space-8);
-}
-
-.section-header {
-    margin-bottom: var(--space-6);
-}
-
-.section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: var(--space-2);
-    color: var(--dark-text);
-}
-
-.section-description {
-    font-size: 0.875rem;
-    color: var(--dark-text-secondary);
-}
-
-/* تحسينات للبطاقات التفاعلية */
-.interactive-card {
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-.interactive-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-    transform: translateX(-100%);
-}
-
-.interactive-card:hover::after {
-    animation: shimmer 2s infinite;
-}
-
-/* تحسينات للأزرار مع الرموز */
-.btn-with-icon {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-4);
-    border-radius: var(--radius-lg);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--dark-text-secondary);
-    text-decoration: none;
-    transition: all var(--transition-fast);
-}
-
-.btn-with-icon:hover {
-    background: rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 99, 235, 0.3);
-    color: var(--primary-color);
-}
-
-/* تحسينات للجداول التفاعلية */
-.table-hover tbody tr {
-    cursor: pointer;
-}
-
-.table-striped tbody tr:nth-child(odd) {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.table-bordered {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.table-bordered th,
-.table-bordered td {
-    border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-/* تحسينات للأشكال */
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.avatar-sm {
-    width: 32px;
-    height: 32px;
-    font-size: 0.875rem;
-}
-
-.avatar-lg {
-    width: 56px;
-    height: 56px;
-    font-size: 1.25rem;
-}
-
-.avatar-xl {
-    width: 80px;
-    height: 80px;
-    font-size: 1.5rem;
-}
-
-/* تحسينات للإشعارات */
-.notification {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-3);
-    padding: var(--space-3) var(--space-4);
-    background: rgba(255, 255, 255, 0.03);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-2);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all var(--transition-fast);
-}
-
-.notification:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-.notification.unread {
-    background: rgba(37, 99, 235, 0.05);
-    border-color: rgba(37, 99, 235, 0.1);
-}
-
-.notification-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: var(--radius-full);
-    background: rgba(37, 99, 235, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-color);
-    flex-shrink: 0;
-}
-
-.notification-content {
-    flex: 1;
-}
-
-.notification-title {
-    font-weight: 600;
-    margin-bottom: var(--space-1);
-    color: var(--dark-text);
-}
-
-.notification-message {
-    font-size: 0.875rem;
-    color: var(--dark-text-secondary);
-    margin-bottom: var(--space-1);
-}
-
-.notification-time {
-    font-size: 0.75rem;
-    color: var(--dark-text-secondary);
-    opacity: 0.7;
-}
-
-/* تحسينات للرموز الحالة */
-.status-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-1);
-}
-
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: var(--radius-full);
-    background: currentColor;
-}
-
-.status-online {
-    color: var(--success-color);
-}
-
-.status-offline {
-    color: var(--danger-color);
-}
-
-.status-away {
-    color: var(--warning-color);
-}
-
-.status-busy {
-    color: var(--accent-color);
-}
-
-/* تحسينات للرموز التفاعلية */
-.icon-button {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-full);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: var(--dark-text-secondary);
-    cursor: pointer;
-    transition: all var(--transition-fast);
-}
-
-.icon-button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: var(--dark-text);
-}
-
-.icon-button:active {
-    transform: scale(0.95);
-}
-
-.icon-button-primary {
-    background: rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 99, 235, 0.2);
-    color: var(--primary-color);
-}
-
-.icon-button-primary:hover {
-    background: rgba(37, 99, 235, 0.2);
-    border-color: rgba(37, 99, 235, 0.3);
-}
-
-.icon-button-success {
-    background: rgba(16, 185, 129, 0.1);
-    border-color: rgba(16, 185, 129, 0.2);
-    color: var(--success-color);
-}
-
-.icon-button-success:hover {
-    background: rgba(16, 185, 129, 0.2);
-    border-color: rgba(16, 185, 129, 0.3);
-}
-
-.icon-button-danger {
-    background: rgba(239, 68, 68, 0.1);
-    border-color: rgba(239, 68, 68, 0.2);
-    color: var(--danger-color);
-}
-
-.icon-button-danger:hover {
-    background: rgba(239, 68, 68, 0.2);
-    border-color: rgba(239, 68, 68, 0.3);
-}
-
-.icon-button-warning {
-    background: rgba(245, 158, 11, 0.1);
-    border-color: rgba(245, 158, 11, 0.2);
-    color: var(--warning-color);
-}
-
-.icon-button-warning:hover {
-    background: rgba(245, 158, 11, 0.2);
-    border-color: rgba(245, 158, 11, 0.3);
-}
-
-/* تحسينات للتظليل */
-.shadow-inner {
-    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.1);
-}
-
-.shadow-none {
-    box-shadow: none !important;
-}
-
-/* تحسينات للحدود */
-.border-0 { border-width: 0 !important; }
-.border-2 { border-width: 2px !important; }
-.border-4 { border-width: 4px !important; }
-
-.border-t { border-top: 1px solid rgba(255, 255, 255, 0.1) !important; }
-.border-r { border-right: 1px solid rgba(255, 255, 255, 0.1) !important; }
-.border-b { border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important; }
-.border-l { border-left: 1px solid rgba(255, 255, 255, 0.1) !important; }
-
-/* تحسينات للظلال النصية */
-.text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.text-shadow-sm {
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-.text-shadow-lg {
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
-}
-
-/* تحسينات للتدرجات النصية */
-.text-gradient {
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-primary {
-    background-image: linear-gradient(135deg, var(--primary-color), var(--accent-color));
-}
-
-.text-gradient-secondary {
-    background-image: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
-}
-
-/* تحسينات للخلفيات */
-.bg-blur {
-    backdrop-filter: blur(8px);
-}
-
-.bg-blur-sm {
-    backdrop-filter: blur(4px);
-}
-
-.bg-blur-lg {
-    backdrop-filter: blur(16px);
-}
-
-/* تحسينات للارتفاعات */
-.min-h-0 { min-height: 0 !important; }
-.min-h-full { min-height: 100% !important; }
-.min-h-screen { min-height: 100vh !important; }
-
-.max-h-0 { max-height: 0 !important; }
-.max-h-full { max-height: 100% !important; }
-.max-h-screen { max-height: 100vh !important; }
-
-.h-0 { height: 0 !important; }
-.h-full { height: 100% !important; }
-.h-screen { height: 100vh !important; }
-
-/* تحسينات للعروض */
-.min-w-0 { min-width: 0 !important; }
-.min-w-full { min-width: 100% !important; }
-
-.max-w-0 { max-width: 0 !important; }
-.max-w-full { max-width: 100% !important; }
-.max-w-screen-sm { max-width: 640px !important; }
-.max-w-screen-md { max-width: 768px !important; }
-.max-w-screen-lg { max-width: 1024px !important; }
-.max-w-screen-xl { max-width: 1280px !important; }
-.max-w-screen-2xl { max-width: 1536px !important; }
-
-.w-0 { width: 0 !important; }
-.w-full { width: 100% !important; }
-.w-screen { width: 100vw !important; }
-
-/* تحسينات للفواصل */
-.space-x-1 > * + * { margin-right: var(--space-1) !important; }
-.space-x-2 > * + * { margin-right: var(--space-2) !important; }
-.space-x-3 > * + * { margin-right: var(--space-3) !important; }
-.space-x-4 > * + * { margin-right: var(--space-4) !important; }
-.space-x-5 > * + * { margin-right: var(--space-5) !important; }
-.space-x-6 > * + * { margin-right: var(--space-6) !important; }
-
-.space-y-1 > * + * { margin-top: var(--space-1) !important; }
-.space-y-2 > * + * { margin-top: var(--space-2) !important; }
-.space-y-3 > * + * { margin-top: var(--space-3) !important; }
-.space-y-4 > * + * { margin-top: var(--space-4) !important; }
-.space-y-5 > * + * { margin-top: var(--space-5) !important; }
-.space-y-6 > * + * { margin-top: var(--space-6) !important; }
-
-/* تحسينات للعرض */
-.block { display: block !important; }
-.inline-block { display: inline-block !important; }
-.inline { display: inline !important; }
-.inline-flex { display: inline-flex !important; }
-.table { display: table !important; }
-.table-row { display: table-row !important; }
-.table-cell { display: table-cell !important; }
-
-/* تحسينات للموضع */
-.static { position: static !important; }
-.fixed { position: fixed !important; }
-.absolute { position: absolute !important; }
-.relative { position: relative !important; }
-.sticky { position: sticky !important; }
-
-.inset-0 {
-    top: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    left: 0 !important;
-}
-
-.top-0 { top: 0 !important; }
-.right-0 { right: 0 !important; }
-.bottom-0 { bottom: 0 !important; }
-.left-0 { left: 0 !important; }
-
-.top-auto { top: auto !important; }
-.right-auto { right: auto !important; }
-.bottom-auto { bottom: auto !important; }
-.left-auto { left: auto !important; }
-
-/* تحسينات للتحويلات */
-.transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)) !important; }
-.transform-none { transform: none !important; }
-
-.translate-x-0 { --tw-translate-x: 0px !important; }
-.translate-x-full { --tw-translate-x: 100% !important; }
-.translate-y-0 { --tw-translate-y: 0px !important; }
-.translate-y-full { --tw-translate-y: 100% !important; }
-
-.rotate-0 { --tw-rotate: 0deg !important; }
-.rotate-90 { --tw-rotate: 90deg !important; }
-.rotate-180 { --tw-rotate: 180deg !important; }
-.rotate-270 { --tw-rotate: 270deg !important; }
-
-.scale-0 { --tw-scale-x: 0 !important; --tw-scale-y: 0 !important; }
-.scale-50 { --tw-scale-x: .5 !important; --tw-scale-y: .5 !important; }
-.scale-75 { --tw-scale-x: .75 !important; --tw-scale-y: .75 !important; }
-.scale-90 { --tw-scale-x: .9 !important; --tw-scale-y: .9 !important; }
-.scale-95 { --tw-scale-x: .95 !important; --tw-scale-y: .95 !important; }
-.scale-100 { --tw-scale-x: 1 !important; --tw-scale-y: 1 !important; }
-.scale-105 { --tw-scale-x: 1.05 !important; --tw-scale-y: 1.05 !important; }
-.scale-110 { --tw-scale-x: 1.1 !important; --tw-scale-y: 1.1 !important; }
-.scale-125 { --tw-scale-x: 1.25 !important; --tw-scale-y: 1.25 !important; }
-
-/* تحسينات لمؤشرات التحميل */
-.spinner {
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    border-top-color: var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-.spinner-sm {
-    width: 16px;
-    height: 16px;
-}
-
-.spinner-md {
-    width: 24px;
-    height: 24px;
-}
-
-.spinner-lg {
-    width: 32px;
-    height: 32px;
-}
-
-.spinner-xl {
-    width: 48px;
-    height: 48px;
-}
-
-/* تحسينات للخطوط */
-.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important; }
-.font-serif { font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif !important; }
-.font-sans { font-family: ui-sans-serif, system-ui, -apple-system, sans-serif !important; }
-
-/* تحسينات للحروف */
-.uppercase { text-transform: uppercase !important; }
-.lowercase { text-transform: lowercase !important; }
-.capitalize { text-transform: capitalize !important; }
-.normal-case { text-transform: none !important; }
-
-.italic { font-style: italic !important; }
-.not-italic { font-style: normal !important; }
-
-.underline { text-decoration: underline !important; }
-.line-through { text-decoration: line-through !important; }
-.no-underline { text-decoration: none !important; }
-
-/* تحسينات للقوائم */
-.list-none { list-style-type: none !important; }
-.list-disc { list-style-type: disc !important; }
-.list-decimal { list-style-type: decimal !important; }
-
-.list-inside { list-style-position: inside !important; }
-.list-outside { list-style-position: outside !important; }
-
-/* تحسينات للمحتوى */
-.content-center { align-content: center !important; }
-.content-start { align-content: flex-start !important; }
-.content-end { align-content: flex-end !important; }
-.content-between { align-content: space-between !important; }
-.content-around { align-content: space-around !important; }
-.content-evenly { align-content: space-evenly !important; }
-
-/* تحسينات لمحاذاة العناصر */
-.place-items-center { place-items: center !important; }
-.place-items-start { place-items: start !important; }
-.place-items-end { place-items: end !important; }
-.place-items-stretch { place-items: stretch !important; }
-
-.place-content-center { place-content: center !important; }
-.place-content-start { place-content: start !important; }
-.place-content-end { place-content: end !important; }
-.place-content-between { place-content: space-between !important; }
-.place-content-around { place-content: space-around !important; }
-.place-content-evenly { place-content: space-evenly !important; }
-.place-content-stretch { place-content: stretch !important; }
-
-.place-self-auto { place-self: auto !important; }
-.place-self-start { place-self: start !important; }
-.place-self-end { place-self: end !important; }
-.place-self-center { place-self: center !important; }
-.place-self-stretch { place-self: stretch !important; }
-
-/* تحسينات للعرض والشاشات */
-@media (min-width: 640px) {
-    .sm\\:grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
-    .sm\\:grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
-    .sm\\:grid-4 { grid-template-columns: repeat(4, 1fr) !important; }
-}
-
-@media (min-width: 768px) {
-    .md\\:grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
-    .md\\:grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
-    .md\\:grid-4 { grid-template-columns: repeat(4, 1fr) !important; }
-    .md\\:grid-5 { grid-template-columns: repeat(5, 1fr) !important; }
-    .md\\:grid-6 { grid-template-columns: repeat(6, 1fr) !important; }
-}
-
-@media (min-width: 1024px) {
-    .lg\\:grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
-    .lg\\:grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
-    .lg\\:grid-4 { grid-template-columns: repeat(4, 1fr) !important; }
-    .lg\\:grid-5 { grid-template-columns: repeat(5, 1fr) !important; }
-    .lg\\:grid-6 { grid-template-columns: repeat(6, 1fr) !important; }
-}
-
-@media (min-width: 1280px) {
-    .xl\\:grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
-    .xl\\:grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
-    .xl\\:grid-4 { grid-template-columns: repeat(4, 1fr) !important; }
-    .xl\\:grid-5 { grid-template-columns: repeat(5, 1fr) !important; }
-    .xl\\:grid-6 { grid-template-columns: repeat(6, 1fr) !important; }
-}
-
-@media (min-width: 1536px) {
-    .\\32xl\\:grid-2 { grid-template-columns: repeat(2, 1fr) !important; }
-    .\\32xl\\:grid-3 { grid-template-columns: repeat(3, 1fr) !important; }
-    .\\32xl\\:grid-4 { grid-template-columns: repeat(4, 1fr) !important; }
-    .\\32xl\\:grid-5 { grid-template-columns: repeat(5, 1fr) !important; }
-    .\\32xl\\:grid-6 { grid-template-columns: repeat(6, 1fr) !important; }
-}
-"""
-
-# ================== قالب لوحة التحكم المحسن ==================
-def get_dashboard_template(title, subtitle, content, current_lang='ar'):
-    """إنشاء قالب لوحة التحكم مع دعم اللغات"""
-    lang = current_lang if current_lang in ['ar', 'en'] else 'ar'
-    dir = 'rtl' if lang == 'ar' else 'ltr'
-    
-    # الحصول على النصوص باللغة المحددة
-    t = lambda key: multilang.get_text(key, lang)
-    
-    # إحصائيات الإشعارات
-    notification_count = 0
-    if session.get('user_logged_in'):
-        notifications = NotificationSystem.get_user_notifications(session['user_id'], unread_only=True, limit=10)
-        notification_count = len(notifications)
-    
-    template = f"""
-    <!DOCTYPE html>
-    <html dir="{dir}" lang="{lang}">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{title} - InvoiceFlow Pro</title>
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
-        <style>
-            {BASE_CSS}
-            {DASHBOARD_CSS}
-            
-            /* تنسيقات إضافية للغة الإنجليزية */
-            [dir="ltr"] .arabic-text {{
-                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                line-height: 1.6;
-            }}
-            
-            [dir="ltr"] .sidebar-nav {{
-                padding-left: 0;
-                padding-right: 0;
-            }}
-            
-            [dir="ltr"] .nav-item {{
-                padding-left: var(--space-4);
-                padding-right: var(--space-4);
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="dashboard-layout">
-            <!-- الشريط الجانبي -->
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <div class="sidebar-brand">
-                        <div class="sidebar-brand-icon">
-                            <i class="fas fa-file-invoice-dollar"></i>
-                        </div>
-                        <div class="sidebar-brand-text">
-                            <h2>InvoiceFlow Pro</h2>
-                            <p>{t('professional_system')}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="card bg-dark-card p-4">
-                        <div class="flex items-center gap-3">
-                            <div class="avatar bg-gradient-primary">
-                                {session.get('username', 'A')[0].upper()}
-                            </div>
-                            <div>
-                                <p class="font-semibold text-dark">{session.get('username', 'User')}</p>
-                                <p class="text-xs text-muted">{session.get('company_name', t('my_company'))}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <nav class="sidebar-nav">
-                    <a href="{{{{ url_for('dashboard') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'dashboard' else '' }}}}">
-                        <i class="fas fa-tachometer-alt nav-icon"></i>
-                        <span>{t('dashboard')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('invoices') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'invoices' else '' }}}}">
-                        <i class="fas fa-file-invoice-dollar nav-icon"></i>
-                        <span>{t('invoices')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('create_invoice') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'create_invoice' else '' }}}}">
-                        <i class="fas fa-plus-circle nav-icon"></i>
-                        <span>{t('create_invoice')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('clients') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'clients' else '' }}}}">
-                        <i class="fas fa-users nav-icon"></i>
-                        <span>{t('clients')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('products') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'products' else '' }}}}">
-                        <i class="fas fa-box nav-icon"></i>
-                        <span>{t('products')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('reports') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'reports' else '' }}}}">
-                        <i class="fas fa-chart-bar nav-icon"></i>
-                        <span>{t('reports')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('ai_insights') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'ai_insights' else '' }}}}">
-                        <i class="fas fa-robot nav-icon"></i>
-                        <span>{t('ai_insights')}</span>
-                    </a>
-                    
-                    <div class="separator"></div>
-                    
-                    <a href="{{{{ url_for('profile') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'profile' else '' }}}}">
-                        <i class="fas fa-user-cog nav-icon"></i>
-                        <span>{t('profile')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('settings') }}}}" class="nav-item {{{{ 'active' if request.endpoint == 'settings' else '' }}}}">
-                        <i class="fas fa-cog nav-icon"></i>
-                        <span>{t('settings')}</span>
-                    </a>
-                    
-                    <a href="{{{{ url_for('logout') }}}}" class="nav-item">
-                        <i class="fas fa-sign-out-alt nav-icon"></i>
-                        <span>{t('logout')}</span>
-                    </a>
-                </nav>
-                
-                <div class="px-6 mt-auto pt-6 border-t border-dark-border">
-                    <div class="text-center">
-                        <p class="text-sm text-muted mb-2">InvoiceFlow Pro</p>
-                        <p class="text-xs text-muted">{t('professional_version')} 2024</p>
-                        
-                        <!-- تبديل اللغة -->
-                        <div class="mt-4">
-                            <select id="languageSwitch" class="form-control form-select text-sm" onchange="switchLanguage(this.value)">
-                                <option value="ar" {{{{ 'selected' if session.get('language', 'ar') == 'ar' else '' }}}}>العربية</option>
-                                <option value="en" {{{{ 'selected' if session.get('language', 'ar') == 'en' else '' }}}}>English</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-            
-            <!-- المحتوى الرئيسي -->
-            <main class="main-content">
-                <!-- شريط التنقل العلوي -->
-                <nav class="navbar">
-                    <div class="navbar-content">
-                        <div class="navbar-title">
-                            <h1>{title}</h1>
-                            <p>{subtitle}</p>
-                        </div>
-                        
-                        <div class="navbar-actions">
-                            <!-- زر الإشعارات -->
-                            <div class="relative">
-                                <button class="notification-btn" onclick="toggleNotifications()">
-                                    <i class="fas fa-bell"></i>
-                                    {{{{ '<span class="notification-badge">{}</span>'.format(notification_count) if notification_count > 0 else '' }}}}
-                                </button>
-                                
-                                <!-- قائمة الإشعارات -->
-                                <div id="notificationsPanel" class="hidden absolute top-full left-0 mt-2 w-80 bg-dark-card border border-dark-border rounded-xl shadow-2xl z-50">
-                                    <div class="p-4 border-b border-dark-border">
-                                        <div class="flex items-center justify-between">
-                                            <h3 class="font-semibold">{t('notifications')}</h3>
-                                            <button class="text-sm text-primary hover:underline" onclick="markAllNotificationsAsRead()">
-                                                {t('mark_all_as_read')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="max-h-96 overflow-y-auto">
-                                        {{{{ generate_notifications_list(notifications if notifications else []) }}}}
-                                    </div>
-                                    <div class="p-4 border-t border-dark-border text-center">
-                                        <a href="#" class="text-sm text-primary hover:underline">{t('view_all_notifications')}</a>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- الوقت -->
-                            <div class="time-display">
-                                <i class="fas fa-clock"></i>
-                                <span id="currentTime">{datetime.now().strftime('%I:%M %p')}</span>
-                            </div>
-                            
-                            <!-- معلومات المستخدم -->
-                            <div class="flex items-center gap-2">
-                                <div class="avatar bg-gradient-primary">
-                                    {session.get('username', 'U')[0].upper()}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-                
-                <!-- رسائل التنبيه -->
-                {{{{ get_flashed_messages_html() }}}}
-                
-                <!-- محتوى الصفحة -->
-                <div class="content-container">
-                    {content}
-                </div>
-            </main>
-        </div>
-        
-        <!-- نصوص JavaScript -->
-        <script>
-            // تحديث الوقت
-            function updateTime() {{
-                const now = new Date();
-                const timeStr = now.toLocaleTimeString('{{{{ 'ar-SA' if '{lang}' == 'ar' else 'en-US' }}}}');
-                document.getElementById('currentTime').textContent = timeStr;
-            }}
-            
-            setInterval(updateTime, 1000);
-            updateTime();
-            
-            // تبديل اللغة
-            function switchLanguage(lang) {{
-                fetch('{{{{ url_for('set_language') }}}}', {{
-                    method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json',
-                    }},
-                    body: JSON.stringify({{language: lang}})
-                }})
-                .then(response => response.json())
-                .then(data => {{
-                    if (data.success) {{
-                        window.location.reload();
-                    }}
-                }});
-            }}
-            
-            // عرض/إخفاء الإشعارات
-            function toggleNotifications() {{
-                const panel = document.getElementById('notificationsPanel');
-                panel.classList.toggle('hidden');
-            }}
-            
-            // إغلاق الإشعارات عند النقر خارجها
-            document.addEventListener('click', function(event) {{
-                const notificationsBtn = document.querySelector('.notification-btn');
-                const notificationsPanel = document.getElementById('notificationsPanel');
-                
-                if (!notificationsBtn.contains(event.target) && !notificationsPanel.contains(event.target)) {{
-                    notificationsPanel.classList.add('hidden');
-                }}
-            }});
-            
-            // تحديد جميع الإشعارات كمقروءة
-            function markAllNotificationsAsRead() {{
-                fetch('{{{{ url_for('mark_all_notifications_as_read') }}}}', {{
-                    method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json',
-                    }},
-                }})
-                .then(response => response.json())
-                .then(data => {{
-                    if (data.success) {{
-                        window.location.reload();
-                    }}
-                }});
-            }}
-            
-            // تحديد إشعار كمقروء
-            function markNotificationAsRead(notificationId) {{
-                fetch('{{{{ url_for('mark_notification_as_read') }}}}', {{
-                    method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json',
-                    }},
-                    body: JSON.stringify({{id: notificationId}})
-                }})
-                .then(response => response.json())
-                .then(data => {{
-                    if (data.success) {{
-                        document.querySelector(`[data-notification-id="${{notificationId}}"]`).classList.remove('unread');
-                    }}
-                }});
-            }}
-            
-            // تحميل الصفحة
-            document.addEventListener('DOMContentLoaded', function() {{
-                // إضافة تأثير التحميل
-                document.body.style.opacity = '0';
-                document.body.style.transition = 'opacity 0.3s ease';
-                
-                setTimeout(() => {{
-                    document.body.style.opacity = '1';
-                }}, 100);
-                
-                // إضافة تأثيرات للبطاقات
-                document.querySelectorAll('.card').forEach(card => {{
-                    card.classList.add('scale-in');
-                }});
-            }});
-        </script>
-    </body>
-    </html>
-    """
-    return template
-
-# ================== دوال المساعدة ==================
+# ================== دوال المساعدة للقوالب ==================
 def get_flashed_messages_html():
     """إنشاء HTML لرسائل التنبيه"""
     messages_html = ""
-    with app.test_request_context():
-        messages = session.get('_flashes', [])
+    try:
+        from flask import get_flashed_messages
+        messages = get_flashed_messages(with_categories=True)
         for category, message in messages:
             icon = {
                 'success': 'check-circle',
@@ -5454,8 +3166,38 @@ def get_flashed_messages_html():
                 </div>
             </div>
             """
+    except:
+        pass
     
     return messages_html
+
+def get_time_ago(timestamp):
+    """الحصول على الوقت المنقضي"""
+    if isinstance(timestamp, str):
+        try:
+            timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+        except:
+            return "الآن" if session.get('language', 'ar') == 'ar' else "Just now"
+    
+    now = datetime.now()
+    diff = now - timestamp
+    
+    if diff.days > 365:
+        years = diff.days // 365
+        return f"منذ {years} سنة" if session.get('language', 'ar') == 'ar' else f"{years} year{'s' if years > 1 else ''} ago"
+    elif diff.days > 30:
+        months = diff.days // 30
+        return f"منذ {months} شهر" if session.get('language', 'ar') == 'ar' else f"{months} month{'s' if months > 1 else ''} ago"
+    elif diff.days > 0:
+        return f"منذ {diff.days} يوم" if session.get('language', 'ar') == 'ar' else f"{diff.days} day{'s' if diff.days > 1 else ''} ago"
+    elif diff.seconds > 3600:
+        hours = diff.seconds // 3600
+        return f"منذ {hours} ساعة" if session.get('language', 'ar') == 'ar' else f"{hours} hour{'s' if hours > 1 else ''} ago"
+    elif diff.seconds > 60:
+        minutes = diff.seconds // 60
+        return f"منذ {minutes} دقيقة" if session.get('language', 'ar') == 'ar' else f"{minutes} minute{'s' if minutes > 1 else ''} ago"
+    else:
+        return "الآن" if session.get('language', 'ar') == 'ar' else "Just now"
 
 def generate_notifications_list(notifications):
     """إنشاء قائمة الإشعارات"""
@@ -5483,7 +3225,7 @@ def generate_notifications_list(notifications):
         time_ago = get_time_ago(notification['created_at'])
         
         notifications_html += f"""
-        <div class="notification {{{{ 'unread' if not notification['is_read'] else '' }}}}" data-notification-id="{notification['id']}">
+        <div class="notification {'unread' if not notification['is_read'] else ''}" data-notification-id="{notification['id']}">
             <div class="notification-icon">
                 <i class="{icon_class}"></i>
             </div>
@@ -5492,369 +3234,12 @@ def generate_notifications_list(notifications):
                 <p class="notification-message">{notification['message']}</p>
                 <p class="notification-time">{time_ago}</p>
             </div>
-            {{{{ '<button class="icon-button icon-button-primary" onclick="markNotificationAsRead({})"><i class="fas fa-check"></i></button>'.format(notification['id']) if not notification['is_read'] else '' }}}}
         </div>
         """
     
     return notifications_html
 
-def get_time_ago(timestamp):
-    """الحصول على الوقت المنقضي"""
-    if isinstance(timestamp, str):
-        timestamp = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-    
-    now = datetime.now()
-    diff = now - timestamp
-    
-    if diff.days > 365:
-        years = diff.days // 365
-        return f"منذ {years} سنة" if session.get('language', 'ar') == 'ar' else f"{years} year{'s' if years > 1 else ''} ago"
-    elif diff.days > 30:
-        months = diff.days // 30
-        return f"منذ {months} شهر" if session.get('language', 'ar') == 'ar' else f"{months} month{'s' if months > 1 else ''} ago"
-    elif diff.days > 0:
-        return f"منذ {diff.days} يوم" if session.get('language', 'ar') == 'ar' else f"{diff.days} day{'s' if diff.days > 1 else ''} ago"
-    elif diff.seconds > 3600:
-        hours = diff.seconds // 3600
-        return f"منذ {hours} ساعة" if session.get('language', 'ar') == 'ar' else f"{hours} hour{'s' if hours > 1 else ''} ago"
-    elif diff.seconds > 60:
-        minutes = diff.seconds // 60
-        return f"منذ {minutes} دقيقة" if session.get('language', 'ar') == 'ar' else f"{minutes} minute{'s' if minutes > 1 else ''} ago"
-    else:
-        return "الآن" if session.get('language', 'ar') == 'ar' else "Just now"
-
-# ================== نظام PDF المحترف ==================
-class ProfessionalPDFGenerator:
-    def __init__(self):
-        # تسجيل الخطوط العربية
-        try:
-            # استخدام خط افتراضي إذا لم تكن الخطوط متوفرة
-            self.arabic_font = "Helvetica"
-        except:
-            self.arabic_font = "Helvetica"
-    
-    def reshape_arabic_text(self, text):
-        """تعديل النص العربي للعرض الصحيح"""
-        if not text:
-            return ""
-        
-        try:
-            # إعادة تشكيل النص العربي
-            reshaped_text = arabic_reshaper.reshape(text)
-            # عكس النص للعرض من اليمين لليسار
-            bidi_text = get_display(reshaped_text)
-            return bidi_text
-        except:
-            return text
-    
-    def generate_invoice_pdf(self, invoice_data, user_data):
-        """إنشاء فاتورة PDF احترافية"""
-        try:
-            # إنشاء buffer للـ PDF
-            buffer = io.BytesIO()
-            
-            # إنشاء المستند
-            doc = SimpleDocTemplate(
-                buffer,
-                pagesize=A4,
-                rightMargin=20*mm,
-                leftMargin=20*mm,
-                topMargin=20*mm,
-                bottomMargin=20*mm,
-                title=f"Invoice {invoice_data.get('invoice_number', '')}"
-            )
-            
-            styles = getSampleStyleSheet()
-            
-            # إنشاء أنماط مخصصة
-            title_style = ParagraphStyle(
-                'Title',
-                parent=styles['Heading1'],
-                fontSize=24,
-                textColor=colors.black,
-                alignment=1,  # Center
-                spaceAfter=20
-            )
-            
-            # نمط للنصوص العربية
-            arabic_style = ParagraphStyle(
-                'Arabic',
-                parent=styles['Normal'],
-                fontName=self.arabic_font,
-                fontSize=10,
-                textColor=colors.black,
-                alignment=2,  # Right
-                wordWrap='RTL'
-            )
-            
-            # نمط للعناوين
-            heading_style = ParagraphStyle(
-                'Heading',
-                parent=styles['Heading2'],
-                fontSize=14,
-                textColor=colors.black,
-                alignment=2,  # Right
-                spaceAfter=10
-            )
-            
-            # نمط للبيانات
-            data_style = ParagraphStyle(
-                'Data',
-                parent=styles['Normal'],
-                fontSize=10,
-                textColor=colors.black,
-                alignment=2  # Right
-            )
-            
-            elements = []
-            
-            # رأس الفاتورة
-            header_table_data = [
-                [
-                    # معلومات الشركة
-                    Paragraph(f"<b>{self.reshape_arabic_text(user_data.get('company_name', 'شركتي'))}</b>", arabic_style),
-                    # العنوان
-                    Paragraph(f"<b>فاتورة ضريبية</b>", title_style)
-                ]
-            ]
-            
-            header_table = Table(header_table_data, colWidths=[250, 250])
-            header_table.setStyle(TableStyle([
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 20),
-            ]))
-            
-            elements.append(header_table)
-            elements.append(Spacer(1, 20))
-            
-            # معلومات الشركة والعميل
-            company_info = f"""
-            <b>معلومات البائع:</b><br/>
-            {self.reshape_arabic_text(user_data.get('company_name', 'شركتي'))}<br/>
-            {self.reshape_arabic_text(user_data.get('address', 'العنوان'))}<br/>
-            الهاتف: {user_data.get('phone', '0000000000')}<br/>
-            البريد الإلكتروني: {user_data.get('email', 'info@company.com')}<br/>
-            الرقم الضريبي: {user_data.get('tax_number', '')}
-            """
-            
-            client_info = f"""
-            <b>معلومات العميل:</b><br/>
-            {self.reshape_arabic_text(invoice_data.get('client_name', 'عميل'))}<br/>
-            {self.reshape_arabic_text(invoice_data.get('client_address', 'العنوان'))}<br/>
-            الهاتف: {invoice_data.get('client_phone', '0000000000')}<br/>
-            البريد الإلكتروني: {invoice_data.get('client_email', 'client@email.com')}<br/>
-            الرقم الضريبي: {invoice_data.get('client_tax_number', '')}
-            """
-            
-            info_table_data = [
-                [
-                    Paragraph(company_info, arabic_style),
-                    Paragraph(client_info, arabic_style)
-                ]
-            ]
-            
-            info_table = Table(info_table_data, colWidths=[250, 250])
-            info_table.setStyle(TableStyle([
-                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-                ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 9),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 15),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-                ('BACKGROUND', (0, 0), (0, 0), colors.HexColor('#F8F9FA')),
-                ('BACKGROUND', (1, 0), (1, 0), colors.HexColor('#F8F9FA')),
-            ]))
-            
-            elements.append(info_table)
-            elements.append(Spacer(1, 20))
-            
-            # تفاصيل الفاتورة
-            details_data = [
-                ['رقم الفاتورة', invoice_data.get('invoice_number', 'INV-0001')],
-                ['تاريخ الإصدار', invoice_data.get('issue_date', datetime.now().strftime('%Y/%m/%d'))],
-                ['تاريخ الاستحقاق', invoice_data.get('due_date', datetime.now().strftime('%Y/%m/%d'))],
-                ['طريقة الدفع', invoice_data.get('payment_method', 'نقدي')],
-                ['الحالة', invoice_data.get('status', 'معلقة')]
-            ]
-            
-            details_table = Table(details_data, colWidths=[100, 100])
-            details_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2C3E50')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F8F9FA')),
-                ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-                ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                ('FONTSIZE', (0, 1), (-1, -1), 9),
-                ('GRID', (0, 0), (-1, -1), 0.5, colors.grey)
-            ]))
-            
-            elements.append(details_table)
-            elements.append(Spacer(1, 20))
-            
-            # جدول العناصر
-            items = invoice_data.get('items', [])
-            if not items:
-                items = [
-                    {'name': 'خدمة استشارية', 'description': 'استشارة تقنية متخصصة', 'quantity': 1, 'price': 1000, 'total': 1000},
-                    {'name': 'تصميم جرافيك', 'description': 'تصميم شعار احترافي', 'quantity': 2, 'price': 500, 'total': 1000}
-                ]
-            
-            items_data = [
-                [
-                    'الوصف',
-                    'الكمية', 
-                    'سعر الوحدة',
-                    'المجموع'
-                ]
-            ]
-            
-            for item in items:
-                items_data.append([
-                    self.reshape_arabic_text(item.get('name', '')),
-                    str(item.get('quantity', 1)),
-                    f"{item.get('price', 0):.2f}",
-                    f"{item.get('total', 0):.2f}"
-                ])
-            
-            items_table = Table(items_data, colWidths=[200, 60, 80, 80])
-            items_table.setStyle(TableStyle([
-                ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2C3E50')),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('FONTSIZE', (0, 0), (-1, 0), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
-                ('BACKGROUND', (0, 1), (-1, -2), colors.HexColor('#F8F9FA')),
-                ('TEXTCOLOR', (0, 1), (-1, -2), colors.black),
-                ('GRID', (0, 0), (-1, -2), 0.5, colors.grey),
-                ('ALIGN', (1, 1), (-1, -2), 'RIGHT'),
-            ]))
-            
-            elements.append(items_table)
-            elements.append(Spacer(1, 10))
-            
-            # إضافة المجاميع
-            subtotal = invoice_data.get('subtotal', 2000)
-            tax_rate = invoice_data.get('tax_rate', 15)
-            tax_amount = invoice_data.get('tax_amount', 300)
-            discount = invoice_data.get('discount', 0)
-            total = invoice_data.get('total_amount', 2300)
-            
-            totals_data = [
-                ['', '', 'المجموع الفرعي:', f"{subtotal:.2f}"],
-                ['', '', 'الضريبة:', f"{tax_amount:.2f}"],
-                ['', '', 'الخصم:', f"-{discount:.2f}"],
-                ['', '', '<b>الإجمالي:</b>', f"<b>{total:.2f}</b>"]
-            ]
-            
-            totals_table = Table(totals_data, colWidths=[200, 60, 80, 80])
-            totals_table.setStyle(TableStyle([
-                ('ALIGN', (2, 0), (2, -1), 'RIGHT'),
-                ('ALIGN', (3, 0), (3, -1), 'RIGHT'),
-                ('FONTNAME', (2, -1), (3, -1), 'Helvetica-Bold'),
-                ('FONTSIZE', (2, -1), (3, -1), 11),
-                ('TEXTCOLOR', (2, -1), (3, -1), colors.HexColor('#2C3E50')),
-                ('TOPPADDING', (0, 0), (-1, -1), 10),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-            ]))
-            
-            elements.append(totals_table)
-            elements.append(Spacer(1, 20))
-            
-            # الملاحظات
-            if invoice_data.get('notes'):
-                notes_text = f"<b>ملاحظات:</b><br/>{self.reshape_arabic_text(invoice_data.get('notes'))}"
-                elements.append(Paragraph(notes_text, arabic_style))
-                elements.append(Spacer(1, 20))
-            
-            # التوقيعات
-            signatures_data = [
-                [
-                    Paragraph("_________________________<br/>توقيع البائع", data_style),
-                    Paragraph("_________________________<br/>توقيع العميل", data_style)
-                ]
-            ]
-            
-            signatures_table = Table(signatures_data, colWidths=[250, 250])
-            signatures_table.setStyle(TableStyle([
-                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                ('VALIGN', (0, 0), (-1, -1), 'BOTTOM'),
-                ('TOPPADDING', (0, 0), (-1, -1), 40),
-            ]))
-            
-            elements.append(signatures_table)
-            elements.append(Spacer(1, 20))
-            
-            # تذييل الصفحة
-            footer_text = f"""
-            <b>شكراً لتعاملك معنا</b><br/>
-            للاستفسارات: {user_data.get('phone', '')} | {user_data.get('email', '')}<br/>
-            هذه الفاتورة تم إنشاؤها تلقائياً بواسطة نظام InvoiceFlow Pro
-            """
-            
-            elements.append(Paragraph(self.reshape_arabic_text(footer_text), ParagraphStyle(
-                'Footer',
-                parent=styles['Normal'],
-                fontSize=8,
-                textColor=colors.grey,
-                alignment=1,  # Center
-                spaceBefore=20
-            )))
-            
-            # إنشاء الـ QR Code
-            try:
-                # إنشاء QR Code يحتوي على معلومات الفاتورة
-                qr_data = {
-                    'invoice_number': invoice_data.get('invoice_number', ''),
-                    'company': user_data.get('company_name', ''),
-                    'client': invoice_data.get('client_name', ''),
-                    'amount': total,
-                    'date': invoice_data.get('issue_date', ''),
-                    'url': f"https://invoiceflow.pro/invoice/{invoice_data.get('invoice_number', '')}"
-                }
-                
-                qr = qrcode.QRCode(
-                    version=1,
-                    error_correction=qrcode.constants.ERROR_CORRECT_L,
-                    box_size=3,
-                    border=2,
-                )
-                qr.add_data(json.dumps(qr_data, ensure_ascii=False))
-                qr.make(fit=True)
-                
-                qr_img = qr.make_image(fill_color="black", back_color="white")
-                qr_buffer = io.BytesIO()
-                qr_img.save(qr_buffer, format='PNG')
-                qr_buffer.seek(0)
-                
-                # إضافة QR Code إلى PDF
-                qr_image = Image(qr_buffer, width=60, height=60)
-                qr_image.hAlign = 'LEFT'
-                elements.append(qr_image)
-                
-            except Exception as e:
-                print(f"خطأ في إنشاء QR Code: {e}")
-            
-            # بناء المستند
-            doc.build(elements)
-            
-            buffer.seek(0)
-            return buffer
-            
-        except Exception as e:
-            print(f"خطأ في إنشاء PDF: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
-
-# ================== الصفحات الرئيسية ==================
-
+# ================== قوالب الصفحات ==================
 @app.route('/')
 def index():
     """الصفحة الرئيسية"""
@@ -5873,18 +3258,10 @@ def login():
         password = request.form.get('password', '')
         remember = request.form.get('remember')
         
-        # التحقق من المدخلات
         if not username or not password:
             flash('يرجى إدخال اسم المستخدم وكلمة المرور', 'error')
             return redirect(url_for('login'))
         
-        # التحقق من الحظر المؤقت
-        if session.get('login_blocked_until') and time.time() < session['login_blocked_until']:
-            remaining = int((session['login_blocked_until'] - time.time()) / 60)
-            flash(f'تم تجاوز عدد المحاولات المسموحة، يرجى المحاولة بعد {remaining} دقيقة', 'error')
-            return redirect(url_for('login'))
-        
-        # البحث عن المستخدم
         user = db.execute_query(
             "SELECT * FROM users WHERE username = ? AND is_active = 1",
             (username,),
@@ -5892,45 +3269,16 @@ def login():
         )
         
         if not user:
-            # زيادة عدد المحاولات الفاشلة
-            failed_attempts = session.get('failed_login_attempts', 0) + 1
-            session['failed_login_attempts'] = failed_attempts
-            
-            if failed_attempts >= 5:
-                session['login_blocked_until'] = time.time() + 900  # 15 دقيقة
-                flash('تم تجاوز عدد المحاولات المسموحة، يرجى المحاولة بعد 15 دقيقة', 'error')
-            else:
-                flash('اسم المستخدم أو كلمة المرور غير صحيحة', 'error')
-            
+            flash('اسم المستخدم أو كلمة المرور غير صحيحة', 'error')
             return redirect(url_for('login'))
         
-        # التحقق من كلمة المرور
         if not check_password_hash(user['password_hash'], password):
-            # زيادة عدد المحاولات الفاشلة
-            failed_attempts = session.get('failed_login_attempts', 0) + 1
-            session['failed_login_attempts'] = failed_attempts
-            
-            if failed_attempts >= 5:
-                session['login_blocked_until'] = time.time() + 900  # 15 دقيقة
-                flash('تم تجاوز عدد المحاولات المسموحة، يرجى المحاولة بعد 15 دقيقة', 'error')
-            else:
-                flash('اسم المستخدم أو كلمة المرور غير صحيحة', 'error')
-            
-            # تحديث عدد محاولات الدخول الفاشلة في قاعدة البيانات
-            db.execute_query(
-                "UPDATE users SET failed_login_attempts = failed_login_attempts + 1 WHERE id = ?",
-                (user['id'],)
-            )
-            
+            flash('اسم المستخدم أو كلمة المرور غير صحيحة', 'error')
             return redirect(url_for('login'))
         
-        # إعادة تعيين محاولات الدخول الفاشلة
-        session.pop('failed_login_attempts', None)
-        session.pop('login_blocked_until', None)
-        
-        # تحديث وقت الدخول الأخير وإعادة تعيين المحاولات الفاشلة
+        # تحديث وقت الدخول الأخير
         db.execute_query(
-            "UPDATE users SET last_login = CURRENT_TIMESTAMP, failed_login_attempts = 0 WHERE id = ?",
+            "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?",
             (user['id'],)
         )
         
@@ -5946,35 +3294,10 @@ def login():
         session.permanent = bool(remember)
         session['last_activity'] = time.time()
         
-        # تسجيل النشاط
-        ActivityLogger.log_activity(
-            user['id'],
-            'login',
-            'تسجيل دخول ناجح',
-            request
-        )
-        
-        # إنشاء إشعار ترحيبي
-        NotificationSystem.create_notification(
-            user['id'],
-            'info',
-            'مرحباً بك في InvoiceFlow Pro',
-            f'مرحباً {user["full_name"] or user["username"]}! تم تسجيل دخولك بنجاح.',
-            {'type': 'welcome'}
-        )
-        
         flash(f'مرحباً بك {session["full_name"]}!', 'success')
-        
-        next_page = request.form.get('next') or url_for('dashboard')
-        return redirect(next_page)
+        return redirect(url_for('dashboard'))
     
-    # التحقق من الحظر المؤقت
-    if session.get('login_blocked_until') and time.time() < session['login_blocked_until']:
-        remaining = int((session['login_blocked_until'] - time.time()) / 60)
-        flash(f'الدخول محظور مؤقتاً، يرجى المحاولة بعد {remaining} دقيقة', 'error')
-    
-    # صفحة تسجيل الدخول
-    html = """
+    html = f"""
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
     <head>
@@ -5984,18 +3307,18 @@ def login():
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
         <style>
-            {{ css }}
+            {BASE_CSS}
             
-            .login-container {
+            .login-container {{
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 background: linear-gradient(135deg, var(--dark-bg) 0%, #1a202c 100%);
                 padding: var(--space-4);
-            }
+            }}
             
-            .login-card {
+            .login-card {{
                 background: var(--dark-card);
                 border-radius: var(--radius-2xl);
                 padding: var(--space-8);
@@ -6004,14 +3327,14 @@ def login():
                 box-shadow: var(--shadow-2xl);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 animation: scaleIn 0.5s ease;
-            }
+            }}
             
-            .login-header {
+            .login-header {{
                 text-align: center;
                 margin-bottom: var(--space-8);
-            }
+            }}
             
-            .login-logo {
+            .login-logo {{
                 width: 80px;
                 height: 80px;
                 background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
@@ -6023,9 +3346,9 @@ def login():
                 font-size: 2rem;
                 color: white;
                 box-shadow: var(--shadow-primary);
-            }
+            }}
             
-            .login-title {
+            .login-title {{
                 font-size: 1.875rem;
                 font-weight: 700;
                 background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
@@ -6033,48 +3356,48 @@ def login():
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
                 margin-bottom: var(--space-2);
-            }
+            }}
             
-            .login-subtitle {
+            .login-subtitle {{
                 color: var(--dark-text-secondary);
                 font-size: 0.875rem;
-            }
+            }}
             
-            .login-form .form-group {
+            .login-form .form-group {{
                 margin-bottom: var(--space-4);
-            }
+            }}
             
-            .login-form .form-label {
+            .login-form .form-label {{
                 display: flex;
                 align-items: center;
                 gap: var(--space-2);
                 color: var(--dark-text-secondary);
-            }
+            }}
             
-            .login-options {
+            .login-options {{
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 margin-bottom: var(--space-6);
-            }
+            }}
             
-            .login-remember {
+            .login-remember {{
                 display: flex;
                 align-items: center;
                 gap: var(--space-2);
-            }
+            }}
             
-            .login-forgot {
+            .login-forgot {{
                 color: var(--primary-color);
                 text-decoration: none;
                 font-size: 0.875rem;
-            }
+            }}
             
-            .login-forgot:hover {
+            .login-forgot:hover {{
                 text-decoration: underline;
-            }
+            }}
             
-            .login-button {
+            .login-button {{
                 width: 100%;
                 padding: var(--space-4);
                 border-radius: var(--radius-lg);
@@ -6088,71 +3411,71 @@ def login():
                 align-items: center;
                 justify-content: center;
                 gap: var(--space-2);
-            }
+            }}
             
-            .login-button:hover {
+            .login-button:hover {{
                 transform: translateY(-2px);
                 box-shadow: var(--shadow-primary);
-            }
+            }}
             
-            .login-button:active {
+            .login-button:active {{
                 transform: translateY(0);
-            }
+            }}
             
-            .login-footer {
+            .login-footer {{
                 margin-top: var(--space-6);
                 text-align: center;
                 color: var(--dark-text-secondary);
                 font-size: 0.875rem;
-            }
+            }}
             
-            .login-footer a {
+            .login-footer a {{
                 color: var(--primary-color);
                 text-decoration: none;
-            }
+            }}
             
-            .login-footer a:hover {
+            .login-footer a:hover {{
                 text-decoration: underline;
-            }
+            }}
             
-            .test-credentials {
+            .test-credentials {{
                 margin-top: var(--space-6);
                 padding: var(--space-4);
                 background: rgba(255, 255, 255, 0.03);
                 border-radius: var(--radius-lg);
                 border: 1px solid rgba(255, 255, 255, 0.1);
-            }
+            }}
             
-            .test-credentials h4 {
+            .test-credentials h4 {{
                 font-size: 0.875rem;
                 margin-bottom: var(--space-2);
                 color: var(--dark-text-secondary);
-            }
+            }}
             
-            .test-credentials .credentials {
+            .test-credentials .credentials {{
                 display: grid;
                 gap: var(--space-2);
-            }
+            }}
             
-            .credential-item {
+            .credential-item {{
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-            }
+            }}
             
-            .credential-label {
+            .credential-label {{
                 font-size: 0.75rem;
                 color: var(--dark-text-secondary);
-            }
+            }}
             
-            .credential-value {
+            .credential-value {{
                 font-family: monospace;
                 background: rgba(0, 0, 0, 0.3);
                 padding: var(--space-1) var(--space-2);
                 border-radius: var(--radius-sm);
                 font-size: 0.75rem;
                 color: var(--primary-color);
-            }
+            }}
         </style>
     </head>
     <body>
@@ -6166,10 +3489,10 @@ def login():
                     <p class="login-subtitle">نظام إدارة الفواتير الاحترافي</p>
                 </div>
                 
-                {{ get_flashed_messages_html() }}
+                {get_flashed_messages_html()}
                 
-                <form class="login-form" method="POST" action="{{ url_for('login') }}">
-                    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+                <form class="login-form" method="POST" action="{url_for('login')}">
+                    <input type="hidden" name="next" value="{request.args.get('next', '')}">
                     
                     <div class="form-group">
                         <label class="form-label">
@@ -6222,7 +3545,7 @@ def login():
                 <div class="login-footer">
                     <p>
                         ليس لديك حساب؟ 
-                        <a href="{{ url_for('register') }}">إنشاء حساب جديد</a>
+                        <a href="{url_for('register')}">إنشاء حساب جديد</a>
                     </p>
                     <p class="mt-2 text-xs">
                         © 2024 InvoiceFlow Pro. جميع الحقوق محفوظة.
@@ -6233,20 +3556,20 @@ def login():
         
         <script>
             // إضافة تأثير عند التحميل
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function() {{
                 document.body.style.opacity = '0';
                 document.body.style.transition = 'opacity 0.3s ease';
                 
-                setTimeout(() => {
+                setTimeout(() => {{
                     document.body.style.opacity = '1';
-                }, 100);
-            });
+                }}, 100);
+            }});
         </script>
     </body>
     </html>
     """
     
-    return render_template_string(html, css=BASE_CSS)
+    return render_template_string(html)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -6263,7 +3586,6 @@ def register():
         company_name = request.form.get('company_name', '').strip()
         phone = request.form.get('phone', '').strip()
         
-        # التحقق من المدخلات
         errors = []
         
         if not username or len(username) < 3:
@@ -6272,15 +3594,8 @@ def register():
         if not email or '@' not in email:
             errors.append('البريد الإلكتروني غير صالح')
         
-        # التحقق من قوة كلمة المرور
-        if len(password) < 8:
-            errors.append('كلمة المرور يجب أن تكون 8 أحرف على الأقل')
-        elif not any(char.isdigit() for char in password):
-            errors.append('كلمة المرور يجب أن تحتوي على رقم واحد على الأقل')
-        elif not any(char.isupper() for char in password):
-            errors.append('كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل')
-        elif not any(char.islower() for char in password):
-            errors.append('كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل')
+        if len(password) < 6:
+            errors.append('كلمة المرور يجب أن تكون 6 أحرف على الأقل')
         
         if password != confirm_password:
             errors.append('كلمتا المرور غير متطابقتين')
@@ -6290,7 +3605,6 @@ def register():
                 flash(error, 'error')
             return redirect(url_for('register'))
         
-        # التحقق من عدم وجود المستخدم مسبقاً
         existing_user = db.execute_query(
             "SELECT id FROM users WHERE username = ? OR email = ?",
             (username, email),
@@ -6301,44 +3615,17 @@ def register():
             flash('اسم المستخدم أو البريد الإلكتروني مسجل مسبقاً', 'error')
             return redirect(url_for('register'))
         
-        # إنشاء المستخدم الجديد
         password_hash = generate_password_hash(password)
-        verification_token = secrets.token_urlsafe(32)
         
         db.execute_query('''
-            INSERT INTO users (username, email, password_hash, full_name, company_name, phone, verification_token)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (username, email, password_hash, full_name, company_name, phone, verification_token))
-        
-        # الحصول على معرف المستخدم الجديد
-        new_user = db.execute_query(
-            "SELECT id FROM users WHERE username = ?", 
-            (username,), fetchone=True
-        )
-        
-        if new_user:
-            # تسجيل النشاط
-            ActivityLogger.log_activity(
-                new_user['id'],
-                'register',
-                'إنشاء حساب جديد',
-                request
-            )
-            
-            # إنشاء إشعار ترحيبي
-            NotificationSystem.create_notification(
-                new_user['id'],
-                'info',
-                'مرحباً بك في InvoiceFlow Pro',
-                'تم إنشاء حسابك بنجاح! يمكنك الآن تسجيل الدخول.',
-                {'type': 'welcome'}
-            )
+            INSERT INTO users (username, email, password_hash, full_name, company_name, phone)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (username, email, password_hash, full_name, company_name, phone))
         
         flash('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول.', 'success')
         return redirect(url_for('login'))
     
-    # صفحة التسجيل
-    html = """
+    html = f"""
     <!DOCTYPE html>
     <html dir="rtl" lang="ar">
     <head>
@@ -6348,18 +3635,18 @@ def register():
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
         <style>
-            {{ css }}
+            {BASE_CSS}
             
-            .register-container {
+            .register-container {{
                 min-height: 100vh;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 background: linear-gradient(135deg, var(--dark-bg) 0%, #1a202c 100%);
                 padding: var(--space-4);
-            }
+            }}
             
-            .register-card {
+            .register-card {{
                 background: var(--dark-card);
                 border-radius: var(--radius-2xl);
                 padding: var(--space-8);
@@ -6368,14 +3655,14 @@ def register():
                 box-shadow: var(--shadow-2xl);
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 animation: scaleIn 0.5s ease;
-            }
+            }}
             
-            .register-header {
+            .register-header {{
                 text-align: center;
                 margin-bottom: var(--space-8);
-            }
+            }}
             
-            .register-logo {
+            .register-logo {{
                 width: 80px;
                 height: 80px;
                 background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
@@ -6387,9 +3674,9 @@ def register():
                 font-size: 2rem;
                 color: white;
                 box-shadow: var(--shadow-primary);
-            }
+            }}
             
-            .register-title {
+            .register-title {{
                 font-size: 1.875rem;
                 font-weight: 700;
                 background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
@@ -6397,71 +3684,26 @@ def register():
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
                 margin-bottom: var(--space-2);
-            }
+            }}
             
-            .register-subtitle {
+            .register-subtitle {{
                 color: var(--dark-text-secondary);
                 font-size: 0.875rem;
-            }
+            }}
             
-            .register-form .form-group {
+            .register-form .form-group {{
                 margin-bottom: var(--space-4);
-            }
+            }}
             
-            .register-form .form-label {
+            .register-form .form-label {{
                 display: flex;
                 align-items: center;
                 gap: var(--space-2);
                 color: var(--dark-text-secondary);
                 font-size: 0.875rem;
-            }
+            }}
             
-            .password-strength {
-                height: 4px;
-                background: var(--gray-700);
-                border-radius: var(--radius-full);
-                margin-top: var(--space-1);
-                overflow: hidden;
-            }
-            
-            .strength-bar {
-                height: 100%;
-                width: 0;
-                border-radius: var(--radius-full);
-                transition: width var(--transition-normal), background-color var(--transition-normal);
-            }
-            
-            .strength-weak { width: 25%; background: var(--danger-color); }
-            .strength-medium { width: 50%; background: var(--warning-color); }
-            .strength-strong { width: 75%; background: var(--info-color); }
-            .strength-very-strong { width: 100%; background: var(--success-color); }
-            
-            .password-requirements {
-                margin-top: var(--space-2);
-                font-size: 0.75rem;
-                color: var(--dark-text-secondary);
-            }
-            
-            .requirement {
-                display: flex;
-                align-items: center;
-                gap: var(--space-1);
-                margin-bottom: var(--space-1);
-            }
-            
-            .requirement.met {
-                color: var(--success-color);
-            }
-            
-            .requirement.unmet {
-                color: var(--dark-text-secondary);
-            }
-            
-            .requirement i {
-                font-size: 0.875rem;
-            }
-            
-            .register-button {
+            .register-button {{
                 width: 100%;
                 padding: var(--space-4);
                 border-radius: var(--radius-lg);
@@ -6476,44 +3718,44 @@ def register():
                 justify-content: center;
                 gap: var(--space-2);
                 margin-top: var(--space-6);
-            }
+            }}
             
-            .register-button:hover {
+            .register-button:hover {{
                 transform: translateY(-2px);
                 box-shadow: var(--shadow-secondary);
-            }
+            }}
             
-            .register-button:active {
+            .register-button:active {{
                 transform: translateY(0);
-            }
+            }}
             
-            .register-footer {
+            .register-footer {{
                 margin-top: var(--space-6);
                 text-align: center;
                 color: var(--dark-text-secondary);
                 font-size: 0.875rem;
-            }
+            }}
             
-            .register-footer a {
+            .register-footer a {{
                 color: var(--primary-color);
                 text-decoration: none;
-            }
+            }}
             
-            .register-footer a:hover {
+            .register-footer a:hover {{
                 text-decoration: underline;
-            }
+            }}
             
-            .form-grid {
+            .form-grid {{
                 display: grid;
                 grid-template-columns: 1fr 1fr;
                 gap: var(--space-4);
-            }
+            }}
             
-            @media (max-width: 640px) {
-                .form-grid {
+            @media (max-width: 640px) {{
+                .form-grid {{
                     grid-template-columns: 1fr;
-                }
-            }
+                }}
+            }}
         </style>
     </head>
     <body>
@@ -6527,9 +3769,9 @@ def register():
                     <p class="register-subtitle">انضم إلى نظام InvoiceFlow Pro</p>
                 </div>
                 
-                {{ get_flashed_messages_html() }}
+                {get_flashed_messages_html()}
                 
-                <form class="register-form" method="POST" action="{{ url_for('register') }}">
+                <form class="register-form" method="POST" action="{url_for('register')}">
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label">
@@ -6586,29 +3828,7 @@ def register():
                                 كلمة المرور *
                             </label>
                             <input type="password" name="password" id="password" class="form-control" 
-                                   placeholder="8 أحرف على الأقل" required
-                                   oninput="checkPasswordStrength()">
-                            <div class="password-strength">
-                                <div class="strength-bar" id="strengthBar"></div>
-                            </div>
-                            <div class="password-requirements" id="passwordRequirements">
-                                <div class="requirement unmet" id="reqLength">
-                                    <i class="fas fa-times"></i>
-                                    <span>8 أحرف على الأقل</span>
-                                </div>
-                                <div class="requirement unmet" id="reqNumber">
-                                    <i class="fas fa-times"></i>
-                                    <span>رقم واحد على الأقل</span>
-                                </div>
-                                <div class="requirement unmet" id="reqUpper">
-                                    <i class="fas fa-times"></i>
-                                    <span>حرف كبير واحد على الأقل</span>
-                                </div>
-                                <div class="requirement unmet" id="reqLower">
-                                    <i class="fas fa-times"></i>
-                                    <span>حرف صغير واحد على الأقل</span>
-                                </div>
-                            </div>
+                                   placeholder="6 أحرف على الأقل" required>
                         </div>
                         
                         <div class="form-group">
@@ -6617,13 +3837,11 @@ def register():
                                 تأكيد كلمة المرور *
                             </label>
                             <input type="password" name="confirm_password" id="confirmPassword" class="form-control" 
-                                   placeholder="أعد إدخال كلمة المرور" required
-                                   oninput="checkPasswordMatch()">
-                            <div class="password-match text-sm mt-1" id="passwordMatch"></div>
+                                   placeholder="أعد إدخال كلمة المرور" required>
                         </div>
                     </div>
                     
-                    <button type="submit" class="register-button" id="submitButton" disabled>
+                    <button type="submit" class="register-button">
                         <i class="fas fa-user-plus"></i>
                         إنشاء الحساب
                     </button>
@@ -6632,7 +3850,7 @@ def register():
                 <div class="register-footer">
                     <p>
                         لديك حساب بالفعل؟ 
-                        <a href="{{ url_for('login') }}">سجل الدخول</a>
+                        <a href="{url_for('login')}">سجل الدخول</a>
                     </p>
                     <p class="mt-2 text-xs">
                         © 2024 InvoiceFlow Pro. جميع الحقوق محفوظة.
@@ -6642,109 +3860,1017 @@ def register():
         </div>
         
         <script>
-            function checkPasswordStrength() {
-                const password = document.getElementById('password').value;
-                const strengthBar = document.getElementById('strengthBar');
-                const submitButton = document.getElementById('submitButton');
-                
-                // إعادة تعيين المتطلبات
-                document.querySelectorAll('.requirement').forEach(req => {
-                    req.classList.remove('met');
-                    req.classList.add('unmet');
-                    req.querySelector('i').className = 'fas fa-times';
-                });
-                
-                let strength = 0;
-                
-                // التحقق من الطول
-                if (password.length >= 8) {
-                    strength++;
-                    document.getElementById('reqLength').classList.remove('unmet');
-                    document.getElementById('reqLength').classList.add('met');
-                    document.getElementById('reqLength').querySelector('i').className = 'fas fa-check';
-                }
-                
-                // التحقق من وجود أرقام
-                if (/\d/.test(password)) {
-                    strength++;
-                    document.getElementById('reqNumber').classList.remove('unmet');
-                    document.getElementById('reqNumber').classList.add('met');
-                    document.getElementById('reqNumber').querySelector('i').className = 'fas fa-check';
-                }
-                
-                // التحقق من وجود أحرف كبيرة
-                if (/[A-Z]/.test(password)) {
-                    strength++;
-                    document.getElementById('reqUpper').classList.remove('unmet');
-                    document.getElementById('reqUpper').classList.add('met');
-                    document.getElementById('reqUpper').querySelector('i').className = 'fas fa-check';
-                }
-                
-                // التحقق من وجود أحرف صغيرة
-                if (/[a-z]/.test(password)) {
-                    strength++;
-                    document.getElementById('reqLower').classList.remove('unmet');
-                    document.getElementById('reqLower').classList.add('met');
-                    document.getElementById('reqLower').querySelector('i').className = 'fas fa-check';
-                }
-                
-                // تحديث شريط القوة
-                strengthBar.className = 'strength-bar';
-                if (strength === 0) {
-                    strengthBar.style.width = '0%';
-                } else if (strength === 1) {
-                    strengthBar.classList.add('strength-weak');
-                } else if (strength === 2) {
-                    strengthBar.classList.add('strength-medium');
-                } else if (strength === 3) {
-                    strengthBar.classList.add('strength-strong');
-                } else if (strength === 4) {
-                    strengthBar.classList.add('strength-very-strong');
-                }
-                
-                // التحقق من مطابقة كلمة المرور
-                checkPasswordMatch();
-            }
-            
-            function checkPasswordMatch() {
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirmPassword').value;
-                const matchDiv = document.getElementById('passwordMatch');
-                const submitButton = document.getElementById('submitButton');
-                
-                if (password === '' || confirmPassword === '') {
-                    matchDiv.innerHTML = '';
-                    submitButton.disabled = true;
-                    return;
-                }
-                
-                if (password === confirmPassword) {
-                    matchDiv.innerHTML = '<span class="text-success"><i class="fas fa-check"></i> كلمات المرور متطابقة</span>';
-                    submitButton.disabled = false;
-                } else {
-                    matchDiv.innerHTML = '<span class="text-danger"><i class="fas fa-times"></i> كلمات المرور غير متطابقة</span>';
-                    submitButton.disabled = true;
-                }
-            }
-            
             // إضافة تأثير عند التحميل
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function() {{
                 document.body.style.opacity = '0';
                 document.body.style.transition = 'opacity 0.3s ease';
                 
-                setTimeout(() => {
+                setTimeout(() => {{
                     document.body.style.opacity = '1';
-                }, 100);
-                
-                // تفعيل التحقق الأولي
-                checkPasswordStrength();
-            });
+                }}, 100);
+            }});
         </script>
     </body>
     </html>
     """
     
-    return render_template_string(html, css=BASE_CSS)
+    return render_template_string(html)
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    """لوحة التحكم المحسنة"""
+    user_id = session['user_id']
+    lang = session.get('language', 'ar')
+    t = lambda key: multilang.get_text(key, lang)
+    
+    # إحصائيات المستخدم
+    stats = {
+        'total_invoices': db.execute_query(
+            "SELECT COUNT(*) FROM invoices WHERE user_id = ?", 
+            (user_id,), fetchone=True
+        )['COUNT(*)'] or 0,
+        
+        'total_revenue': db.execute_query(
+            "SELECT COALESCE(SUM(total_amount), 0) FROM invoices WHERE user_id = ? AND status = 'paid'", 
+            (user_id,), fetchone=True
+        )['COALESCE(SUM(total_amount), 0)'] or 0,
+        
+        'pending_invoices': db.execute_query(
+            "SELECT COUNT(*) FROM invoices WHERE user_id = ? AND status = 'pending'", 
+            (user_id,), fetchone=True
+        )['COUNT(*)'] or 0,
+        
+        'total_clients': db.execute_query(
+            "SELECT COUNT(*) FROM clients WHERE user_id = ?", 
+            (user_id,), fetchone=True
+        )['COUNT(*)'] or 0,
+    }
+    
+    # تحضير المحتوى
+    content = f"""
+    <div class="grid grid-4 gap-6 mb-6">
+        <!-- البطاقات الإحصائية -->
+        <div class="card stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+            </div>
+            <div class="stat-number">{stats['total_invoices']}</div>
+            <p class="stat-label">{t('total_invoices')}</p>
+        </div>
+        
+        <div class="card stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-number">${stats['total_revenue']:,.0f}</div>
+            <p class="stat-label">{t('total_revenue')}</p>
+        </div>
+        
+        <div class="card stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-number">{stats['pending_invoices']}</div>
+            <p class="stat-label">{t('pending_invoices')}</p>
+        </div>
+        
+        <div class="card stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-number">{stats['total_clients']}</div>
+            <p class="stat-label">{t('total_clients')}</p>
+        </div>
+    </div>
+    
+    <div class="grid grid-2 gap-6 mb-6">
+        <!-- الإجراءات السريعة -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{t('quick_actions')}</h3>
+            </div>
+            <div class="grid grid-2 gap-4">
+                <a href="{url_for('create_invoice')}" class="btn btn-primary">
+                    <i class="fas fa-plus-circle"></i>
+                    {t('create_invoice')}
+                </a>
+                
+                <a href="{url_for('clients')}" class="btn btn-outline">
+                    <i class="fas fa-user-plus"></i>
+                    {t('add_client')}
+                </a>
+                
+                <a href="{url_for('products')}" class="btn btn-outline">
+                    <i class="fas fa-box"></i>
+                    {t('add_product')}
+                </a>
+                
+                <a href="{url_for('reports')}" class="btn btn-outline">
+                    <i class="fas fa-chart-bar"></i>
+                    {t('view_reports')}
+                </a>
+            </div>
+        </div>
+        
+        <!-- نظرة سريعة -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">{t('quick_overview')}</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="text-muted">{t('invoices_this_month')}:</span>
+                    <span class="font-bold">0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-muted">{t('revenue_this_month')}:</span>
+                    <span class="font-bold text-success">$0</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-muted">{t('new_clients')}:</span>
+                    <span class="font-bold">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- معلومات النظام -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{t('system_info')}</h3>
+        </div>
+        <div class="p-6">
+            <div class="grid grid-3 gap-4">
+                <div class="text-center">
+                    <i class="fas fa-cube text-3xl text-primary mb-2"></i>
+                    <p class="font-bold">InvoiceFlow Pro</p>
+                    <p class="text-sm text-muted">v1.0.0</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-language text-3xl text-secondary mb-2"></i>
+                    <p class="font-bold">{t('language')}</p>
+                    <p class="text-sm text-muted">{t('arabic') if lang == 'ar' else t('english')}</p>
+                </div>
+                <div class="text-center">
+                    <i class="fas fa-database text-3xl text-accent mb-2"></i>
+                    <p class="font-bold">{t('database')}</p>
+                    <p class="text-sm text-muted">SQLite</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(
+        f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="{lang}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>InvoiceFlow Pro - {t('dashboard')}</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+            <style>
+                {BASE_CSS}
+                
+                /* تنسيقات لوحة التحكم */
+                .dashboard-container {{
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: var(--space-6);
+                }}
+                
+                .card {{
+                    background: var(--dark-card);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    transition: all var(--transition-normal);
+                    position: relative;
+                    overflow: hidden;
+                }}
+                
+                .card:hover {{
+                    transform: translateY(-4px);
+                    box-shadow: var(--shadow-2xl);
+                    border-color: rgba(37, 99, 235, 0.3);
+                }}
+                
+                .card-header {{
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: var(--space-6);
+                    padding-bottom: var(--space-4);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }}
+                
+                .card-title {{
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    color: var(--dark-text);
+                }}
+                
+                .stat-card {{
+                    text-align: center;
+                    padding: var(--space-8) var(--space-6);
+                    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+                    border: 1px solid rgba(255, 255, 255, 0.05);
+                }}
+                
+                .stat-icon {{
+                    width: 64px;
+                    height: 64px;
+                    border-radius: var(--radius-full);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin: 0 auto var(--space-4);
+                    font-size: 1.5rem;
+                    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+                    color: white;
+                    box-shadow: var(--shadow-primary);
+                }}
+                
+                .stat-number {{
+                    font-size: 2.5rem;
+                    font-weight: 800;
+                    margin-bottom: var(--space-2);
+                    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    background-clip: text;
+                }}
+                
+                .stat-label {{
+                    font-size: 0.875rem;
+                    color: var(--dark-text-secondary);
+                    margin-bottom: var(--space-3);
+                }}
+                
+                .grid {{
+                    display: grid;
+                    gap: var(--space-6);
+                }}
+                
+                .grid-1 {{ grid-template-columns: repeat(1, 1fr); }}
+                .grid-2 {{ grid-template-columns: repeat(2, 1fr); }}
+                .grid-3 {{ grid-template-columns: repeat(3, 1fr); }}
+                .grid-4 {{ grid-template-columns: repeat(4, 1fr); }}
+                
+                .btn {{
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: var(--space-2);
+                    padding: var(--space-3) var(--space-6);
+                    border-radius: var(--radius-lg);
+                    font-weight: 500;
+                    text-decoration: none;
+                    transition: all var(--transition-fast);
+                    border: none;
+                    cursor: pointer;
+                    font-size: 0.875rem;
+                }}
+                
+                .btn-primary {{
+                    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                    color: white;
+                    box-shadow: var(--shadow-primary);
+                }}
+                
+                .btn-primary:hover {{
+                    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+                }}
+                
+                .btn-outline {{
+                    background: transparent;
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    color: var(--dark-text-secondary);
+                }}
+                
+                .btn-outline:hover {{
+                    border-color: var(--primary-color);
+                    color: var(--primary-color);
+                    background: rgba(37, 99, 235, 0.05);
+                }}
+                
+                .space-y-4 > * + * {{
+                    margin-top: var(--space-4);
+                }}
+                
+                .flex {{
+                    display: flex;
+                }}
+                
+                .items-center {{
+                    align-items: center;
+                }}
+                
+                .justify-between {{
+                    justify-content: space-between;
+                }}
+                
+                .text-muted {{
+                    color: var(--dark-text-secondary);
+                }}
+                
+                .font-bold {{
+                    font-weight: 700;
+                }}
+                
+                .font-medium {{
+                    font-weight: 500;
+                }}
+                
+                .text-success {{
+                    color: var(--success-color);
+                }}
+                
+                .text-primary {{
+                    color: var(--primary-color);
+                }}
+                
+                .text-secondary {{
+                    color: var(--secondary-color);
+                }}
+                
+                .text-accent {{
+                    color: var(--accent-color);
+                }}
+                
+                .text-center {{
+                    text-align: center;
+                }}
+                
+                .mb-6 {{
+                    margin-bottom: var(--space-6);
+                }}
+                
+                @media (max-width: 768px) {{
+                    .grid-2, .grid-3, .grid-4 {{
+                        grid-template-columns: 1fr;
+                    }}
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="dashboard-container">
+                <!-- شريط التنقل -->
+                <nav style="margin-bottom: var(--space-6); padding: var(--space-4); background: var(--dark-card); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 1.25rem; font-weight: 700;">InvoiceFlow Pro</h1>
+                                <p style="font-size: 0.875rem; color: var(--dark-text-secondary);">{t('dashboard')}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <span style="color: var(--dark-text-secondary);">
+                                <i class="fas fa-user"></i> {session.get('username', 'User')}
+                            </span>
+                            <a href="{url_for('logout')}" style="padding: var(--space-2) var(--space-4); background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                                <i class="fas fa-sign-out-alt"></i> {t('logout')}
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- قائمة التنقل -->
+                    <div style="display: flex; gap: var(--space-2); margin-top: var(--space-4); flex-wrap: wrap;">
+                        <a href="{url_for('dashboard')}" style="padding: var(--space-2) var(--space-4); background: rgba(37, 99, 235, 0.1); color: var(--primary-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                            <i class="fas fa-tachometer-alt"></i> {t('dashboard')}
+                        </a>
+                        <a href="{url_for('clients')}" style="padding: var(--space-2) var(--space-4); color: var(--dark-text-secondary); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                            <i class="fas fa-users"></i> {t('clients')}
+                        </a>
+                        <a href="{url_for('products')}" style="padding: var(--space-2) var(--space-4); color: var(--dark-text-secondary); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                            <i class="fas fa-box"></i> {t('products')}
+                        </a>
+                        <a href="{url_for('reports')}" style="padding: var(--space-2) var(--space-4); color: var(--dark-text-secondary); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                            <i class="fas fa-chart-bar"></i> {t('reports')}
+                        </a>
+                        <a href="{url_for('ai_insights')}" style="padding: var(--space-2) var(--space-4); color: var(--dark-text-secondary); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                            <i class="fas fa-robot"></i> {t('ai_insights')}
+                        </a>
+                        <a href="{url_for('settings')}" style="padding: var(--space-2) var(--space-4); color: var(--dark-text-secondary); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                            <i class="fas fa-cog"></i> {t('settings')}
+                        </a>
+                    </div>
+                </nav>
+                
+                <!-- رسائل التنبيه -->
+                {get_flashed_messages_html()}
+                
+                <!-- محتوى لوحة التحكم -->
+                {content}
+            </div>
+        </body>
+        </html>
+        """
+    )
+
+@app.route('/create-invoice')
+@login_required
+def create_invoice():
+    """إنشاء فاتورة"""
+    lang = session.get('language', 'ar')
+    t = lambda key: multilang.get_text(key, lang)
+    
+    content = f"""
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{t('create_invoice')}</h2>
+            <p class="text-muted">{t('create_new_invoice_description')}</p>
+        </div>
+        <div class="p-6">
+            <div style="text-align: center; padding: var(--space-12) 0;">
+                <i class="fas fa-file-invoice-dollar text-4xl text-primary mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">{t('feature_coming_soon')}</h3>
+                <p class="text-muted mb-6">{t('invoice_creation_coming_soon')}</p>
+                <a href="{url_for('dashboard')}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                </a>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(
+        f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="{lang}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>InvoiceFlow Pro - {t('create_invoice')}</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+                {BASE_CSS}
+                
+                .card {{
+                    background: var(--dark-card);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    max-width: 800px;
+                    margin: 0 auto;
+                }}
+                
+                .card-header {{
+                    margin-bottom: var(--space-6);
+                    padding-bottom: var(--space-4);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }}
+                
+                .card-title {{
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: var(--dark-text);
+                }}
+                
+                .text-muted {{
+                    color: var(--dark-text-secondary);
+                }}
+                
+                .text-primary {{
+                    color: var(--primary-color);
+                }}
+                
+                .text-xl {{
+                    font-size: 1.25rem;
+                }}
+                
+                .font-bold {{
+                    font-weight: 700;
+                }}
+                
+                .mb-2 {{
+                    margin-bottom: var(--space-2);
+                }}
+                
+                .mb-4 {{
+                    margin-bottom: var(--space-4);
+                }}
+                
+                .mb-6 {{
+                    margin-bottom: var(--space-6);
+                }}
+                
+                .p-6 {{
+                    padding: var(--space-6);
+                }}
+                
+                .text-center {{
+                    text-align: center;
+                }}
+                
+                .btn {{
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: var(--space-2);
+                    padding: var(--space-3) var(--space-6);
+                    border-radius: var(--radius-lg);
+                    font-weight: 500;
+                    text-decoration: none;
+                    transition: all var(--transition-fast);
+                    border: none;
+                    cursor: pointer;
+                    font-size: 0.875rem;
+                }}
+                
+                .btn-primary {{
+                    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                    color: white;
+                    box-shadow: var(--shadow-primary);
+                }}
+                
+                .btn-primary:hover {{
+                    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+                    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+                }}
+            </style>
+        </head>
+        <body>
+            <div style="max-width: 1200px; margin: 0 auto; padding: var(--space-6);">
+                <!-- شريط التنقل -->
+                <nav style="margin-bottom: var(--space-6); padding: var(--space-4); background: var(--dark-card); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 1.25rem; font-weight: 700;">InvoiceFlow Pro</h1>
+                                <p style="font-size: 0.875rem; color: var(--dark-text-secondary);">{t('create_invoice')}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <a href="{url_for('dashboard')}" style="padding: var(--space-2) var(--space-4); background: rgba(37, 99, 235, 0.1); color: var(--primary-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                                <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- المحتوى -->
+                {content}
+            </div>
+        </body>
+        </html>
+        """
+    )
+
+# ================== الصفحات الأساسية ==================
+@app.route('/clients')
+@login_required
+def clients():
+    """صفحة العملاء"""
+    lang = session.get('language', 'ar')
+    t = lambda key: multilang.get_text(key, lang)
+    
+    content = f"""
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{t('clients')}</h2>
+            <p class="text-muted">{t('manage_your_clients')}</p>
+        </div>
+        <div class="p-6">
+            <div style="text-align: center; padding: var(--space-12) 0;">
+                <i class="fas fa-users text-4xl text-primary mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">{t('feature_coming_soon')}</h3>
+                <p class="text-muted mb-6">{t('clients_management_coming_soon')}</p>
+                <a href="{url_for('dashboard')}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                </a>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(
+        f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="{lang}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>InvoiceFlow Pro - {t('clients')}</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+                {BASE_CSS}
+                
+                .card {{
+                    background: var(--dark-card);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    max-width: 800px;
+                    margin: 0 auto;
+                }}
+                
+                .card-header {{
+                    margin-bottom: var(--space-6);
+                    padding-bottom: var(--space-4);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }}
+                
+                .card-title {{
+                    font-size: 1.5rem;
+                    font-weight: 700;
+                    color: var(--dark-text);
+                }}
+                
+                .btn {{
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: var(--space-2);
+                    padding: var(--space-3) var(--space-6);
+                    border-radius: var(--radius-lg);
+                    font-weight: 500;
+                    text-decoration: none;
+                    transition: all var(--transition-fast);
+                    border: none;
+                    cursor: pointer;
+                    font-size: 0.875rem;
+                }}
+                
+                .btn-primary {{
+                    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+                    color: white;
+                    box-shadow: var(--shadow-primary);
+                }}
+            </style>
+        </head>
+        <body>
+            <div style="max-width: 1200px; margin: 0 auto; padding: var(--space-6);">
+                <!-- شريط التنقل -->
+                <nav style="margin-bottom: var(--space-6); padding: var(--space-4); background: var(--dark-card); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 1.25rem; font-weight: 700;">InvoiceFlow Pro</h1>
+                                <p style="font-size: 0.875rem; color: var(--dark-text-secondary);">{t('clients')}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <a href="{url_for('dashboard')}" style="padding: var(--space-2) var(--space-4); background: rgba(37, 99, 235, 0.1); color: var(--primary-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                                <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- المحتوى -->
+                {content}
+            </div>
+        </body>
+        </html>
+        """
+    )
+
+@app.route('/products')
+@login_required
+def products():
+    """صفحة المنتجات"""
+    lang = session.get('language', 'ar')
+    t = lambda key: multilang.get_text(key, lang)
+    
+    content = f"""
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{t('products')}</h2>
+            <p class="text-muted">{t('manage_products_and_services')}</p>
+        </div>
+        <div class="p-6">
+            <div style="text-align: center; padding: var(--space-12) 0;">
+                <i class="fas fa-box text-4xl text-primary mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">{t('feature_coming_soon')}</h3>
+                <p class="text-muted mb-6">{t('products_management_coming_soon')}</p>
+                <a href="{url_for('dashboard')}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                </a>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(
+        f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="{lang}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>InvoiceFlow Pro - {t('products')}</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+                {BASE_CSS}
+                
+                .card {{
+                    background: var(--dark-card);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    max-width: 800px;
+                    margin: 0 auto;
+                }}
+                
+                .card-header {{
+                    margin-bottom: var(--space-6);
+                    padding-bottom: var(--space-4);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                }}
+            </style>
+        </head>
+        <body>
+            <div style="max-width: 1200px; margin: 0 auto; padding: var(--space-6);">
+                <!-- شريط التنقل -->
+                <nav style="margin-bottom: var(--space-6); padding: var(--space-4); background: var(--dark-card); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 1.25rem; font-weight: 700;">InvoiceFlow Pro</h1>
+                                <p style="font-size: 0.875rem; color: var(--dark-text-secondary);">{t('products')}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <a href="{url_for('dashboard')}" style="padding: var(--space-2) var(--space-4); background: rgba(37, 99, 235, 0.1); color: var(--primary-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                                <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- المحتوى -->
+                {content}
+            </div>
+        </body>
+        </html>
+        """
+    )
+
+@app.route('/reports')
+@login_required
+def reports():
+    """صفحة التقارير"""
+    lang = session.get('language', 'ar')
+    t = lambda key: multilang.get_text(key, lang)
+    
+    content = f"""
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{t('reports')}</h2>
+            <p class="text-muted">{t('analytics_and_insights')}</p>
+        </div>
+        <div class="p-6">
+            <div style="text-align: center; padding: var(--space-12) 0;">
+                <i class="fas fa-chart-bar text-4xl text-primary mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">{t('feature_coming_soon')}</h3>
+                <p class="text-muted mb-6">{t('reports_coming_soon')}</p>
+                <a href="{url_for('dashboard')}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                </a>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(
+        f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="{lang}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>InvoiceFlow Pro - {t('reports')}</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+                {BASE_CSS}
+                
+                .card {{
+                    background: var(--dark-card);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    max-width: 800px;
+                    margin: 0 auto;
+                }}
+            </style>
+        </head>
+        <body>
+            <div style="max-width: 1200px; margin: 0 auto; padding: var(--space-6);">
+                <!-- شريط التنقل -->
+                <nav style="margin-bottom: var(--space-6); padding: var(--space-4); background: var(--dark-card); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 1.25rem; font-weight: 700;">InvoiceFlow Pro</h1>
+                                <p style="font-size: 0.875rem; color: var(--dark-text-secondary);">{t('reports')}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <a href="{url_for('dashboard')}" style="padding: var(--space-2) var(--space-4); background: rgba(37, 99, 235, 0.1); color: var(--primary-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                                <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- المحتوى -->
+                {content}
+            </div>
+        </body>
+        </html>
+        """
+    )
+
+@app.route('/ai-insights')
+@login_required
+def ai_insights():
+    """صفحة الذكاء الاصطناعي"""
+    lang = session.get('language', 'ar')
+    t = lambda key: multilang.get_text(key, lang)
+    
+    content = f"""
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{t('ai_insights')}</h2>
+            <p class="text-muted">{t('smart_analytics_and_predictions')}</p>
+        </div>
+        <div class="p-6">
+            <div style="text-align: center; padding: var(--space-12) 0;">
+                <i class="fas fa-robot text-4xl text-primary mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">{t('feature_coming_soon')}</h3>
+                <p class="text-muted mb-6">{t('ai_insights_coming_soon')}</p>
+                <a href="{url_for('dashboard')}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                </a>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(
+        f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="{lang}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>InvoiceFlow Pro - {t('ai_insights')}</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+                {BASE_CSS}
+                
+                .card {{
+                    background: var(--dark-card);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    max-width: 800px;
+                    margin: 0 auto;
+                }}
+            </style>
+        </head>
+        <body>
+            <div style="max-width: 1200px; margin: 0 auto; padding: var(--space-6);">
+                <!-- شريط التنقل -->
+                <nav style="margin-bottom: var(--space-6); padding: var(--space-4); background: var(--dark-card); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 1.25rem; font-weight: 700;">InvoiceFlow Pro</h1>
+                                <p style="font-size: 0.875rem; color: var(--dark-text-secondary);">{t('ai_insights')}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <a href="{url_for('dashboard')}" style="padding: var(--space-2) var(--space-4); background: rgba(37, 99, 235, 0.1); color: var(--primary-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                                <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- المحتوى -->
+                {content}
+            </div>
+        </body>
+        </html>
+        """
+    )
+
+@app.route('/settings')
+@login_required
+def settings():
+    """صفحة الإعدادات"""
+    lang = session.get('language', 'ar')
+    t = lambda key: multilang.get_text(key, lang)
+    
+    content = f"""
+    <div class="card">
+        <div class="card-header">
+            <h2 class="card-title">{t('settings')}</h2>
+            <p class="text-muted">{t('configure_your_system')}</p>
+        </div>
+        <div class="p-6">
+            <div style="text-align: center; padding: var(--space-12) 0;">
+                <i class="fas fa-cog text-4xl text-primary mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">{t('feature_coming_soon')}</h3>
+                <p class="text-muted mb-6">{t('settings_coming_soon')}</p>
+                <a href="{url_for('dashboard')}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                </a>
+            </div>
+        </div>
+    </div>
+    """
+    
+    return render_template_string(
+        f"""
+        <!DOCTYPE html>
+        <html dir="rtl" lang="{lang}">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>InvoiceFlow Pro - {t('settings')}</title>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+            <style>
+                {BASE_CSS}
+                
+                .card {{
+                    background: var(--dark-card);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    max-width: 800px;
+                    margin: 0 auto;
+                }}
+            </style>
+        </head>
+        <body>
+            <div style="max-width: 1200px; margin: 0 auto; padding: var(--space-6);">
+                <!-- شريط التنقل -->
+                <nav style="margin-bottom: var(--space-6); padding: var(--space-4); background: var(--dark-card); border-radius: var(--radius-xl); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-color), var(--accent-color)); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; color: white;">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <div>
+                                <h1 style="font-size: 1.25rem; font-weight: 700;">InvoiceFlow Pro</h1>
+                                <p style="font-size: 0.875rem; color: var(--dark-text-secondary);">{t('settings')}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: var(--space-4);">
+                            <a href="{url_for('dashboard')}" style="padding: var(--space-2) var(--space-4); background: rgba(37, 99, 235, 0.1); color: var(--primary-color); border-radius: var(--radius-lg); text-decoration: none; font-size: 0.875rem;">
+                                <i class="fas fa-arrow-right"></i> {t('back_to_dashboard')}
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- المحتوى -->
+                {content}
+            </div>
+        </body>
+        </html>
+        """
+    )
+
+@app.route('/logout')
+@login_required
+def logout():
+    """تسجيل الخروج"""
+    session.clear()
+    flash('تم تسجيل الخروج بنجاح', 'success')
+    return redirect(url_for('login'))
 
 # ================== API للغة ==================
 @app.route('/api/set-language', methods=['POST'])
@@ -6802,324 +4928,6 @@ def mark_all_notifications_as_read():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 
-# ================== لوحة التحكم المحسنة ==================
-@app.route('/dashboard')
-@login_required
-def dashboard():
-    """لوحة التحكم المحسنة"""
-    user_id = session['user_id']
-    lang = session.get('language', 'ar')
-    t = lambda key: multilang.get_text(key, lang)
-    
-    # إحصائيات المستخدم
-    stats = {
-        'total_invoices': db.execute_query(
-            "SELECT COUNT(*) FROM invoices WHERE user_id = ?", 
-            (user_id,), fetchone=True
-        )['COUNT(*)'] or 0,
-        
-        'total_revenue': db.execute_query(
-            "SELECT COALESCE(SUM(total_amount), 0) FROM invoices WHERE user_id = ? AND status = 'paid'", 
-            (user_id,), fetchone=True
-        )['COALESCE(SUM(total_amount), 0)'] or 0,
-        
-        'pending_invoices': db.execute_query(
-            "SELECT COUNT(*) FROM invoices WHERE user_id = ? AND status = 'pending'", 
-            (user_id,), fetchone=True
-        )['COUNT(*)'] or 0,
-        
-        'total_clients': db.execute_query(
-            "SELECT COUNT(*) FROM clients WHERE user_id = ?", 
-            (user_id,), fetchone=True
-        )['COUNT(*)'] or 0,
-        
-        'overdue_invoices': db.execute_query(
-            "SELECT COUNT(*) FROM invoices WHERE user_id = ? AND status = 'pending' AND due_date < DATE('now')",
-            (user_id,), fetchone=True
-        )['COUNT(*)'] or 0,
-        
-        'monthly_revenue': db.execute_query(
-            "SELECT COALESCE(SUM(total_amount), 0) FROM invoices WHERE user_id = ? AND status = 'paid' AND strftime('%Y-%m', created_at) = strftime('%Y-%m', 'now')",
-            (user_id,), fetchone=True
-        )['COALESCE(SUM(total_amount), 0)'] or 0
-    }
-    
-    # الفواتير الأخيرة
-    recent_invoices = db.execute_query(
-        """SELECT i.*, c.name as client_name 
-           FROM invoices i 
-           LEFT JOIN clients c ON i.client_id = c.id 
-           WHERE i.user_id = ? 
-           ORDER BY i.created_at DESC 
-           LIMIT 5""",
-        (user_id,), fetchall=True
-    )
-    
-    # الإشعارات الحديثة
-    recent_notifications = NotificationSystem.get_user_notifications(user_id, limit=3)
-    
-    # الأنشطة الحديثة
-    recent_activities = db.execute_query(
-        """SELECT * FROM activities 
-           WHERE user_id = ? 
-           ORDER BY created_at DESC 
-           LIMIT 5""",
-        (user_id,), fetchall=True
-    )
-    
-    # العملاء الجدد
-    new_clients = db.execute_query(
-        """SELECT * FROM clients 
-           WHERE user_id = ? 
-           ORDER BY created_at DESC 
-           LIMIT 3""",
-        (user_id,), fetchall=True
-    )
-    
-    # تحضير المحتوى
-    content = f"""
-    <div class="grid grid-4 gap-6 mb-6">
-        <!-- البطاقات الإحصائية -->
-        <div class="card stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-file-invoice-dollar"></i>
-            </div>
-            <div class="stat-number">{stats['total_invoices']}</div>
-            <p class="stat-label">{t('total_invoices')}</p>
-            <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                12% {t('from_last_month')}
-            </div>
-        </div>
-        
-        <div class="card stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-dollar-sign"></i>
-            </div>
-            <div class="stat-number">${stats['total_revenue']:,.0f}</div>
-            <p class="stat-label">{t('total_revenue')}</p>
-            <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                18% {t('from_last_month')}
-            </div>
-        </div>
-        
-        <div class="card stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-number">{stats['pending_invoices']}</div>
-            <p class="stat-label">{t('pending_invoices')}</p>
-            <div class="stat-change negative">
-                <i class="fas fa-arrow-down"></i>
-                5% {t('from_last_week')}
-            </div>
-        </div>
-        
-        <div class="card stat-card">
-            <div class="stat-icon">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="stat-number">{stats['total_clients']}</div>
-            <p class="stat-label">{t('total_clients')}</p>
-            <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                8% {t('new_clients')}
-            </div>
-        </div>
-    </div>
-    
-    <div class="grid grid-2 gap-6 mb-6">
-        <!-- الإجراءات السريعة -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">{t('quick_actions')}</h3>
-            </div>
-            <div class="grid grid-2 gap-4">
-                <a href="{{ url_for('create_invoice') }}" class="btn btn-primary">
-                    <i class="fas fa-plus-circle"></i>
-                    {t('create_invoice')}
-                </a>
-                
-                <a href="{{ url_for('clients') }}" class="btn btn-outline">
-                    <i class="fas fa-user-plus"></i>
-                    {t('add_client')}
-                </a>
-                
-                <a href="{{ url_for('products') }}" class="btn btn-outline">
-                    <i class="fas fa-box"></i>
-                    {t('add_product')}
-                </a>
-                
-                <a href="{{ url_for('reports') }}" class="btn btn-outline">
-                    <i class="fas fa-chart-bar"></i>
-                    {t('view_reports')}
-                </a>
-            </div>
-        </div>
-        
-        <!-- نظرة سريعة -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">{t('quick_overview')}</h3>
-            </div>
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-muted">{t('invoices_this_month')}:</span>
-                    <span class="font-bold">{stats['monthly_revenue'] / 1000 if stats['monthly_revenue'] > 0 else 0}K</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-muted">{t('revenue_this_month')}:</span>
-                    <span class="font-bold text-success">${stats['monthly_revenue']:,.0f}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-muted">{t('new_clients')}:</span>
-                    <span class="font-bold">{len(new_clients)}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-muted">{t('collection_rate')}:</span>
-                    <span class="font-bold text-warning">{
-                        f"{((stats['total_invoices'] - stats['pending_invoices']) / stats['total_invoices'] * 100):.1f}%" 
-                        if stats['total_invoices'] > 0 else "0%"
-                    }</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- الفواتير الأخيرة -->
-    <div class="card mb-6">
-        <div class="card-header">
-            <h3 class="card-title">{t('recent_invoices')}</h3>
-            <a href="{{ url_for('invoices') }}" class="btn btn-sm btn-outline">
-                {t('view_all')} <i class="fas fa-arrow-left"></i>
-            </a>
-        </div>
-        
-        <div class="table-container">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>{t('invoice_number')}</th>
-                        <th>{t('client')}</th>
-                        <th>{t('date')}</th>
-                        <th>{t('amount')}</th>
-                        <th>{t('status')}</th>
-                        <th>{t('actions')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {"".join([f'''
-                    <tr>
-                        <td class="font-medium">{inv['invoice_number']}</td>
-                        <td>{inv['client_name'] or t('no_client')}</td>
-                        <td>{inv['issue_date']}</td>
-                        <td class="font-bold">${inv['total_amount']:,.2f}</td>
-                        <td>
-                            <span class="badge {{
-                                'badge-success' if inv['status'] == 'paid' else 
-                                'badge-warning' if inv['status'] == 'pending' else 
-                                'badge-error' if inv['status'] == 'overdue' else 
-                                'badge-info'
-                            }}">
-                                {{
-                                    t('paid') if inv['status'] == 'paid' else 
-                                    t('pending') if inv['status'] == 'pending' else 
-                                    t('overdue') if inv['status'] == 'overdue' else 
-                                    t('cancelled')
-                                }}
-                            </span>
-                        </td>
-                        <td>
-                            <div class="flex gap-2">
-                                <a href="/api/invoice/download/{inv['id']}" class="icon-button icon-button-primary" title="{t('download')}">
-                                    <i class="fas fa-download"></i>
-                                </a>
-                                <a href="/api/invoice/preview/{inv['id']}" class="icon-button" title="{t('preview')}">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    ''' for inv in recent_invoices]) if recent_invoices else f'''
-                    <tr>
-                        <td colspan="6" class="text-center p-6 text-muted">
-                            <i class="fas fa-file-invoice-dollar text-3xl mb-3"></i>
-                            <p>{t('no_invoices')}</p>
-                            <a href="{{ url_for('create_invoice') }}" class="btn btn-primary mt-3">
-                                {t('create_first_invoice')}
-                            </a>
-                        </td>
-                    </tr>
-                    '''}
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    <!-- الأنشطة والإشعارات -->
-    <div class="grid grid-2 gap-6">
-        <!-- الأنشطة الحديثة -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">{t('recent_activity')}</h3>
-            </div>
-            <div class="space-y-3">
-                {"".join([f'''
-                <div class="flex items-center gap-3 p-3 bg-dark-card rounded-lg">
-                    <div class="avatar bg-gradient-primary">
-                        <i class="fas fa-{{
-                            'user' if act['action'] == 'login' else
-                            'file-invoice' if 'invoice' in act['action'] else
-                            'users' if 'client' in act['action'] else
-                            'box' if 'product' in act['action'] else
-                            'cog'
-                        }}"></i>
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-medium">{act['description']}</p>
-                        <p class="text-xs text-muted">{get_time_ago(act['created_at'])}</p>
-                    </div>
-                </div>
-                ''' for act in recent_activities]) if recent_activities else f'''
-                <div class="text-center p-6 text-muted">
-                    <i class="fas fa-history text-3xl mb-3"></i>
-                    <p>{t('no_recent_activity')}</p>
-                </div>
-                '''}
-            </div>
-        </div>
-        
-        <!-- الإشعارات الحديثة -->
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">{t('recent_notifications')}</h3>
-                <a href="#" onclick="markAllNotificationsAsRead()" class="btn btn-sm btn-outline">
-                    {t('mark_all_as_read')}
-                </a>
-            </div>
-            <div class="space-y-3">
-                {generate_notifications_list(recent_notifications)}
-            </div>
-        </div>
-    </div>
-    """
-    
-    current_time = datetime.now().strftime('%I:%M %p')
-    return render_template_string(
-        get_dashboard_template(
-            t('dashboard'),
-            t('welcome_to_dashboard'),
-            content,
-            lang
-        ),
-        css=BASE_CSS,
-        generate_notifications_list=generate_notifications_list,
-        get_time_ago=get_time_ago,
-        datetime=datetime,
-        t=t
-    )
-
 # ================== تشغيل التطبيق ==================
 if __name__ == '__main__':
     try:
@@ -7134,20 +4942,16 @@ if __name__ == '__main__':
         print("🔹 /login - تسجيل الدخول")
         print("🔹 /register - إنشاء حساب")
         print("🔹 /dashboard - لوحة التحكم")
-        print("🔹 /invoices - إدارة الفواتير")
-        print("🔹 /invoices/create - إنشاء فاتورة")
+        print("🔹 /create-invoice - إنشاء فاتورة")
         print("🔹 /clients - إدارة العملاء")
         print("🔹 /products - المنتجات والخدمات")
         print("🔹 /reports - التقارير والإحصائيات")
-        print("🔹 /ai - الذكاء الاصطناعي")
-        print("🔹 /profile - الملف الشخصي")
+        print("🔹 /ai-insights - الذكاء الاصطناعي")
         print("🔹 /settings - الإعدادات")
         print("🔹 /logout - تسجيل الخروج")
         print("\n🔧 واجهات API:")
         print("🔹 /api/set-language - تحديث اللغة")
         print("🔹 /api/notifications/* - إدارة الإشعارات")
-        print("🔹 /api/invoice/generate - إنشاء فاتورة")
-        print("🔹 /api/ai/analyze - تحليل ذكاء اصطناعي")
         print("\n👑 فريق العمل المحترف - النسخة الاحترافية")
         print("="*80)
         
@@ -7158,5 +4962,3 @@ if __name__ == '__main__':
         print(f"❌ خطأ في التشغيل: {e}")
         import traceback
         traceback.print_exc()
-        print("🔄 إعادة المحاولة خلال 5 ثوان...")
-        time.sleep(5)
